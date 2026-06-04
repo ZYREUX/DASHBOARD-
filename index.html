@@ -483,9 +483,9 @@ function renderDashboard() {
   const targetEndoCol = keys[16]; // Target Endo June 2026
   const targetNolaCol = keys[17]; // Target NOLA June 2026
   const targetRelCol = keys[18]; // Target Releases June 2026 (@70%)
-  const actualEndoCol = keys[20]; // Actual Endo (Col T)
-  const actualNolaCol = keys[21]; // Actual NOLA (Col U)
-  const actualRelCol = keys[22]; // Actual Releases (Col V)
+  const actualEndoCol = keys[19]; // Actual Endo (Col T)
+  const actualNolaCol = keys[20]; // Actual NOLA (Col U)
+  const actualRelCol = keys[21]; // Actual Releases (Col V)
   const varEndoCol = keys[22]; // VAR ENDO
   const varNolaCol = keys[23]; // VAR NOLA
   const varRelCol = keys[24]; // VAR RELEASES
@@ -504,7 +504,21 @@ function renderDashboard() {
   const totalActualEndo = filtered.reduce((s, r) => s + getNum(r[actualEndoCol]), 0);
   const totalTargetEndo = filtered.reduce((s, r) => s + getNum(r[targetEndoCol]), 0);
   const totalActualRel = filtered.reduce((s, r) => s + getNum(r[actualRelCol]), 0);
-  const totalTargetRel = filtered.reduce((s, r) => s + getNum(r[targetRelCol]), 0);
+  // Compute target releases per unit conversion rate
+  const conversionRates = {'BN ROPALI': 0.70, '3RD PARTY': 0.60, 'BN DA': 0.70, 'REPO': 0.65};
+  let totalTargetRel;
+  if (currentUnit === 'ALL') {
+    totalTargetRel = filtered.reduce((s, r) => {
+      const rate = conversionRates[r._unit] || 0.70;
+      return s + getNum(r[targetEndoCol]) * getPct(r[targetNolaCol]) * rate;
+    }, 0);
+  } else {
+    const rate = conversionRates[currentUnit] || 0.70;
+    totalTargetRel = filtered.reduce((s, r) => s + getNum(r[targetEndoCol]), 0) 
+                   * (filtered.reduce((s, r) => s + getPct(r[targetNolaCol]), 0) / (filtered.length || 1))
+                   * rate;
+  }
+  totalTargetRel = Math.round(totalTargetRel);
   const totalActualNola = filtered.reduce((s, r) => s + getPct(r[actualNolaCol]), 0);
   const totalTargetNola = filtered.reduce((s, r) => s + getPct(r[targetNolaCol]), 0);
   const avgActualNola = filtered.length ? totalActualNola / filtered.length : 0;
