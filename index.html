@@ -498,7 +498,7 @@ function renderDashboard() {
   console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol});
 
   // Separate grand total rows from detail rows
-  const isGrandTotal = r => (r[regionCol] || '').trim().toLowerCase().includes('grand') || (r[unitCol] || '').trim().toLowerCase().includes('grand');
+  const isGrandTotal = r => Object.values(r).some(v => String(v || '').trim().toLowerCase().includes('grand'));
   
   let unitFiltered = allData.filter(r => {
     if (currentUnit === 'ALL') return true;
