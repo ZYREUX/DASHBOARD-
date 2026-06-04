@@ -309,6 +309,11 @@
     <div class="kpi-sub">Target: <span id="kpi-nola-target">—</span></div>
     <div class="kpi-var" id="kpi-nola-var">—</div>
   </div>
+  <div class="kpi-card nola" style="border-top-color:#ffd166">
+    <div class="kpi-label">VAR NOLA%</div>
+    <div class="kpi-value" id="kpi-nola-var-card" style="color:#ffd166">—</div>
+    <div class="kpi-sub">Actual vs Target NOLA</div>
+  </div>
   <div class="kpi-card releases">
     <div class="kpi-label">Total Releases (Actual)</div>
     <div class="kpi-value" id="kpi-releases">—</div>
@@ -359,6 +364,7 @@
         <th>Var Endo</th>
         <th>Target NOLA%</th>
         <th>Actual NOLA%</th>
+        <th>Var NOLA%</th>
         <th>Target Releases</th>
         <th>Actual Releases</th>
         <th>Var Releases</th>
@@ -480,14 +486,16 @@ function renderDashboard() {
   const actualEndoCol = keys[20]; // Actual Endo (Col T)
   const actualNolaCol = keys[21]; // Actual NOLA (Col U)
   const actualRelCol = keys[22]; // Actual Releases (Col V)
-  const varEndoCol = keys[23]; // VAR ENDO
-  const varNolaCol = keys[24]; // VAR NOLA
-  const varRelCol = keys[25]; // VAR RELEASES
+  const varEndoCol = keys[22]; // VAR ENDO
+  const varNolaCol = keys[23]; // VAR NOLA
+  const varRelCol = keys[24]; // VAR RELEASES
   
   console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol});
 
-  // Filter data
+  // Filter data - skip grand total rows (empty region)
   let filtered = allData.filter(r => {
+    const region = (r[keys[1]] || '').trim();
+    if (!region) return false; // skip total rows
     if (currentUnit === 'ALL') return true;
     return (r._unit || '').toUpperCase() === currentUnit.toUpperCase();
   });
@@ -526,6 +534,11 @@ function renderDashboard() {
   endoVarEl.className = 'kpi-var ' + (varEndo >= 0 ? 'pos' : 'neg');
 
   document.getElementById('kpi-nola').textContent = (avgActualNola * 100).toFixed(1) + '%';
+  const totalVarNola = filtered.reduce((s, r) => s + getPct(r[varNolaCol] || '0'), 0);
+  const avgVarNola = filtered.length ? totalVarNola / filtered.length : 0;
+  const nolaVarCardEl = document.getElementById('kpi-nola-var-card');
+  nolaVarCardEl.textContent = (avgVarNola >= 0 ? '+' : '') + (avgVarNola * 100).toFixed(1) + '%';
+  nolaVarCardEl.style.color = avgVarNola >= 0 ? '#06d6a0' : '#ff6b6b';
   document.getElementById('kpi-nola-target').textContent = (avgTargetNola * 100).toFixed(1) + '%';
   const nolaVar = avgActualNola - avgTargetNola;
   const nolaVarEl = document.getElementById('kpi-nola-var');
@@ -560,7 +573,7 @@ function renderTrendChart(data, q12025, q12026, targetJune, actualJune) {
   charts.trend = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Q1 2025', 'Q1 2026', 'June Target', 'June Actual'],
+      labels: ['Q4 2025', 'Q1 2026', 'June Target', 'June Actual'],
       datasets: [{
         label: 'Endo',
         data: [q25, q26, tJune, aJune],
@@ -645,6 +658,7 @@ function renderTable(data, unitCol, regionCol, targetEndoCol, actualEndoCol, var
     const varR = varRelCol ? getNum(r[varRelCol]) : (getNum(r[actualRelCol]) - getNum(r[targetRelCol]));
     const tNola = (getPct(r[targetNolaCol]) * 100).toFixed(0) + '%';
     const aNola = (getPct(r[actualNolaCol]) * 100).toFixed(0) + '%';
+    const varNola = ((getPct(r[actualNolaCol]) - getPct(r[targetNolaCol])) * 100).toFixed(1);
     return `<tr>
       <td>${r[unitCol] || ''}</td>
       <td>${r[regionCol] || ''}</td>
@@ -653,6 +667,7 @@ function renderTable(data, unitCol, regionCol, targetEndoCol, actualEndoCol, var
       <td><span class="tag ${varE >= 0 ? 'pos' : 'neg'}">${varE >= 0 ? '+' : ''}${varE}</span></td>
       <td>${tNola}</td>
       <td>${aNola}</td>
+      <td><span class="tag ${parseFloat(varNola) >= 0 ? 'pos' : 'neg'}">${parseFloat(varNola) >= 0 ? '+' : ''}${varNola}%</span></td>
       <td>${getNum(r[targetRelCol]).toLocaleString()}</td>
       <td>${getNum(r[actualRelCol]).toLocaleString()}</td>
       <td><span class="tag ${varR >= 0 ? 'pos' : 'neg'}">${varR >= 0 ? '+' : ''}${varR}</span></td>
