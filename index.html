@@ -476,53 +476,48 @@ function renderDashboard() {
     return null;
   }
 
-  const unitCol = keys[0]; // Unit
-  const regionCol = keys[1]; // Region
-  const q12025EndoCol = keys[2]; // Total Endo Q4 2025
-  const q12026EndoCol = keys[7]; // Total Endo Q1 2026
-  const targetEndoCol = keys[16]; // Target Endo June 2026
-  const targetNolaCol = keys[17]; // Target NOLA June 2026
-  const targetRelCol = keys[18]; // Target Releases June 2026 (@70%)
-  const actualEndoCol = keys[19]; // Actual Endo (Col T)
-  const actualNolaCol = keys[20]; // Actual NOLA (Col U)
-  const actualRelCol = keys[21]; // Actual Releases (Col V)
-  const varEndoCol = keys[22]; // VAR ENDO
-  const varNolaCol = keys[23]; // VAR NOLA
-  const varRelCol = keys[24]; // VAR RELEASES
+  // Match by exact name (handles line breaks in headers)
+  function findKey(partial) {
+    return keys.find(k => k.replace(/\n/g,' ').toLowerCase().includes(partial.toLowerCase())) || null;
+  }
+
+  const unitCol = 'Unit';
+  const regionCol = 'Region';
+  const q12025EndoCol = findKey('Total Endo') && keys[2];
+  const q12026EndoCol = keys[7];
+  const targetEndoCol = findKey('Target Endo');
+  const targetNolaCol = findKey('Target NOLA');
+  const targetRelCol = findKey('Target Releases');
+  const actualEndoCol = keys.find(k => k.replace(/\n/g,'').trim() === 'Actual Endo') || findKey('Actual Endo');
+  const actualNolaCol = findKey('Actual NOLA');
+  const actualRelCol = findKey('Actual Releases');
+  const varEndoCol = findKey('VAR ENDO');
+  const varNolaCol = findKey('VAR NOLA');
+  const varRelCol = findKey('VAR RELEASES');
   
   console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol});
 
-  // Filter data - skip grand total rows (empty region)
-  let filtered = allData.filter(r => {
-    const region = (r[keys[1]] || '').trim();
-    if (!region) return false; // skip total rows
+  // Separate grand total rows from detail rows
+  const isGrandTotal = r => (r[regionCol] || '').trim().toLowerCase().includes('grand') || (r[unitCol] || '').trim().toLowerCase().includes('grand');
+  
+  let unitFiltered = allData.filter(r => {
     if (currentUnit === 'ALL') return true;
     return (r._unit || '').toUpperCase() === currentUnit.toUpperCase();
   });
 
-  // Totals
-  const totalActualEndo = filtered.reduce((s, r) => s + getNum(r[actualEndoCol]), 0);
-  const totalTargetEndo = filtered.reduce((s, r) => s + getNum(r[targetEndoCol]), 0);
-  const totalActualRel = filtered.reduce((s, r) => s + getNum(r[actualRelCol]), 0);
-  // Compute target releases per unit conversion rate
-  const conversionRates = {'BN ROPALI': 0.70, '3RD PARTY': 0.60, 'BN DA': 0.70, 'REPO': 0.65};
-  let totalTargetRel;
-  if (currentUnit === 'ALL') {
-    totalTargetRel = filtered.reduce((s, r) => {
-      const rate = conversionRates[r._unit] || 0.70;
-      return s + getNum(r[targetEndoCol]) * getPct(r[targetNolaCol]) * rate;
-    }, 0);
-  } else {
-    const rate = conversionRates[currentUnit] || 0.70;
-    totalTargetRel = filtered.reduce((s, r) => s + getNum(r[targetEndoCol]), 0) 
-                   * (filtered.reduce((s, r) => s + getPct(r[targetNolaCol]), 0) / (filtered.length || 1))
-                   * rate;
-  }
-  totalTargetRel = Math.round(totalTargetRel);
-  const totalActualNola = filtered.reduce((s, r) => s + getPct(r[actualNolaCol]), 0);
-  const totalTargetNola = filtered.reduce((s, r) => s + getPct(r[targetNolaCol]), 0);
-  const avgActualNola = filtered.length ? totalActualNola / filtered.length : 0;
-  const avgTargetNola = filtered.length ? totalTargetNola / filtered.length : 0;
+  // Grand total rows - use for KPI cards
+  let totalRows = unitFiltered.filter(r => isGrandTotal(r));
+  
+  // Detail rows only - use for table and charts
+  let filtered = unitFiltered.filter(r => !isGrandTotal(r) && (r[regionCol] || '').trim() !== '');
+
+  // Get totals from Grand Total rows
+  const totalActualEndo = totalRows.reduce((s, r) => s + getNum(r[actualEndoCol]), 0);
+  const totalTargetEndo = totalRows.reduce((s, r) => s + getNum(r[targetEndoCol]), 0);
+  const totalActualRel = totalRows.reduce((s, r) => s + getNum(r[actualRelCol]), 0);
+  const totalTargetRel = totalRows.reduce((s, r) => s + getNum(r[targetRelCol]), 0);
+  const avgActualNola = totalRows.length ? totalRows.reduce((s, r) => s + getPct(r[actualNolaCol]), 0) / totalRows.length : 0;
+  const avgTargetNola = totalRows.length ? totalRows.reduce((s, r) => s + getPct(r[targetNolaCol]), 0) / totalRows.length : 0;
   const varEndo = totalActualEndo - totalTargetEndo;
   const varRel = totalActualRel - totalTargetRel;
 
@@ -571,7 +566,7 @@ function renderDashboard() {
   renderTrendChart(filtered, q12025EndoCol, q12026EndoCol, targetEndoCol, actualEndoCol);
   renderNolaChart(avgActualNola, avgTargetNola);
   renderBarChart('endoBarChart', filtered, regionCol, targetEndoCol, actualEndoCol, 'Endo');
-  renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases');
+  renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases', true);
   renderTable(filtered, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol);
 }
 
@@ -635,7 +630,7 @@ function renderNolaChart(actual, target) {
   });
 }
 
-function renderBarChart(canvasId, data, regionCol, targetCol, actualCol, label) {
+function renderBarChart(canvasId, data, regionCol, targetCol, actualCol, label, useAbsolute=false) {
   const ctx = document.getElementById(canvasId).getContext('2d');
   if (charts[canvasId]) charts[canvasId].destroy();
 
