@@ -464,24 +464,27 @@ function renderDashboard() {
 
   function col(...keywords) {
     for (const kw of keywords) {
-      const found = keys.find(k => k.toLowerCase().replace(/\s+/g,' ').includes(kw.toLowerCase()));
+      const found = keys.find(k => k.toLowerCase().replace(/[\s\n]+/g,' ').trim().includes(kw.toLowerCase()));
       if (found) return found;
     }
     return null;
   }
 
-  const unitCol = col('unit') || keys[0];
-  const regionCol = col('region') || keys[1];
-  const targetEndoCol = col('target endo', 'target\nendo', 'targetendo');
-  const actualEndoCol = col('actual endo', 'actual\nendo', 'actualendo');
-  const targetNolaCol = col('target nola', 'target\nnola', 'targetnola');
-  const actualNolaCol = col('actual nola', 'actual\nnola', 'actualnola');
-  const targetRelCol = col('target release', 'target\nrelease', 'targetrelease');
-  const actualRelCol = col('actual release', 'actual\nrelease', 'actualrelease');
-  const varEndoCol = col('var endo', 'endo var', 'var\nendo');
-  const varRelCol = col('var release', 'release var', 'var\nrelease');
-  const q12025EndoCol = col('q4 2025', 'ave. q4', 'total endo');
-  const q12026EndoCol = col('q1 2026', 'ave. q1');
+  const unitCol = keys[0]; // Unit
+  const regionCol = keys[1]; // Region
+  const q12025EndoCol = keys[2]; // Total Endo Q4 2025
+  const q12026EndoCol = keys[7]; // Total Endo Q1 2026
+  const targetEndoCol = keys[16]; // Target Endo June 2026
+  const targetNolaCol = keys[17]; // Target NOLA June 2026
+  const targetRelCol = keys[18]; // Target Releases June 2026
+  const actualEndoCol = keys[19]; // Actual Endo
+  const actualNolaCol = keys[20]; // Actual NOLA
+  const actualRelCol = keys[21]; // Actual Releases
+  const varEndoCol = keys[22]; // VAR ENDO
+  const varNolaCol = keys[23]; // VAR NOLA
+  const varRelCol = keys[24]; // VAR RELEASES
+  
+  console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol});
 
   // Filter data
   let filtered = allData.filter(r => {
