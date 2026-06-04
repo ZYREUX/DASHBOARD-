@@ -286,9 +286,11 @@
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
     <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
     <div class="unit-toggle">
-      <button class="unit-btn active" onclick="setUnit('ALL')">All</button>
-      <button class="unit-btn" onclick="setUnit('BN ROPALI')">BN Ropali</button>
-      <button class="unit-btn" onclick="setUnit('3RD PARTY')">3rd Party</button>
+      <button class="unit-btn active" data-unit="ALL" onclick="setUnit('ALL')">All</button>
+      <button class="unit-btn" data-unit="BN ROPALI" onclick="setUnit('BN ROPALI')">BN Ropali</button>
+      <button class="unit-btn" data-unit="3RD PARTY" onclick="setUnit('3RD PARTY')">3rd Party</button>
+      <button class="unit-btn" data-unit="BN DA" onclick="setUnit('BN DA')">BN DA</button>
+      <button class="unit-btn" data-unit="REPO" onclick="setUnit('REPO')">Repo</button>
     </div>
   </div>
 </div>
@@ -369,9 +371,14 @@
 </div>
 
 <script>
-const PROXY = 'https://api.allorigins.win/raw?url=';
-const TARGET_JUNE_CSV = PROXY + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vSpw52uF92DZ0PPv5Hfu3m6_xAFxWxzTDXGVCQ61jVfbir3bTZgi7ssRAl2_-iCrjLiFGDWOCpVxMQ8/pub?gid=2141367811&single=true&output=csv');
-const RELEASES_CSV = PROXY + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vSpw52uF92DZ0PPv5Hfu3m6_xAFxWxzTDXGVCQ61jVfbir3bTZgi7ssRAl2_-iCrjLiFGDWOCpVxMQ8/pub?gid=698256967&single=true&output=csv');
+const BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSpw52uF92DZ0PPv5Hfu3m6_xAFxWxzTDXGVCQ61jVfbir3bTZgi7ssRAl2_-iCrjLiFGDWOCpVxMQ8/pub?single=true&output=csv';
+const UNIT_CSVS = {
+  'BN ROPALI': BASE + '&gid=1038665023',
+  '3RD PARTY': BASE + '&gid=1672822117',
+  'BN DA':     BASE + '&gid=295129063',
+  'REPO':      BASE + '&gid=1754896665',
+};
+const RELEASES_CSV = BASE + '&gid=698256967';
 
 let allData = [];
 let releasesData = [];
@@ -393,12 +400,20 @@ function parseCSV(url) {
 async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
-    const [target, releases] = await Promise.all([
-      parseCSV(TARGET_JUNE_CSV),
+    // Load all unit CSVs + releases in parallel
+    const unitKeys = Object.keys(UNIT_CSVS);
+    const results = await Promise.all([
+      ...unitKeys.map(u => parseCSV(UNIT_CSVS[u])),
       parseCSV(RELEASES_CSV)
     ]);
-    allData = target;
-    releasesData = releases;
+    // Tag each row with its unit
+    allData = [];
+    unitKeys.forEach((unit, i) => {
+      results[i].forEach(row => {
+        allData.push({...row, _unit: unit});
+      });
+    });
+    releasesData = results[unitKeys.length];
     document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
     renderDashboard();
   } catch(e) {
@@ -433,7 +448,8 @@ function findCol(row, keywords) {
 function setUnit(unit) {
   currentUnit = unit;
   document.querySelectorAll('.unit-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent.trim() === (unit === 'ALL' ? 'All' : unit === 'BN ROPALI' ? 'BN Ropali' : '3rd Party'));
+    const map = {'ALL':'All','BN ROPALI':'BN Ropali','3RD PARTY':'3rd Party','BN DA':'BN DA','REPO':'Repo'};
+    b.classList.toggle('active', b.dataset.unit === unit);
   });
   renderDashboard();
 }
@@ -469,9 +485,8 @@ function renderDashboard() {
 
   // Filter data
   let filtered = allData.filter(r => {
-    const u = (r[unitCol] || '').trim();
-    if (currentUnit === 'ALL') return u !== '';
-    return u.toUpperCase() === currentUnit.toUpperCase();
+    if (currentUnit === 'ALL') return true;
+    return (r._unit || '').toUpperCase() === currentUnit.toUpperCase();
   });
 
   // Totals
