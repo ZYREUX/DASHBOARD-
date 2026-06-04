@@ -492,10 +492,10 @@ function renderDashboard() {
   const actualNolaCol = findKey('Actual NOLA');
   const actualRelCol = findKey('Actual Releases');
   const varEndoCol = findKey('VAR ENDO');
-  const varNolaCol = findKey('VAR NOLA');
+  const varNolaCol = keys[23]; // VAR NOLA - direct index
   const varRelCol = findKey('VAR RELEASES');
   
-  console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol});
+  console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varNolaCol});
 
   // Separate grand total rows from detail rows
   const isGrandTotal = r => Object.values(r).some(v => String(v || '').trim().toLowerCase().includes('grand'));
