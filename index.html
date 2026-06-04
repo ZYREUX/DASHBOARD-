@@ -543,8 +543,8 @@ function renderDashboard() {
   endoVarEl.className = 'kpi-var ' + (varEndo >= 0 ? 'pos' : 'neg');
 
   document.getElementById('kpi-nola').textContent = (avgActualNola * 100).toFixed(1) + '%';
-  const totalVarNola = filtered.reduce((s, r) => s + getPct(r[varNolaCol] || '0'), 0);
-  const avgVarNola = filtered.length ? totalVarNola / filtered.length : 0;
+  
+  const avgVarNola = totalRows.length && varNolaCol ? getPct(totalRows[0][varNolaCol] || "0") : (avgActualNola - avgTargetNola);
   const nolaVarCardEl = document.getElementById('kpi-nola-var-card');
   nolaVarCardEl.textContent = (avgVarNola >= 0 ? '+' : '') + (avgVarNola * 100).toFixed(1) + '%';
   nolaVarCardEl.style.color = avgVarNola >= 0 ? '#06d6a0' : '#ff6b6b';
