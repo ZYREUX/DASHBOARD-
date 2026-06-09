@@ -144,8 +144,8 @@
   <!-- TAT KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card c1"><div class="kpi-label">Total Accounts</div><div class="kpi-value" id="tat-total">—</div><div class="kpi-sub">All TAT records</div></div>
-    <div class="kpi-card c2"><div class="kpi-label">Within 2 Hours</div><div class="kpi-value" id="tat-within">—</div><div class="kpi-sub" id="tat-within-pct">—</div></div>
-    <div class="kpi-card c4"><div class="kpi-label">Beyond 2 Hours</div><div class="kpi-value" id="tat-beyond">—</div><div class="kpi-sub" id="tat-beyond-pct">—</div></div>
+    <div class="kpi-card c2"><div class="kpi-label">Within 2 Hours</div><div class="kpi-value" id="tat-within-pct">—</div><div class="kpi-sub">Count: <span id="tat-within">—</span></div></div>
+    <div class="kpi-card c4"><div class="kpi-label">Beyond 2 Hours</div><div class="kpi-value" id="tat-beyond-pct">—</div><div class="kpi-sub">Count: <span id="tat-beyond">—</span></div></div>
     <div class="kpi-card c3"><div class="kpi-label">Ave TAT Working Hours</div><div class="kpi-value" id="tat-avg">—</div><div class="kpi-sub">Average</div></div>
     <div class="kpi-card c5"><div class="kpi-label">Median TAT Working Hours</div><div class="kpi-value" id="tat-median">—</div><div class="kpi-sub">Median</div></div>
   </div>
@@ -158,15 +158,18 @@
 
   <!-- TAT Charts Row 2 -->
   <div class="charts-grid2">
-    <div class="chart-card"><div class="chart-title">📊 TAT per DKAS</div><div class="chart-wrap"><canvas id="tatDkasChart"></canvas></div></div>
     <div class="chart-card"><div class="chart-title">📊 TAT per Dual</div><div class="chart-wrap"><canvas id="tatDualChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 TAT per Activity</div><div class="chart-wrap"><canvas id="tatActivityChart"></canvas></div></div>
+  </div>
+  <div class="table-card">
+    <div class="table-title">📋 TAT Detail per DKAS</div>
+    <table>
+      <thead><tr><th>DKAS</th><th>Total</th><th>Within 2hrs</th><th>% Within</th><th>Beyond 2hrs</th><th>% Beyond</th><th>Ave Working Hrs</th></tr></thead>
+      <tbody id="tatDkasBody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
   </div>
 
-  <!-- TAT per Activity -->
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">📊 TAT per Activity</div>
-    <div class="chart-wrap"><canvas id="tatActivityChart"></canvas></div>
-  </div>
+
 
   <!-- TVS Section -->
   <div class="table-card">
@@ -406,18 +409,31 @@ function renderTATDashboard() {
 
   document.getElementById('tat-total').textContent = total.toLocaleString();
   document.getElementById('tat-within').textContent = within.length.toLocaleString();
-  document.getElementById('tat-within-pct').textContent = total ? (within.length/total*100).toFixed(1)+'% of total' : '—';
+  document.getElementById('tat-within-pct').textContent = total ? (within.length/total*100).toFixed(1)+'%' : '—';
   document.getElementById('tat-beyond').textContent = beyond.length.toLocaleString();
-  document.getElementById('tat-beyond-pct').textContent = total ? (beyond.length/total*100).toFixed(1)+'% of total' : '—';
+  document.getElementById('tat-beyond-pct').textContent = total ? (beyond.length/total*100).toFixed(1)+'%' : '—';
   document.getElementById('tat-avg').textContent = avgTAT;
   document.getElementById('tat-median').textContent = medTAT;
 
   // Charts
   renderTATChart('tatRegionChart', filtered, regionCol, tatCol, 'Region');
   renderTATChart('tatStatusChart', filtered, statusCol, tatCol, 'Status');
-  renderTATChart('tatDkasChart', filtered, dkasCol, tatCol, 'DKAS');
   renderTATChart('tatDualChart', filtered, dualCol, tatCol, 'Dual');
   renderTATChart('tatActivityChart', filtered, activityCol, tatCol, 'Activity');
+
+  // DKAS Detail Table
+  var dkasGroups = [...new Set(filtered.map(function(r){ return (r[dkasCol]||'').trim(); }).filter(Boolean))];
+  var dkasTbody = document.getElementById('tatDkasBody');
+  dkasTbody.innerHTML = dkasGroups.map(function(dkas) {
+    var rows = filtered.filter(function(r){ return (r[dkasCol]||'').trim()===dkas; });
+    var w = rows.filter(function(r){ return (r[tatCol]||'').toLowerCase().indexOf('within')>=0; }).length;
+    var b = rows.filter(function(r){ return (r[tatCol]||'').toLowerCase().indexOf('beyond')>=0; }).length;
+    var hrs = rows.map(function(r){ return getNum(r[tatHrsCol]); }).filter(function(v){ return v>0; });
+    var avg = hrs.length ? (hrs.reduce(function(a,b){ return a+b; },0)/hrs.length).toFixed(2) : '—';
+    var pctW = rows.length ? (w/rows.length*100).toFixed(1)+'%' : '—';
+    var pctB = rows.length ? (b/rows.length*100).toFixed(1)+'%' : '—';
+    return '<tr><td>'+dkas+'</td><td>'+rows.length+'</td><td><span class="tag pos">'+w+'</span></td><td>'+pctW+'</td><td><span class="tag neg">'+b+'</span></td><td>'+pctB+'</td><td>'+avg+'</td></tr>';
+  }).join('');
 
   // TVS Table
   const tvsTypes = [
@@ -454,8 +470,22 @@ function renderTATChart(id, data, groupCol, tatCol, label) {
   var groups = [...new Set(data.map(function(r){ return (r[groupCol]||'').trim(); }).filter(Boolean))].slice(0,15);
   var within = groups.map(function(g){ return data.filter(function(r){ return (r[groupCol]||'').trim()===g && (r[tatCol]||'').toLowerCase().indexOf('within')>=0; }).length; });
   var beyond = groups.map(function(g){ return data.filter(function(r){ return (r[groupCol]||'').trim()===g && (r[tatCol]||'').toLowerCase().indexOf('beyond')>=0; }).length; });
-  var ds = [{label:'Within 2hrs',data:within,backgroundColor:'rgba(6,214,160,0.7)',borderColor:'#06d6a0',borderWidth:1},{label:'Beyond 2hrs',data:beyond,backgroundColor:'rgba(255,107,107,0.7)',borderColor:'#ff6b6b',borderWidth:1}];
-  charts[id] = new Chart(ctx, {type:'bar',data:{labels:groups,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{stacked:true,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},y:{stacked:true,ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+  var totals = groups.map(function(g,i){ return within[i]+beyond[i]; });
+  var withinPct = within.map(function(v,i){ return totals[i] ? (v/totals[i]*100) : 0; });
+  var beyondPct = beyond.map(function(v,i){ return totals[i] ? (v/totals[i]*100) : 0; });
+  var ds = [
+    {label:'Within 2hrs',data:withinPct,count:within,backgroundColor:'rgba(6,214,160,0.7)',borderColor:'#06d6a0',borderWidth:1},
+    {label:'Beyond 2hrs',data:beyondPct,count:beyond,backgroundColor:'rgba(255,107,107,0.7)',borderColor:'#ff6b6b',borderWidth:1}
+  ];
+  charts[id] = new Chart(ctx, {type:'bar',data:{labels:groups,datasets:ds},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6b7280',font:{size:10}}},
+      tooltip:{callbacks:{label:function(c){ var cnt=c.dataset.count[c.dataIndex]; return c.dataset.label+': '+c.raw.toFixed(1)+'% ('+cnt+' accts)'; }}}
+    },
+    scales:{
+      x:{stacked:true,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{stacked:true,max:100,ticks:{color:'#6b7280',callback:function(v){ return v+'%'; }},grid:{color:'rgba(255,255,255,0.05)'}}
+    }}});
 }
 
 loadData();
