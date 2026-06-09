@@ -8,272 +8,76 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
   :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --accent: #00d4ff;
-    --accent2: #ff6b6b;
-    --accent3: #ffd166;
-    --accent4: #06d6a0;
-    --text: #e8eaf0;
-    --muted: #6b7280;
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
+    --accent: #00d4ff; --accent2: #ff6b6b; --accent3: #ffd166;
+    --accent4: #06d6a0; --text: #e8eaf0; --muted: #6b7280;
     --border: rgba(255,255,255,0.07);
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    padding: 24px;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .header-left h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(90deg, var(--accent), var(--accent4));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .header-left p {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  .unit-toggle {
-    display: flex;
-    gap: 8px;
-    background: var(--surface);
-    padding: 6px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-  }
-
-  .unit-btn {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .unit-btn.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent4));
-    color: #000;
-  }
-
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .kpi-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
+  .header-left h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; background: linear-gradient(90deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header-left p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  /* Tab styles */
+  .tabs { display: flex; gap: 4px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+  .tab-btn { padding: 8px 24px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent4)); color: #000; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  /* Unit toggle */
+  .unit-toggle { display: flex; gap: 6px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); flex-wrap: wrap; }
+  .unit-btn { padding: 7px 14px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .unit-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent4)); color: #000; }
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s; }
   .kpi-card:hover { transform: translateY(-2px); }
-
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-
-  .kpi-card.endo::before { background: var(--accent); }
-  .kpi-card.nola::before { background: var(--accent4); }
-  .kpi-card.releases::before { background: var(--accent3); }
-  .kpi-card.loan::before { background: var(--accent2); }
-
-  .kpi-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  .kpi-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .kpi-card.endo .kpi-value { color: var(--accent); }
-  .kpi-card.nola .kpi-value { color: var(--accent4); }
-  .kpi-card.releases .kpi-value { color: var(--accent3); }
-  .kpi-card.loan .kpi-value { color: var(--accent2); }
-
-  .kpi-sub {
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .kpi-var {
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 4px;
-  }
-
-  .kpi-var.neg { color: var(--accent2); }
-  .kpi-var.pos { color: var(--accent4); }
-
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-  }
-
-  .chart-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--text);
-  }
-
-  .chart-wrap {
-    position: relative;
-    height: 220px;
-  }
-
-  .charts-grid2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .table-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    overflow-x: auto;
-  }
-
-  .table-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  th {
-    text-align: left;
-    padding: 8px 12px;
-    color: var(--muted);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--border);
-    font-family: 'Syne', sans-serif;
-  }
-
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.c1::before { background: var(--accent); }
+  .kpi-card.c2::before { background: var(--accent4); }
+  .kpi-card.c3::before { background: var(--accent3); }
+  .kpi-card.c4::before { background: var(--accent2); }
+  .kpi-card.c5::before { background: #a78bfa; }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+  .kpi-card.c1 .kpi-value { color: var(--accent); }
+  .kpi-card.c2 .kpi-value { color: var(--accent4); }
+  .kpi-card.c3 .kpi-value { color: var(--accent3); }
+  .kpi-card.c4 .kpi-value { color: var(--accent2); }
+  .kpi-card.c5 .kpi-value { color: #a78bfa; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .kpi-var { font-size: 12px; font-weight: 600; margin-top: 4px; }
+  .kpi-var.neg { color: var(--accent2); } .kpi-var.pos { color: var(--accent4); }
+  /* Charts */
+  .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .charts-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .charts-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+  .chart-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+  .chart-wrap { position: relative; height: 200px; }
+  .chart-wrap-sm { position: relative; height: 160px; }
+  /* Table */
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; overflow-x: auto; margin-bottom: 20px; }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--surface2); }
-
-  .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
   .tag.neg { background: rgba(255,107,107,0.15); color: var(--accent2); }
   .tag.pos { background: rgba(6,214,160,0.15); color: var(--accent4); }
-
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-    color: var(--muted);
-    font-size: 14px;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .refresh-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-family: 'Syne', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
+  .tag.warn { background: rgba(255,209,102,0.15); color: var(--accent3); }
+  .tag.info { background: rgba(0,212,255,0.15); color: var(--accent); }
+  /* Misc */
+  .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; }
   .refresh-btn:hover { background: var(--accent); color: #000; }
-
-  @media (max-width: 768px) {
-    .charts-grid, .charts-grid2 { grid-template-columns: 1fr; }
-    .kpi-value { font-size: 24px; }
-  }
+  .loading { display: flex; align-items: center; justify-content: center; height: 150px; color: var(--muted); font-size: 14px; flex-direction: column; gap: 12px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .section-label { font-family: 'Syne', sans-serif; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  @media (max-width: 768px) { .charts-grid, .charts-grid2, .charts-grid3 { grid-template-columns: 1fr; } .kpi-value { font-size: 24px; } }
 </style>
 </head>
 <body>
@@ -283,8 +87,18 @@
     <h1>JUNE 2026 DASHBOARD</h1>
     <p id="lastUpdate">Loading data...</p>
   </div>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+</div>
+
+<!-- Main Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('june')">📊 June Performance</button>
+  <button class="tab-btn" onclick="switchTab('tat')">⏱ TAT Dashboard</button>
+</div>
+
+<!-- JUNE TAB -->
+<div id="tab-june" class="tab-content active">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
     <div class="unit-toggle">
       <button class="unit-btn active" data-unit="ALL" onclick="setUnit('ALL')">All</button>
       <button class="unit-btn" data-unit="BN ROPALI" onclick="setUnit('BN ROPALI')">BN Ropali</button>
@@ -293,87 +107,84 @@
       <button class="unit-btn" data-unit="REPO" onclick="setUnit('REPO')">Repo</button>
     </div>
   </div>
-</div>
-
-<!-- KPI Cards -->
-<div class="kpi-grid">
-  <div class="kpi-card endo">
-    <div class="kpi-label">Total Endo (Actual)</div>
-    <div class="kpi-value" id="kpi-endo">—</div>
-    <div class="kpi-sub">Target: <span id="kpi-endo-target">—</span></div>
-    <div class="kpi-var" id="kpi-endo-var">—</div>
+  <div class="kpi-grid">
+    <div class="kpi-card c1"><div class="kpi-label">Total Endo (Actual)</div><div class="kpi-value" id="kpi-endo">—</div><div class="kpi-sub">Target: <span id="kpi-endo-target">—</span></div><div class="kpi-var" id="kpi-endo-var">—</div></div>
+    <div class="kpi-card c2"><div class="kpi-label">NOLA Rate (Actual)</div><div class="kpi-value" id="kpi-nola">—</div><div class="kpi-sub">Target: <span id="kpi-nola-target">—</span></div><div class="kpi-var" id="kpi-nola-var">—</div></div>
+    <div class="kpi-card c3"><div class="kpi-label">VAR NOLA%</div><div class="kpi-value" id="kpi-nola-var-card" style="color:#ffd166">—</div><div class="kpi-sub">Actual vs Target NOLA</div></div>
+    <div class="kpi-card c4"><div class="kpi-label">Total Releases (Actual)</div><div class="kpi-value" id="kpi-releases">—</div><div class="kpi-sub">Target: <span id="kpi-releases-target">—</span></div><div class="kpi-var" id="kpi-releases-var">—</div></div>
+    <div class="kpi-card c4"><div class="kpi-label">Total Loan Amount</div><div class="kpi-value" id="kpi-loan">—</div><div class="kpi-sub" id="kpi-loan-sub">From Releases sheet</div></div>
   </div>
-  <div class="kpi-card nola">
-    <div class="kpi-label">NOLA Rate (Actual)</div>
-    <div class="kpi-value" id="kpi-nola">—</div>
-    <div class="kpi-sub">Target: <span id="kpi-nola-target">—</span></div>
-    <div class="kpi-var" id="kpi-nola-var">—</div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-title">📈 Trend: Q4 2025 → Q1 2026 → June Target → June Actual</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">🥧 NOLA Rate Breakdown</div><div class="chart-wrap"><canvas id="nolaChart"></canvas></div></div>
   </div>
-  <div class="kpi-card nola" style="border-top-color:#ffd166">
-    <div class="kpi-label">VAR NOLA%</div>
-    <div class="kpi-value" id="kpi-nola-var-card" style="color:#ffd166">—</div>
-    <div class="kpi-sub">Actual vs Target NOLA</div>
+  <div class="charts-grid2">
+    <div class="chart-card"><div class="chart-title">📊 Endo: Target vs Actual per Region</div><div class="chart-wrap"><canvas id="endoBarChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 Releases: Target vs Actual per Region</div><div class="chart-wrap"><canvas id="releasesBarChart"></canvas></div></div>
   </div>
-  <div class="kpi-card releases">
-    <div class="kpi-label">Total Releases (Actual)</div>
-    <div class="kpi-value" id="kpi-releases">—</div>
-    <div class="kpi-sub">Target: <span id="kpi-releases-target">—</span></div>
-    <div class="kpi-var" id="kpi-releases-var">—</div>
-  </div>
-  <div class="kpi-card loan">
-    <div class="kpi-label">Total Loan Amount</div>
-    <div class="kpi-value" id="kpi-loan">—</div>
-    <div class="kpi-sub" id="kpi-loan-sub">From Releases sheet</div>
+  <div class="table-card">
+    <div class="table-title">📋 Region Breakdown</div>
+    <table><thead><tr><th>Unit</th><th>Region</th><th>Target Endo</th><th>Actual Endo</th><th>Var Endo</th><th>Target NOLA%</th><th>Actual NOLA%</th><th>Var NOLA%</th><th>Target Releases</th><th>Actual Releases</th><th>Var Releases</th></tr></thead>
+    <tbody id="tableBody"><tr><td colspan="11"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody></table>
   </div>
 </div>
 
-<!-- Trend Chart + Pie -->
-<div class="charts-grid">
-  <div class="chart-card">
-    <div class="chart-title">📈 Trend: Q1 2025 → Q1 2026 → June Target → June Actual</div>
-    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+<!-- TAT TAB -->
+<div id="tab-tat" class="tab-content">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <div class="unit-toggle">
+      <button class="unit-btn active" data-tunit="ALL" onclick="setTATUnit('ALL')">All</button>
+      <button class="unit-btn" data-tunit="BN ROPALI" onclick="setTATUnit('BN ROPALI')">BN Ropali</button>
+      <button class="unit-btn" data-tunit="3RD PARTY" onclick="setTATUnit('3RD PARTY')">3rd Party</button>
+      <button class="unit-btn" data-tunit="BN DA" onclick="setTATUnit('BN DA')">BN DA</button>
+      <button class="unit-btn" data-tunit="REPO" onclick="setTATUnit('REPO')">Repo</button>
+    </div>
   </div>
-  <div class="chart-card">
-    <div class="chart-title">🥧 NOLA Rate Breakdown</div>
-    <div class="chart-wrap"><canvas id="nolaChart"></canvas></div>
-  </div>
-</div>
 
-<!-- Bar Charts -->
-<div class="charts-grid2">
-  <div class="chart-card">
-    <div class="chart-title">📊 Endo: Target vs Actual per Region</div>
-    <div class="chart-wrap"><canvas id="endoBarChart"></canvas></div>
+  <!-- TAT KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1"><div class="kpi-label">Total Accounts</div><div class="kpi-value" id="tat-total">—</div><div class="kpi-sub">All TAT records</div></div>
+    <div class="kpi-card c2"><div class="kpi-label">Within 2 Hours</div><div class="kpi-value" id="tat-within">—</div><div class="kpi-sub" id="tat-within-pct">—</div></div>
+    <div class="kpi-card c4"><div class="kpi-label">Beyond 2 Hours</div><div class="kpi-value" id="tat-beyond">—</div><div class="kpi-sub" id="tat-beyond-pct">—</div></div>
+    <div class="kpi-card c3"><div class="kpi-label">Ave TAT Working Hours</div><div class="kpi-value" id="tat-avg">—</div><div class="kpi-sub">Average</div></div>
+    <div class="kpi-card c5"><div class="kpi-label">Median TAT Working Hours</div><div class="kpi-value" id="tat-median">—</div><div class="kpi-sub">Median</div></div>
   </div>
-  <div class="chart-card">
-    <div class="chart-title">📊 Releases: Target vs Actual per Region</div>
-    <div class="chart-wrap"><canvas id="releasesBarChart"></canvas></div>
-  </div>
-</div>
 
-<!-- Table -->
-<div class="table-card">
-  <div class="table-title">📋 Region Breakdown</div>
-  <table>
-    <thead>
-      <tr>
-        <th>Unit</th>
-        <th>Region</th>
-        <th>Target Endo</th>
-        <th>Actual Endo</th>
-        <th>Var Endo</th>
-        <th>Target NOLA%</th>
-        <th>Actual NOLA%</th>
-        <th>Var NOLA%</th>
-        <th>Target Releases</th>
-        <th>Actual Releases</th>
-        <th>Var Releases</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <tr><td colspan="10"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>
-    </tbody>
-  </table>
+  <!-- TAT Charts Row 1 -->
+  <div class="charts-grid2">
+    <div class="chart-card"><div class="chart-title">📊 TAT per Region</div><div class="chart-wrap"><canvas id="tatRegionChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 TAT per Status</div><div class="chart-wrap"><canvas id="tatStatusChart"></canvas></div></div>
+  </div>
+
+  <!-- TAT Charts Row 2 -->
+  <div class="charts-grid2">
+    <div class="chart-card"><div class="chart-title">📊 TAT per DKAS</div><div class="chart-wrap"><canvas id="tatDkasChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 TAT per Dual</div><div class="chart-wrap"><canvas id="tatDualChart"></canvas></div></div>
+  </div>
+
+  <!-- TAT per Activity -->
+  <div class="chart-card" style="margin-bottom:20px;">
+    <div class="chart-title">📊 TAT per Activity</div>
+    <div class="chart-wrap"><canvas id="tatActivityChart"></canvas></div>
+  </div>
+
+  <!-- TVS Section -->
+  <div class="table-card">
+    <div class="table-title">📋 TVS TAT Summary (Done only)</div>
+    <table>
+      <thead><tr><th>TVS Type</th><th>Count Done</th><th>Ave TAT Working Hours</th><th>Median TAT Working Hours</th></tr></thead>
+      <tbody id="tvsTatBody"><tr><td colspan="4"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- TAT Breakdown Table -->
+  <div class="table-card">
+    <div class="table-title">📋 TAT Detail per Region</div>
+    <table>
+      <thead><tr><th>Region</th><th>Total</th><th>Within 2hrs</th><th>Beyond 2hrs</th><th>% Within</th><th>Ave Working Hrs</th></tr></thead>
+      <tbody id="tatTableBody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
@@ -385,47 +196,45 @@ const UNIT_CSVS = {
   'REPO':      BASE + '&gid=1754896665',
 };
 const RELEASES_CSV = BASE + '&gid=698256967';
+const TAT_CSV = BASE + '&gid=2075419555';
 
-let allData = [];
-let releasesData = [];
-let currentUnit = 'ALL';
-let charts = {};
+let allData = [], releasesData = [], tatData = [];
+let currentUnit = 'ALL', currentTATUnit = 'ALL';
+let charts = {}, activeTab = 'june';
 
 function parseCSV(url) {
   return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: r => resolve(r.data),
-      error: e => reject(e)
-    });
+    Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: r => resolve(r.data), error: e => reject(e) });
   });
 }
 
 async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
-    // Load all unit CSVs + releases in parallel
     const unitKeys = Object.keys(UNIT_CSVS);
     const results = await Promise.all([
       ...unitKeys.map(u => parseCSV(UNIT_CSVS[u])),
-      parseCSV(RELEASES_CSV)
+      parseCSV(RELEASES_CSV),
+      parseCSV(TAT_CSV)
     ]);
-    // Tag each row with its unit
     allData = [];
-    unitKeys.forEach((unit, i) => {
-      results[i].forEach(row => {
-        allData.push({...row, _unit: unit});
-      });
-    });
+    unitKeys.forEach((unit, i) => { results[i].forEach(row => { allData.push({...row, _unit: unit}); }); });
     releasesData = results[unitKeys.length];
+    tatData = results[unitKeys.length + 1];
     document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
     renderDashboard();
+    renderTATDashboard();
   } catch(e) {
-    document.getElementById('lastUpdate').textContent = 'Error loading data. Check CSV links.';
+    document.getElementById('lastUpdate').textContent = 'Error loading data.';
     console.error(e);
   }
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='june')||(i===1&&tab==='tat')));
+  document.getElementById('tab-june').classList.toggle('active', tab==='june');
+  document.getElementById('tab-tat').classList.toggle('active', tab==='tat');
 }
 
 function getNum(val) {
@@ -442,49 +251,31 @@ function getPct(val) {
   return isNaN(n) ? 0 : (n > 1 ? n / 100 : n);
 }
 
-function findCol(row, keywords) {
-  const keys = Object.keys(row);
-  for (const kw of keywords) {
-    const found = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
-    if (found) return found;
-  }
-  return null;
+function median(arr) {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a,b) => a-b);
+  const m = Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
 }
 
+// ========== JUNE DASHBOARD ==========
 function setUnit(unit) {
   currentUnit = unit;
-  document.querySelectorAll('.unit-btn').forEach(b => {
-    const map = {'ALL':'All','BN ROPALI':'BN Ropali','3RD PARTY':'3rd Party','BN DA':'BN DA','REPO':'Repo'};
-    b.classList.toggle('active', b.dataset.unit === unit);
-  });
+  document.querySelectorAll('[data-unit]').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
   renderDashboard();
 }
 
 function renderDashboard() {
   if (!allData.length) return;
-
-  // Detect columns
   const sample = allData[0];
   const keys = Object.keys(sample);
-  console.log('CSV Columns detected:', keys);
 
-  function col(...keywords) {
-    for (const kw of keywords) {
-      const found = keys.find(k => k.toLowerCase().replace(/[\s\n]+/g,' ').trim().includes(kw.toLowerCase()));
-      if (found) return found;
-    }
-    return null;
-  }
-
-  // Match by exact name (handles line breaks in headers)
   function findKey(partial) {
     return keys.find(k => k.replace(/\n/g,' ').toLowerCase().includes(partial.toLowerCase())) || null;
   }
 
-  const unitCol = 'Unit';
-  const regionCol = 'Region';
-  const q12025EndoCol = findKey('Total Endo') && keys[2];
-  const q12026EndoCol = keys[7];
+  const unitCol = 'Unit', regionCol = 'Region';
+  const q12025EndoCol = keys[2], q12026EndoCol = keys[7];
   const targetEndoCol = findKey('Target Endo');
   const targetNolaCol = findKey('Target NOLA');
   const targetRelCol = findKey('Target Releases');
@@ -492,196 +283,178 @@ function renderDashboard() {
   const actualNolaCol = findKey('Actual NOLA');
   const actualRelCol = findKey('Actual Releases');
   const varEndoCol = findKey('VAR ENDO');
-  const varNolaCol = keys[23]; // VAR NOLA - direct index
+  const varNolaCol = keys[23];
   const varRelCol = findKey('VAR RELEASES');
-  
-  console.log('Mapped cols:', {unitCol, regionCol, targetEndoCol, actualEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varNolaCol});
 
-  // Separate grand total rows from detail rows
-  const isGrandTotal = r => Object.values(r).some(v => String(v || '').trim().toLowerCase().includes('grand'));
-  
-  let unitFiltered = allData.filter(r => {
-    if (currentUnit === 'ALL') return true;
-    return (r._unit || '').toUpperCase() === currentUnit.toUpperCase();
-  });
-
-  // Grand total rows - use for KPI cards
+  const isGrandTotal = r => Object.values(r).some(v => String(v||'').trim().toLowerCase().includes('grand'));
+  let unitFiltered = allData.filter(r => currentUnit === 'ALL' || (r._unit||'').toUpperCase() === currentUnit.toUpperCase());
   let totalRows = unitFiltered.filter(r => isGrandTotal(r));
-  
-  // Detail rows only - use for table and charts
-  let filtered = unitFiltered.filter(r => !isGrandTotal(r) && (r[regionCol] || '').trim() !== '');
+  let filtered = unitFiltered.filter(r => !isGrandTotal(r) && (r[regionCol]||'').trim() !== '');
 
-  // Get totals from Grand Total rows
-  const totalActualEndo = totalRows.reduce((s, r) => s + getNum(r[actualEndoCol]), 0);
-  const totalTargetEndo = totalRows.reduce((s, r) => s + getNum(r[targetEndoCol]), 0);
-  const totalActualRel = totalRows.reduce((s, r) => s + getNum(r[actualRelCol]), 0);
-  const totalTargetRel = totalRows.reduce((s, r) => s + getNum(r[targetRelCol]), 0);
-  const avgActualNola = totalRows.length ? totalRows.reduce((s, r) => s + getPct(r[actualNolaCol]), 0) / totalRows.length : 0;
-  const avgTargetNola = totalRows.length ? totalRows.reduce((s, r) => s + getPct(r[targetNolaCol]), 0) / totalRows.length : 0;
+  const totalActualEndo = totalRows.reduce((s,r) => s+getNum(r[actualEndoCol]),0);
+  const totalTargetEndo = totalRows.reduce((s,r) => s+getNum(r[targetEndoCol]),0);
+  const totalActualRel = totalRows.reduce((s,r) => s+getNum(r[actualRelCol]),0);
+  const totalTargetRel = totalRows.reduce((s,r) => s+getNum(r[targetRelCol]),0);
+  const avgActualNola = totalRows.length ? totalRows.reduce((s,r) => s+getPct(r[actualNolaCol]),0)/totalRows.length : 0;
+  const avgTargetNola = totalRows.length ? totalRows.reduce((s,r) => s+getPct(r[targetNolaCol]),0)/totalRows.length : 0;
   const varEndo = totalActualEndo - totalTargetEndo;
   const varRel = totalActualRel - totalTargetRel;
 
-  // Loan amount from releases
   let loanCol = null;
-  if (releasesData.length) {
-    const rKeys = Object.keys(releasesData[0]);
-    loanCol = rKeys.find(k => k.toLowerCase().includes('loan') && k.toLowerCase().includes('amount')) || rKeys[8];
-  }
-  let unitColR = releasesData.length ? (Object.keys(releasesData[0]).find(k => k.toLowerCase() === 'unit') || Object.keys(releasesData[0])[10]) : null;
-  
-  let relFiltered = releasesData;
-  if (currentUnit !== 'ALL' && unitColR) {
-    relFiltered = releasesData.filter(r => (r[unitColR] || '').toUpperCase() === currentUnit.toUpperCase());
-  }
-  const totalLoan = loanCol ? relFiltered.reduce((s, r) => s + getNum(r[loanCol]), 0) : 0;
+  if (releasesData.length) { const rk = Object.keys(releasesData[0]); loanCol = rk.find(k => k.toLowerCase().includes('loan') && k.toLowerCase().includes('amount')) || rk[8]; }
+  let unitColR = releasesData.length ? (Object.keys(releasesData[0]).find(k => k.toLowerCase()==='unit') || Object.keys(releasesData[0])[10]) : null;
+  let relFiltered = currentUnit !== 'ALL' && unitColR ? releasesData.filter(r => (r[unitColR]||'').toUpperCase()===currentUnit.toUpperCase()) : releasesData;
+  const totalLoan = loanCol ? relFiltered.reduce((s,r) => s+getNum(r[loanCol]),0) : 0;
 
-  // KPIs
   document.getElementById('kpi-endo').textContent = totalActualEndo.toLocaleString();
   document.getElementById('kpi-endo-target').textContent = totalTargetEndo.toLocaleString();
-  const endoVarEl = document.getElementById('kpi-endo-var');
-  endoVarEl.textContent = (varEndo >= 0 ? '+' : '') + varEndo.toLocaleString() + ' vs target';
-  endoVarEl.className = 'kpi-var ' + (varEndo >= 0 ? 'pos' : 'neg');
+  const evEl = document.getElementById('kpi-endo-var');
+  evEl.textContent = (varEndo>=0?'+':'')+varEndo.toLocaleString()+' vs target';
+  evEl.className = 'kpi-var '+(varEndo>=0?'pos':'neg');
 
-  document.getElementById('kpi-nola').textContent = (avgActualNola * 100).toFixed(1) + '%';
-  
-  const avgVarNola = totalRows.length && varNolaCol ? getPct(totalRows[0][varNolaCol] || "0") : (avgActualNola - avgTargetNola);
-  const nolaVarCardEl = document.getElementById('kpi-nola-var-card');
-  nolaVarCardEl.textContent = (avgVarNola >= 0 ? '+' : '') + (avgVarNola * 100).toFixed(1) + '%';
-  nolaVarCardEl.style.color = avgVarNola >= 0 ? '#06d6a0' : '#ff6b6b';
-  document.getElementById('kpi-nola-target').textContent = (avgTargetNola * 100).toFixed(1) + '%';
+  document.getElementById('kpi-nola').textContent = (avgActualNola*100).toFixed(1)+'%';
+  const avgVarNola = totalRows.length && varNolaCol ? getPct(totalRows[0][varNolaCol]||'0') : (avgActualNola-avgTargetNola);
+  const nvCard = document.getElementById('kpi-nola-var-card');
+  nvCard.textContent = (avgVarNola>=0?'+':'')+(avgVarNola*100).toFixed(1)+'%';
+  nvCard.style.color = avgVarNola>=0?'#06d6a0':'#ff6b6b';
+  document.getElementById('kpi-nola-target').textContent = (avgTargetNola*100).toFixed(1)+'%';
   const nolaVar = avgActualNola - avgTargetNola;
-  const nolaVarEl = document.getElementById('kpi-nola-var');
-  nolaVarEl.textContent = (nolaVar >= 0 ? '+' : '') + (nolaVar * 100).toFixed(1) + '% vs target';
-  nolaVarEl.className = 'kpi-var ' + (nolaVar >= 0 ? 'pos' : 'neg');
+  const nvEl = document.getElementById('kpi-nola-var');
+  nvEl.textContent = (nolaVar>=0?'+':'')+(nolaVar*100).toFixed(1)+'% vs target';
+  nvEl.className = 'kpi-var '+(nolaVar>=0?'pos':'neg');
 
   document.getElementById('kpi-releases').textContent = totalActualRel.toLocaleString();
   document.getElementById('kpi-releases-target').textContent = totalTargetRel.toLocaleString();
-  const relVarEl = document.getElementById('kpi-releases-var');
-  relVarEl.textContent = (varRel >= 0 ? '+' : '') + varRel.toLocaleString() + ' vs target';
-  relVarEl.className = 'kpi-var ' + (varRel >= 0 ? 'pos' : 'neg');
+  const rvEl = document.getElementById('kpi-releases-var');
+  rvEl.textContent = (varRel>=0?'+':'')+varRel.toLocaleString()+' vs target';
+  rvEl.className = 'kpi-var '+(varRel>=0?'pos':'neg');
+  document.getElementById('kpi-loan').textContent = totalLoan>0?'₱'+(totalLoan/1000000).toFixed(1)+'M':'—';
 
-  document.getElementById('kpi-loan').textContent = totalLoan > 0 ? '₱' + (totalLoan / 1000000).toFixed(1) + 'M' : '—';
-
-  // Charts
   renderTrendChart(filtered, q12025EndoCol, q12026EndoCol, targetEndoCol, actualEndoCol);
   renderNolaChart(avgActualNola, avgTargetNola);
   renderBarChart('endoBarChart', filtered, regionCol, targetEndoCol, actualEndoCol, 'Endo');
-  renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases', true);
-  renderTable(filtered, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol);
+  renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases');
+  renderJuneTable(filtered, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol);
 }
 
-function renderTrendChart(data, q12025, q12026, targetJune, actualJune) {
+function renderTrendChart(data, q1, q2, tgt, act) {
   const ctx = document.getElementById('trendChart').getContext('2d');
   if (charts.trend) charts.trend.destroy();
-
-  const q25 = data.reduce((s, r) => s + getNum(r[q12025]), 0);
-  const q26 = data.reduce((s, r) => s + getNum(r[q12026]), 0);
-  const tJune = data.reduce((s, r) => s + getNum(r[targetJune]), 0);
-  const aJune = data.reduce((s, r) => s + getNum(r[actualJune]), 0);
-
-  charts.trend = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Q4 2025', 'Q1 2026', 'June Target', 'June Actual'],
-      datasets: [{
-        label: 'Endo',
-        data: [q25, q26, tJune, aJune],
-        borderColor: '#00d4ff',
-        backgroundColor: 'rgba(0,212,255,0.1)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 6,
-        pointBackgroundColor: '#00d4ff'
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#6b7280', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-      }
-    }
-  });
+  charts.trend = new Chart(ctx, { type:'line', data:{ labels:['Q4 2025','Q1 2026','June Target','June Actual'], datasets:[{ label:'Endo', data:[data.reduce((s,r)=>s+getNum(r[q1]),0), data.reduce((s,r)=>s+getNum(r[q2]),0), data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)], borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.1)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor:'#00d4ff' }]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
 }
 
 function renderNolaChart(actual, target) {
   const ctx = document.getElementById('nolaChart').getContext('2d');
   if (charts.nola) charts.nola.destroy();
-  charts.nola = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Actual NOLA%', 'Remaining'],
-      datasets: [{
-        data: [actual * 100, Math.max(0, 100 - actual * 100)],
-        backgroundColor: ['#06d6a0', 'rgba(255,255,255,0.05)'],
-        borderColor: ['#06d6a0', 'rgba(255,255,255,0.1)'],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      cutout: '70%',
-      plugins: {
-        legend: { labels: { color: '#6b7280', font: { size: 11 } } },
-        tooltip: { callbacks: { label: c => c.label + ': ' + c.raw.toFixed(1) + '%' } }
-      }
-    }
-  });
+  charts.nola = new Chart(ctx, { type:'doughnut', data:{ labels:['Actual NOLA%','Remaining'], datasets:[{ data:[actual*100, Math.max(0,100-actual*100)], backgroundColor:['#06d6a0','rgba(255,255,255,0.05)'], borderColor:['#06d6a0','rgba(255,255,255,0.1)'], borderWidth:2 }]}, options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw.toFixed(1)+'%'}}}}});
 }
 
-function renderBarChart(canvasId, data, regionCol, targetCol, actualCol, label, useAbsolute=false) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if (charts[canvasId]) charts[canvasId].destroy();
-
-  const regions = [...new Set(data.map(r => (r[regionCol] || '').trim()).filter(Boolean))];
-  const targets = regions.map(reg => data.filter(r => (r[regionCol] || '').trim() === reg).reduce((s, r) => s + getNum(r[targetCol]), 0));
-  const actuals = regions.map(reg => data.filter(r => (r[regionCol] || '').trim() === reg).reduce((s, r) => s + getNum(r[actualCol]), 0));
-
-  charts[canvasId] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: regions,
-      datasets: [
-        { label: 'Target', data: targets, backgroundColor: 'rgba(255,209,102,0.6)', borderColor: '#ffd166', borderWidth: 1 },
-        { label: 'Actual', data: actuals, backgroundColor: 'rgba(0,212,255,0.6)', borderColor: '#00d4ff', borderWidth: 1 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#6b7280', font: { size: 10 } } } },
-      scales: {
-        x: { ticks: { color: '#6b7280', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-      }
-    }
-  });
+function renderBarChart(id, data, regionCol, tgtCol, actCol, label) {
+  const ctx = document.getElementById(id).getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  const regions = [...new Set(data.map(r=>(r[regionCol]||'').trim()).filter(Boolean))];
+  charts[id] = new Chart(ctx, { type:'bar', data:{ labels:regions, datasets:[{ label:'Target', data:regions.map(reg=>data.filter(r=>(r[regionCol]||'').trim()===reg).reduce((s,r)=>s+getNum(r[tgtCol]),0)), backgroundColor:'rgba(255,209,102,0.6)', borderColor:'#ffd166', borderWidth:1 },{ label:'Actual', data:regions.map(reg=>data.filter(r=>(r[regionCol]||'').trim()===reg).reduce((s,r)=>s+getNum(r[actCol]),0)), backgroundColor:'rgba(0,212,255,0.6)', borderColor:'#00d4ff', borderWidth:1 }]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}}); 
 }
 
-function renderTable(data, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol) {
+function renderJuneTable(data, unitCol, regionCol, tgtE, actE, varE, tgtN, actN, tgtR, actR, varR) {
   const tbody = document.getElementById('tableBody');
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#6b7280;padding:20px;">No data</td></tr>'; return; }
-
+  if (!data.length) { tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:#6b7280;padding:20px;">No data</td></tr>'; return; }
   tbody.innerHTML = data.map(r => {
-    const varE = varEndoCol ? getNum(r[varEndoCol]) : (getNum(r[actualEndoCol]) - getNum(r[targetEndoCol]));
-    const varR = varRelCol ? getNum(r[varRelCol]) : (getNum(r[actualRelCol]) - getNum(r[targetRelCol]));
-    const tNola = (getPct(r[targetNolaCol]) * 100).toFixed(0) + '%';
-    const aNola = (getPct(r[actualNolaCol]) * 100).toFixed(0) + '%';
-    const varNola = ((getPct(r[actualNolaCol]) - getPct(r[targetNolaCol])) * 100).toFixed(1);
-    return `<tr>
-      <td>${r[unitCol] || ''}</td>
-      <td>${r[regionCol] || ''}</td>
-      <td>${getNum(r[targetEndoCol]).toLocaleString()}</td>
-      <td>${getNum(r[actualEndoCol]).toLocaleString()}</td>
-      <td><span class="tag ${varE >= 0 ? 'pos' : 'neg'}">${varE >= 0 ? '+' : ''}${varE}</span></td>
-      <td>${tNola}</td>
-      <td>${aNola}</td>
-      <td><span class="tag ${parseFloat(varNola) >= 0 ? 'pos' : 'neg'}">${parseFloat(varNola) >= 0 ? '+' : ''}${varNola}%</span></td>
-      <td>${getNum(r[targetRelCol]).toLocaleString()}</td>
-      <td>${getNum(r[actualRelCol]).toLocaleString()}</td>
-      <td><span class="tag ${varR >= 0 ? 'pos' : 'neg'}">${varR >= 0 ? '+' : ''}${varR}</span></td>
-    </tr>`;
+    const ve = varE ? getNum(r[varE]) : (getNum(r[actE])-getNum(r[tgtE]));
+    const vr = varR ? getNum(r[varR]) : (getNum(r[actR])-getNum(r[tgtR]));
+    const tn = (getPct(r[tgtN])*100).toFixed(0)+'%', an = (getPct(r[actN])*100).toFixed(0)+'%';
+    const vn = ((getPct(r[actN])-getPct(r[tgtN]))*100).toFixed(1);
+    return `<tr><td>${r[unitCol]||''}</td><td>${r[regionCol]||''}</td><td>${getNum(r[tgtE]).toLocaleString()}</td><td>${getNum(r[actE]).toLocaleString()}</td><td><span class="tag ${ve>=0?'pos':'neg'}">${ve>=0?'+':''}${ve}</span></td><td>${tn}</td><td>${an}</td><td><span class="tag ${parseFloat(vn)>=0?'pos':'neg'}">${parseFloat(vn)>=0?'+':''}${vn}%</span></td><td>${getNum(r[tgtR]).toLocaleString()}</td><td>${getNum(r[actR]).toLocaleString()}</td><td><span class="tag ${vr>=0?'pos':'neg'}">${vr>=0?'+':''}${vr}</span></td></tr>`;
   }).join('');
+}
+
+// ========== TAT DASHBOARD ==========
+function setTATUnit(unit) {
+  currentTATUnit = unit;
+  document.querySelectorAll('[data-tunit]').forEach(b => b.classList.toggle('active', b.dataset.tunit === unit));
+  renderTATDashboard();
+}
+
+function renderTATDashboard() {
+  if (!tatData.length) return;
+  const keys = Object.keys(tatData[0]);
+
+  const unitCol = keys[6]  // G = Unit
+  const regionCol = keys[7]; // H = Region
+  const statusCol = keys[3]; // D = Status
+  const dkasCol = keys[5];   // F = Verified By (DKAS)
+  const dualCol = keys[8];   // I = Dual
+  const activityCol = keys[9]; // J = Actual Activity
+  const tatCol = keys[10];   // K = TAT
+  const tatHrsCol = keys[11]; // L = TAT Working Hours
+  const tvsWorkCol = keys[12]; // M = TVS Work
+  const tvsHouseCol = keys[13]; // N = TVS House
+  const tvsBrgyCol = keys[14]; // O = TVS Brgy
+
+  // Filter by unit
+  let filtered = tatData.filter(r => {
+    if (currentTATUnit === 'ALL') return true;
+    return (r[unitCol]||'').toUpperCase() === currentTATUnit.toUpperCase();
+  });
+
+  const within = filtered.filter(r => (r[tatCol]||'').toLowerCase().includes('within'));
+  const beyond = filtered.filter(r => (r[tatCol]||'').toLowerCase().includes('beyond'));
+  const total = filtered.length;
+  const tatHrs = filtered.map(r => getNum(r[tatHrsCol])).filter(v => v > 0);
+  const avgTAT = tatHrs.length ? (tatHrs.reduce((a,b)=>a+b,0)/tatHrs.length).toFixed(2) : '—';
+  const medTAT = tatHrs.length ? median(tatHrs).toFixed(2) : '—';
+
+  document.getElementById('tat-total').textContent = total.toLocaleString();
+  document.getElementById('tat-within').textContent = within.length.toLocaleString();
+  document.getElementById('tat-within-pct').textContent = total ? (within.length/total*100).toFixed(1)+'% of total' : '—';
+  document.getElementById('tat-beyond').textContent = beyond.length.toLocaleString();
+  document.getElementById('tat-beyond-pct').textContent = total ? (beyond.length/total*100).toFixed(1)+'% of total' : '—';
+  document.getElementById('tat-avg').textContent = avgTAT;
+  document.getElementById('tat-median').textContent = medTAT;
+
+  // Charts
+  renderTATChart('tatRegionChart', filtered, regionCol, tatCol, 'Region');
+  renderTATChart('tatStatusChart', filtered, statusCol, tatCol, 'Status');
+  renderTATChart('tatDkasChart', filtered, dkasCol, tatCol, 'DKAS');
+  renderTATChart('tatDualChart', filtered, dualCol, tatCol, 'Dual');
+  renderTATChart('tatActivityChart', filtered, activityCol, tatCol, 'Activity');
+
+  // TVS Table
+  const tvsTypes = [
+    {label:'TVS Work', col:tvsWorkCol},
+    {label:'TVS House', col:tvsHouseCol},
+    {label:'TVS Brgy', col:tvsBrgyCol}
+  ];
+  const tvsTbody = document.getElementById('tvsTatBody');
+  tvsTbody.innerHTML = tvsTypes.map(tvs => {
+    const doneRows = filtered.filter(r => (r[tvs.col]||'').trim().toLowerCase() === 'done');
+    const hrs = doneRows.map(r => getNum(r[tatHrsCol])).filter(v => v > 0);
+    const avg = hrs.length ? (hrs.reduce((a,b)=>a+b,0)/hrs.length).toFixed(2) : '—';
+    const med = hrs.length ? median(hrs).toFixed(2) : '—';
+    return `<tr><td>${tvs.label}</td><td>${doneRows.length}</td><td>${avg}</td><td>${med}</td></tr>`;
+  }).join('');
+
+  // TAT Detail Table
+  const regions = [...new Set(filtered.map(r=>(r[regionCol]||'').trim()).filter(Boolean))];
+  const tatTbody = document.getElementById('tatTableBody');
+  tatTbody.innerHTML = regions.map(reg => {
+    const rows = filtered.filter(r=>(r[regionCol]||'').trim()===reg);
+    const w = rows.filter(r=>(r[tatCol]||'').toLowerCase().includes('within')).length;
+    const b = rows.filter(r=>(r[tatCol]||'').toLowerCase().includes('beyond')).length;
+    const hrs = rows.map(r=>getNum(r[tatHrsCol])).filter(v=>v>0);
+    const avg = hrs.length ? (hrs.reduce((a,b)=>a+b,0)/hrs.length).toFixed(2) : '—';
+    const pct = rows.length ? (w/rows.length*100).toFixed(1)+'%' : '—';
+    return `<tr><td>${reg}</td><td>${rows.length}</td><td><span class="tag pos">${w}</span></td><td><span class="tag neg">${b}</span></td><td>${pct}</td><td>${avg}</td></tr>`;
+  }).join('');
+}
+
+function renderTATChart(id, data, groupCol, tatCol, label) {
+  const ctx = document.getElementById(id).getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  const groups = [...new Set(data.map(r=>(r[groupCol]||'').trim()).filter(Boolean))].slice(0,15);
+  const within = groups.map(g => data.filter(r=>(r[groupCol]||'').trim()===g && (r[tatCol]||'').toLowerCase().includes('within')).length);
+  const beyond = groups.map(g => data.filter(r=>(r[groupCol]||'').trim()===g && (r[tatCol]||'').toLowerCase().includes('beyond')).length);
+  charts[id] = new Chart(ctx, { type:'bar', data:{ labels:groups, datasets:[{label:'Within 2hrs', data:within, backgroundColor:'rgba(6,214,160,0.7)', borderColor:'#06d6a0', borderWidth:1},{label:'Beyond 2hrs', data:beyond, backgroundColor:'rgba(255,107,107,0.7)', borderColor:'#ff6b6b', borderWidth:1}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{stacked:true,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},y:{stacked:true,ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}}});
 }
 
 loadData();
