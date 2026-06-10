@@ -523,16 +523,21 @@ function renderDualDashboard() {
 
   var total = filtered.length;
 
-  // KPI cards per zone
+  // KPI cards per zone - always based on unit total (ignore zone filter)
+  var unitOnly = tatData.filter(function(r) {
+    return currentDualUnit === 'ALL' || (r[unitCol]||'').toUpperCase() === currentDualUnit.toUpperCase();
+  });
+  var unitTotal = unitOnly.length;
+
   var zones = ['Green Zone','Orange Zone','Pink Zone','Red Zone'];
   var zoneIds = ['green','orange','pink','red'];
   var zoneColors = {'green':'#06d6a0','orange':'#ffd166','pink':'#f9a8d4','red':'#ff6b6b'};
 
-  document.getElementById('dual-total').textContent = total.toLocaleString();
+  document.getElementById('dual-total').textContent = unitTotal.toLocaleString();
 
   zones.forEach(function(zone, i) {
-    var cnt = filtered.filter(function(r){ return (r[dualCol]||'').trim() === zone; }).length;
-    var pct = total ? (cnt/total*100).toFixed(1)+'%' : '0%';
+    var cnt = unitOnly.filter(function(r){ return (r[dualCol]||'').trim() === zone; }).length;
+    var pct = unitTotal ? (cnt/unitTotal*100).toFixed(1)+'%' : '0%';
     var id = zoneIds[i];
     var pctEl = document.getElementById('dual-'+id+'-pct');
     var cntEl = document.getElementById('dual-'+id+'-cnt');
