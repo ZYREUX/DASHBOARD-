@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>June 2026 Performance Dashboard</title>
+<title>CREDIT 2026 Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
@@ -84,7 +84,7 @@
 
 <div class="header">
   <div class="header-left">
-    <h1>JUNE 2026 DASHBOARD</h1>
+    <h1>CREDIT 2026 DASHBOARD</h1>
     <p id="lastUpdate">Loading data...</p>
   </div>
   <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
@@ -94,6 +94,7 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('june')">📊 June Performance</button>
   <button class="tab-btn" onclick="switchTab('tat')">⏱ TAT Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('dual')">🎯 DUAL Performance</button>
 </div>
 
 <!-- JUNE TAB -->
@@ -202,7 +203,7 @@ const RELEASES_CSV = BASE + '&gid=698256967';
 const TAT_CSV = BASE + '&gid=2075419555';
 
 let allData = [], releasesData = [], tatData = [];
-let currentUnit = 'ALL', currentTATUnit = 'ALL';
+let currentUnit = 'ALL', currentTATUnit = 'ALL', currentDualUnit = 'ALL', currentDualZone = 'ALL';
 let charts = {}, activeTab = 'june';
 
 function parseCSV(url) {
@@ -227,6 +228,7 @@ async function loadData() {
     document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
     renderDashboard();
     renderTATDashboard();
+    renderDualDashboard();
   } catch(e) {
     document.getElementById('lastUpdate').textContent = 'Error loading data.';
     console.error(e);
@@ -235,9 +237,10 @@ async function loadData() {
 
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='june')||(i===1&&tab==='tat')));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='june')||(i===1&&tab==='tat')||(i===2&&tab==='dual')));
   document.getElementById('tab-june').classList.toggle('active', tab==='june');
   document.getElementById('tab-tat').classList.toggle('active', tab==='tat');
+  document.getElementById('tab-dual').classList.toggle('active', tab==='dual');
 }
 
 function getNum(val) {
@@ -488,7 +491,183 @@ function renderTATChart(id, data, groupCol, tatCol, label) {
     }}});
 }
 
+
+// ========== DUAL DASHBOARD ==========
+function setDualUnit(unit) {
+  currentDualUnit = unit;
+  document.querySelectorAll('[data-dunit]').forEach(function(b){ b.classList.toggle('active', b.dataset.dunit === unit); });
+  renderDualDashboard();
+}
+
+function setDualZone(zone) {
+  currentDualZone = zone;
+  document.querySelectorAll('[data-dzone]').forEach(function(b){ b.classList.toggle('active', b.dataset.dzone === zone); });
+  renderDualDashboard();
+}
+
+function renderDualDashboard() {
+  if (!tatData.length) return;
+  var keys = Object.keys(tatData[0]);
+  var unitCol = keys[6];
+  var regionCol = keys[7];
+  var statusCol = keys[3];
+  var dualCol = keys[8];
+  var activityCol = keys[9];
+
+  // Filter by unit and zone
+  var filtered = tatData.filter(function(r) {
+    var unitMatch = currentDualUnit === 'ALL' || (r[unitCol]||'').toUpperCase() === currentDualUnit.toUpperCase();
+    var zoneMatch = currentDualZone === 'ALL' || (r[dualCol]||'').trim() === currentDualZone;
+    return unitMatch && zoneMatch;
+  });
+
+  var total = filtered.length;
+
+  // KPI cards per zone
+  var zones = ['Green Zone','Orange Zone','Pink Zone','Red Zone'];
+  var zoneIds = ['green','orange','pink','red'];
+  var zoneColors = {'green':'#06d6a0','orange':'#ffd166','pink':'#f9a8d4','red':'#ff6b6b'};
+
+  document.getElementById('dual-total').textContent = total.toLocaleString();
+
+  zones.forEach(function(zone, i) {
+    var cnt = filtered.filter(function(r){ return (r[dualCol]||'').trim() === zone; }).length;
+    var pct = total ? (cnt/total*100).toFixed(1)+'%' : '0%';
+    var id = zoneIds[i];
+    var pctEl = document.getElementById('dual-'+id+'-pct');
+    var cntEl = document.getElementById('dual-'+id+'-cnt');
+    if (pctEl) { pctEl.textContent = pct; pctEl.style.color = zoneColors[id] || 'var(--accent)'; }
+    if (cntEl) cntEl.textContent = cnt.toLocaleString();
+  });
+
+  // Status per Dual chart
+  renderDualGroupChart('dualStatusChart', filtered, dualCol, statusCol);
+  renderDualGroupChart('dualRegionChart', filtered, regionCol, statusCol);
+  renderDualGroupChart('dualActivityChart', filtered, activityCol, statusCol);
+
+  // Status breakdown table per Dual Zone
+  renderDualTable('dualStatusTable', filtered, dualCol, statusCol);
+  renderDualTable('dualRegionTable', filtered, regionCol, statusCol);
+}
+
+function getTopStatuses(data, statusCol) {
+  var counts = {};
+  data.forEach(function(r){ var s=(r[statusCol]||'').trim(); if(s) counts[s]=(counts[s]||0)+1; });
+  return Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; }).slice(0,6);
+}
+
+var CHART_COLORS = ['rgba(6,214,160,0.7)','rgba(255,107,107,0.7)','rgba(255,209,102,0.7)','rgba(0,212,255,0.7)','rgba(167,139,250,0.7)','rgba(249,168,212,0.7)'];
+var BORDER_COLORS = ['#06d6a0','#ff6b6b','#ffd166','#00d4ff','#a78bfa','#f9a8d4'];
+
+function renderDualGroupChart(id, data, groupCol, statusCol) {
+  var ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  var groups = [...new Set(data.map(function(r){ return (r[groupCol]||'').trim(); }).filter(Boolean))].slice(0,12);
+  var statuses = getTopStatuses(data, statusCol);
+  var datasets = statuses.map(function(status, i) {
+    var counts = groups.map(function(g) {
+      return data.filter(function(r){ return (r[groupCol]||'').trim()===g && (r[statusCol]||'').trim()===status; }).length;
+    });
+    var totals = groups.map(function(g){ return data.filter(function(r){ return (r[groupCol]||'').trim()===g; }).length; });
+    var pcts = counts.map(function(c,j){ return totals[j] ? (c/totals[j]*100) : 0; });
+    return { label:status, data:pcts, count:counts, backgroundColor:CHART_COLORS[i]||'rgba(100,100,100,0.5)', borderColor:BORDER_COLORS[i]||'#666', borderWidth:1 };
+  });
+  charts[id] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{labels:groups, datasets:datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#6b7280',font:{size:9}}},
+        tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw.toFixed(1)+'% ('+c.dataset.count[c.dataIndex]+' accts)'; }}}
+      },
+      scales:{
+        x:{stacked:true,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{stacked:true,max:100,ticks:{color:'#6b7280',callback:function(v){ return v+'%'; }},grid:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+function renderDualTable(tbodyId, data, groupCol, statusCol) {
+  var tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  var groups = [...new Set(data.map(function(r){ return (r[groupCol]||'').trim(); }).filter(Boolean))];
+  if (!groups.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#6b7280;">No data</td></tr>'; return; }
+  tbody.innerHTML = groups.map(function(g) {
+    var rows = data.filter(function(r){ return (r[groupCol]||'').trim()===g; });
+    var total = rows.length;
+    var nola = rows.filter(function(r){ return (r[statusCol]||'').trim()==='NOLA'; }).length;
+    var declined = rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('declin')>=0; }).length;
+    var sfv = rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('verification')>=0; }).length;
+    var others = total - nola - declined - sfv;
+    var pctNola = total ? (nola/total*100).toFixed(1)+'%' : '0%';
+    var pctDeclined = total ? (declined/total*100).toFixed(1)+'%' : '0%';
+    return '<tr><td>'+g+'</td><td>'+total+'</td><td><span class="tag pos">'+nola+'</span></td><td>'+pctNola+'</td><td><span class="tag neg">'+declined+'</span></td><td>'+pctDeclined+'</td><td>'+sfv+'</td><td>'+others+'</td></tr>';
+  }).join('');
+}
+
 loadData();
 </script>
+
+<!-- DUAL TAB -->
+<div id="tab-dual" class="tab-content">
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:16px;flex-wrap:wrap;">
+    <div class="unit-toggle">
+      <button class="unit-btn active" data-dunit="ALL" onclick="setDualUnit('ALL')">All Units</button>
+      <button class="unit-btn" data-dunit="BN ROPALI" onclick="setDualUnit('BN ROPALI')">BN Ropali</button>
+      <button class="unit-btn" data-dunit="3RD PARTY" onclick="setDualUnit('3RD PARTY')">3rd Party</button>
+      <button class="unit-btn" data-dunit="BN DA" onclick="setDualUnit('BN DA')">BN DA</button>
+      <button class="unit-btn" data-dunit="REPO" onclick="setDualUnit('REPO')">Repo</button>
+    </div>
+    <div class="unit-toggle">
+      <button class="unit-btn active" data-dzone="ALL" onclick="setDualZone('ALL')">All Zones</button>
+      <button class="unit-btn" data-dzone="Green Zone" onclick="setDualZone('Green Zone')">🟢 Green</button>
+      <button class="unit-btn" data-dzone="Orange Zone" onclick="setDualZone('Orange Zone')">🟠 Orange</button>
+      <button class="unit-btn" data-dzone="Pink Zone" onclick="setDualZone('Pink Zone')">🩷 Pink</button>
+      <button class="unit-btn" data-dzone="Red Zone" onclick="setDualZone('Red Zone')">🔴 Red</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="dual-kpi-grid">
+    <div class="kpi-card c1"><div class="kpi-label">Total Accounts</div><div class="kpi-value" id="dual-total">—</div><div class="kpi-sub">All records</div></div>
+    <div class="kpi-card c2"><div class="kpi-label">Green Zone</div><div class="kpi-value" id="dual-green-pct">—</div><div class="kpi-sub">Count: <span id="dual-green-cnt">—</span></div></div>
+    <div class="kpi-card c3"><div class="kpi-label">Orange Zone</div><div class="kpi-value" id="dual-orange-pct">—</div><div class="kpi-sub">Count: <span id="dual-orange-cnt">—</span></div></div>
+    <div class="kpi-card c4"><div class="kpi-label">Pink Zone</div><div class="kpi-value" id="dual-pink-pct">—</div><div class="kpi-sub">Count: <span id="dual-pink-cnt">—</span></div></div>
+    <div class="kpi-card c5"><div class="kpi-label">Red Zone</div><div class="kpi-value" id="dual-red-pct">—</div><div class="kpi-sub">Count: <span id="dual-red-cnt">—</span></div></div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts-grid2">
+    <div class="chart-card"><div class="chart-title">📊 Status per Dual Zone</div><div class="chart-wrap"><canvas id="dualStatusChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 Status per Region</div><div class="chart-wrap"><canvas id="dualRegionChart"></canvas></div></div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="chart-card" style="margin-bottom:20px;">
+    <div class="chart-title">📊 Status per Activity</div>
+    <div class="chart-wrap"><canvas id="dualActivityChart"></canvas></div>
+  </div>
+
+  <!-- Status Breakdown Table -->
+  <div class="table-card">
+    <div class="table-title">📋 Status Breakdown per Dual Zone</div>
+    <table>
+      <thead><tr><th>Dual Zone</th><th>Total</th><th>NOLA</th><th>% NOLA</th><th>Declined</th><th>% Declined</th><th>Sent for Verification</th><th>Others</th></tr></thead>
+      <tbody id="dualStatusTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- Region Breakdown Table -->
+  <div class="table-card">
+    <div class="table-title">📋 Status Breakdown per Region</div>
+    <table>
+      <thead><tr><th>Region</th><th>Total</th><th>NOLA</th><th>% NOLA</th><th>Declined</th><th>% Declined</th><th>Sent for Verification</th><th>Others</th></tr></thead>
+      <tbody id="dualRegionTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>
