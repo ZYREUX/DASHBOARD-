@@ -540,14 +540,13 @@ function renderDualDashboard() {
     if (cntEl) cntEl.textContent = cnt.toLocaleString();
   });
 
-  // Status per Dual chart
-  renderDualGroupChart('dualStatusChart', filtered, dualCol, statusCol);
-  renderDualGroupChart('dualRegionChart', filtered, regionCol, statusCol);
-  renderDualGroupChart('dualActivityChart', filtered, activityCol, statusCol);
-
-  // Status breakdown table per Dual Zone
-  renderDualTable('dualStatusTable', filtered, dualCol, statusCol);
-  renderDualTable('dualRegionTable', filtered, regionCol, statusCol);
+  // Pie chart - status per dual zone
+  renderDualPieChart('dualStatusChart', filtered, statusCol);
+  // Bar chart - status per activity
+  renderDualGroupChart('dualActivityChart', filtered, activityCol, statusCol, false);
+  // Detailed tables
+  renderDualDetailTable('dualStatusTable', filtered, dualCol, statusCol);
+  renderDualDetailTable('dualRegionTable', filtered, regionCol, statusCol);
 }
 
 function getTopStatuses(data, statusCol) {
@@ -559,7 +558,8 @@ function getTopStatuses(data, statusCol) {
 var CHART_COLORS = ['rgba(6,214,160,0.7)','rgba(255,107,107,0.7)','rgba(255,209,102,0.7)','rgba(0,212,255,0.7)','rgba(167,139,250,0.7)','rgba(249,168,212,0.7)'];
 var BORDER_COLORS = ['#06d6a0','#ff6b6b','#ffd166','#00d4ff','#a78bfa','#f9a8d4'];
 
-function renderDualGroupChart(id, data, groupCol, statusCol) {
+function renderDualGroupChart(id, data, groupCol, statusCol, stacked) {
+  if (stacked === undefined) stacked = true;
   var ctx = document.getElementById(id);
   if (!ctx) return;
   if (charts[id]) charts[id].destroy();
@@ -583,28 +583,81 @@ function renderDualGroupChart(id, data, groupCol, statusCol) {
         tooltip:{callbacks:{label:function(c){ return c.dataset.label+': '+c.raw.toFixed(1)+'% ('+c.dataset.count[c.dataIndex]+' accts)'; }}}
       },
       scales:{
-        x:{stacked:true,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},
-        y:{stacked:true,max:100,ticks:{color:'#6b7280',callback:function(v){ return v+'%'; }},grid:{color:'rgba(255,255,255,0.05)'}}
+        x:{stacked:stacked,ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{stacked:stacked,max:stacked?100:undefined,ticks:{color:'#6b7280',callback:function(v){ return stacked?v+'%':v; }},grid:{color:'rgba(255,255,255,0.05)'}}
       }
     }
   });
 }
 
-function renderDualTable(tbodyId, data, groupCol, statusCol) {
+function renderDualPieChart(id, data, statusCol) {
+  var ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  var statuses = ['NOLA','Decline','Passed for Completion','TSAO','Encoded','Sent for Verification','Others'];
+  var counts = statuses.map(function(s, i) {
+    if (s === 'Others') {
+      var known = data.filter(function(r){
+        var st = (r[statusCol]||'').trim();
+        return st==='NOLA' || st.toLowerCase().indexOf('declin')>=0 || st.toLowerCase().indexOf('passed')>=0 || st.toLowerCase().indexOf('tsao')>=0 || st.toLowerCase().indexOf('encoded')>=0 || st.toLowerCase().indexOf('verification')>=0;
+      }).length;
+      return data.length - known;
+    }
+    if (s === 'NOLA') return data.filter(function(r){ return (r[statusCol]||'').trim()==='NOLA'; }).length;
+    if (s === 'Decline') return data.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('declin')>=0; }).length;
+    if (s === 'Passed for Completion') return data.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('passed')>=0; }).length;
+    if (s === 'TSAO') return data.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('tsao')>=0; }).length;
+    if (s === 'Encoded') return data.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('encoded')>=0; }).length;
+    if (s === 'Sent for Verification') return data.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('verification')>=0; }).length;
+    return 0;
+  });
+  var total = data.length;
+  charts[id] = new Chart(ctx.getContext('2d'), {
+    type:'doughnut',
+    data:{
+      labels:statuses,
+      datasets:[{data:counts, backgroundColor:['#06d6a0','#ff6b6b','#ffd166','#00d4ff','#a78bfa','#f9a8d4','#6b7280'], borderColor:'rgba(255,255,255,0.1)', borderWidth:2}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#6b7280',font:{size:10}}},
+        tooltip:{callbacks:{label:function(c){ return c.label+': '+c.raw+' ('+(total?(c.raw/total*100).toFixed(1):0)+'%)'; }}}
+      }
+    }
+  });
+}
+
+function renderDualDetailTable(tbodyId, data, groupCol, statusCol) {
   var tbody = document.getElementById(tbodyId);
   if (!tbody) return;
   var groups = [...new Set(data.map(function(r){ return (r[groupCol]||'').trim(); }).filter(Boolean))];
-  if (!groups.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#6b7280;">No data</td></tr>'; return; }
+  if (!groups.length) { tbody.innerHTML='<tr><td colspan="15" style="text-align:center;color:#6b7280;">No data</td></tr>'; return; }
+
+  function cnt(rows, type) {
+    if (type==='NOLA') return rows.filter(function(r){ return (r[statusCol]||'').trim()==='NOLA'; }).length;
+    if (type==='Decline') return rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('declin')>=0; }).length;
+    if (type==='Passed') return rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('passed')>=0; }).length;
+    if (type==='TSAO') return rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('tsao')>=0; }).length;
+    if (type==='Encoded') return rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('encoded')>=0; }).length;
+    if (type==='SFV') return rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('verification')>=0; }).length;
+    return 0;
+  }
+
   tbody.innerHTML = groups.map(function(g) {
     var rows = data.filter(function(r){ return (r[groupCol]||'').trim()===g; });
-    var total = rows.length;
-    var nola = rows.filter(function(r){ return (r[statusCol]||'').trim()==='NOLA'; }).length;
-    var declined = rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('declin')>=0; }).length;
-    var sfv = rows.filter(function(r){ return (r[statusCol]||'').toLowerCase().indexOf('verification')>=0; }).length;
-    var others = total - nola - declined - sfv;
-    var pctNola = total ? (nola/total*100).toFixed(1)+'%' : '0%';
-    var pctDeclined = total ? (declined/total*100).toFixed(1)+'%' : '0%';
-    return '<tr><td>'+g+'</td><td>'+total+'</td><td><span class="tag pos">'+nola+'</span></td><td>'+pctNola+'</td><td><span class="tag neg">'+declined+'</span></td><td>'+pctDeclined+'</td><td>'+sfv+'</td><td>'+others+'</td></tr>';
+    var t = rows.length;
+    var n=cnt(rows,'NOLA'), d=cnt(rows,'Decline'), p=cnt(rows,'Passed'), ts=cnt(rows,'TSAO'), e=cnt(rows,'Encoded'), s=cnt(rows,'SFV');
+    var o = t - n - d - p - ts - e - s;
+    var pct = function(v){ return t ? (v/t*100).toFixed(1)+'%' : '0%'; };
+    return '<tr><td>'+g+'</td><td><b>'+t+'</b></td>'+
+      '<td><span class="tag pos">'+n+'</span></td><td>'+pct(n)+'</td>'+
+      '<td><span class="tag neg">'+d+'</span></td><td>'+pct(d)+'</td>'+
+      '<td><span class="tag warn">'+p+'</span></td><td>'+pct(p)+'</td>'+
+      '<td><span class="tag info">'+ts+'</span></td><td>'+pct(ts)+'</td>'+
+      '<td><span class="tag info">'+e+'</span></td><td>'+pct(e)+'</td>'+
+      '<td><span class="tag warn">'+s+'</span></td><td>'+pct(s)+'</td>'+
+      '<td>'+o+'</td></tr>';
   }).join('');
 }
 
@@ -641,31 +694,25 @@ loadData();
 
   <!-- Charts Row 1 -->
   <div class="charts-grid2">
-    <div class="chart-card"><div class="chart-title">📊 Status per Dual Zone</div><div class="chart-wrap"><canvas id="dualStatusChart"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">📊 Status per Region</div><div class="chart-wrap"><canvas id="dualRegionChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">🥧 Status Distribution per Dual Zone</div><div class="chart-wrap"><canvas id="dualStatusChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">📊 Status per Activity</div><div class="chart-wrap"><canvas id="dualActivityChart"></canvas></div></div>
   </div>
 
-  <!-- Charts Row 2 -->
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">📊 Status per Activity</div>
-    <div class="chart-wrap"><canvas id="dualActivityChart"></canvas></div>
-  </div>
-
-  <!-- Status Breakdown Table -->
+  <!-- Status Breakdown Table per Dual Zone -->
   <div class="table-card">
     <div class="table-title">📋 Status Breakdown per Dual Zone</div>
     <table>
-      <thead><tr><th>Dual Zone</th><th>Total</th><th>NOLA</th><th>% NOLA</th><th>Declined</th><th>% Declined</th><th>Sent for Verification</th><th>Others</th></tr></thead>
-      <tbody id="dualStatusTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+      <thead><tr><th>Dual Zone</th><th>Total</th><th>NOLA</th><th>%</th><th>Decline</th><th>%</th><th>Passed for Completion</th><th>%</th><th>TSAO</th><th>%</th><th>Encoded</th><th>%</th><th>Sent for Verification</th><th>%</th><th>Others</th></tr></thead>
+      <tbody id="dualStatusTable"><tr><td colspan="15"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
     </table>
   </div>
 
-  <!-- Region Breakdown Table -->
+  <!-- Status Breakdown per Region Table -->
   <div class="table-card">
     <div class="table-title">📋 Status Breakdown per Region</div>
     <table>
-      <thead><tr><th>Region</th><th>Total</th><th>NOLA</th><th>% NOLA</th><th>Declined</th><th>% Declined</th><th>Sent for Verification</th><th>Others</th></tr></thead>
-      <tbody id="dualRegionTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+      <thead><tr><th>Region</th><th>Total</th><th>NOLA</th><th>%</th><th>Decline</th><th>%</th><th>Passed for Completion</th><th>%</th><th>TSAO</th><th>%</th><th>Encoded</th><th>%</th><th>Sent for Verification</th><th>%</th><th>Others</th></tr></thead>
+      <tbody id="dualRegionTable"><tr><td colspan="15"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
     </table>
   </div>
 </div>
