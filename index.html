@@ -514,20 +514,20 @@ function renderDualDashboard() {
   var dualCol = keys[8];
   var activityCol = keys[9];
 
-  // Filter by unit and zone
-  var filtered = tatData.filter(function(r) {
-    var unitMatch = currentDualUnit === 'ALL' || (r[unitCol]||'').toUpperCase() === currentDualUnit.toUpperCase();
-    var zoneMatch = currentDualZone === 'ALL' || (r[dualCol]||'').trim() === currentDualZone;
-    return unitMatch && zoneMatch;
+  // Unit-only filter (for KPI cards % calculation)
+  var unitOnly = tatData.filter(function(r) {
+    if (currentDualUnit === 'ALL') return true;
+    return (r[unitCol]||'').toUpperCase() === currentDualUnit.toUpperCase();
+  });
+  var unitTotal = unitOnly.length;
+
+  // Full filter (unit + zone) for charts and tables
+  var filtered = unitOnly.filter(function(r) {
+    if (currentDualZone === 'ALL') return true;
+    return (r[dualCol]||'').trim() === currentDualZone;
   });
 
   var total = filtered.length;
-
-  // KPI cards per zone - always based on unit total (ignore zone filter)
-  var unitOnly = tatData.filter(function(r) {
-    return currentDualUnit === 'ALL' || (r[unitCol]||'').toUpperCase() === currentDualUnit.toUpperCase();
-  });
-  var unitTotal = unitOnly.length;
 
   var zones = ['Green Zone','Orange Zone','Pink Zone','Red Zone'];
   var zoneIds = ['green','orange','pink','red'];
