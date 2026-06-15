@@ -514,6 +514,7 @@ function renderDualDashboard() {
   var dualCol = keys[8];
   var activityCol = keys[9];
   var dealerCol = keys[0];
+  var productSchemeCol = keys[15]; // Column P = PRODUCT SCHEME
 
   // Unit-only filter (for KPI cards % calculation)
   var unitOnly = tatData.filter(function(r) {
@@ -553,7 +554,23 @@ function renderDualDashboard() {
   // Detailed tables
   renderDualDetailTable('dualStatusTable', filtered, dualCol, statusCol);
   renderDualDetailTable('dualRegionTable', filtered, regionCol, statusCol);
-  renderDualDetailTable('dualDealerTable', filtered, dealerCol, statusCol);
+
+  // Product Scheme dropdown - populate options once
+  var schemeSelect = document.getElementById('productSchemeFilter');
+  if (schemeSelect && schemeSelect.options.length <= 1) {
+    var schemes = [...new Set(tatData.map(function(r){ return (r[productSchemeCol]||'').trim(); }).filter(Boolean))].sort();
+    schemes.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      schemeSelect.appendChild(opt);
+    });
+  }
+  // Filter dealer table by selected product scheme
+  var selectedScheme = schemeSelect ? schemeSelect.value : 'ALL';
+  var dealerFiltered = filtered.filter(function(r) {
+    return selectedScheme === 'ALL' || (r[productSchemeCol]||'').trim() === selectedScheme;
+  });
+  renderDualDetailTable('dualDealerTable', dealerFiltered, dealerCol, statusCol);
 }
 
 function getTopStatuses(data, statusCol) {
@@ -725,7 +742,12 @@ loadData();
 
   <!-- Status Breakdown per Dealer Table -->
   <div class="table-card">
-    <div class="table-title">📋 Status Breakdown per Dealer</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <div class="table-title" style="margin-bottom:0;">📋 Status Breakdown per Dealer</div>
+      <select id="productSchemeFilter" onchange="renderDualDashboard()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:12px;">
+        <option value="ALL">All Product Schemes</option>
+      </select>
+    </div>
     <table>
       <thead><tr><th>Dealer</th><th>Total</th><th>NOLA</th><th>%</th><th>Decline</th><th>%</th><th>Passed for Completion</th><th>%</th><th>TSAO</th><th>%</th><th>Encoded</th><th>%</th><th>Sent for Verification</th><th>%</th><th>Others</th></tr></thead>
       <tbody id="dualDealerTable"><tr><td colspan="15"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
