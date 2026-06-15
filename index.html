@@ -513,6 +513,7 @@ function renderDualDashboard() {
   var statusCol = keys[3];
   var dualCol = keys[8];
   var activityCol = keys[9];
+  var dealerCol = keys[0];
 
   // Unit-only filter (for KPI cards % calculation)
   var unitOnly = tatData.filter(function(r) {
@@ -552,6 +553,7 @@ function renderDualDashboard() {
   // Detailed tables
   renderDualDetailTable('dualStatusTable', filtered, dualCol, statusCol);
   renderDualDetailTable('dualRegionTable', filtered, regionCol, statusCol);
+  renderDualDetailTable('dualDealerTable', filtered, dealerCol, statusCol);
 }
 
 function getTopStatuses(data, statusCol) {
@@ -718,6 +720,15 @@ loadData();
     <table>
       <thead><tr><th>Region</th><th>Total</th><th>NOLA</th><th>%</th><th>Decline</th><th>%</th><th>Passed for Completion</th><th>%</th><th>TSAO</th><th>%</th><th>Encoded</th><th>%</th><th>Sent for Verification</th><th>%</th><th>Others</th></tr></thead>
       <tbody id="dualRegionTable"><tr><td colspan="15"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- Status Breakdown per Dealer Table -->
+  <div class="table-card">
+    <div class="table-title">📋 Status Breakdown per Dealer</div>
+    <table>
+      <thead><tr><th>Dealer</th><th>Total</th><th>NOLA</th><th>%</th><th>Decline</th><th>%</th><th>Passed for Completion</th><th>%</th><th>TSAO</th><th>%</th><th>Encoded</th><th>%</th><th>Sent for Verification</th><th>%</th><th>Others</th></tr></thead>
+      <tbody id="dualDealerTable"><tr><td colspan="15"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody>
     </table>
   </div>
 </div>
