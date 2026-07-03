@@ -218,7 +218,19 @@
 
   <!-- Monthly Table -->
   <div class="table-card">
-    <div class="table-title">📋 Monthly Breakdown</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+      <div class="table-title" style="margin-bottom:0;">📋 Monthly Breakdown</div>
+      <div class="filter-group">
+        <label>Filter by Unit</label>
+        <select id="monthlyUnitFilter" onchange="applyFilters()">
+          <option value="ALL">All Units</option>
+          <option value="BN ROPALI">BN Ropali</option>
+          <option value="BN 3RD PARTY">3rd Party</option>
+          <option value="BN DA">BN DA</option>
+          <option value="REPO">Repo</option>
+        </select>
+      </div>
+    </div>
     <table>
       <thead><tr><th>Year</th><th>Month</th><th>Unit</th><th>Risk Category</th><th>Total Releases</th><th>Gross FAR1</th><th>Gross%</th><th>Net FAR1</th><th>Net%</th><th>NPL</th><th>NPL%</th></tr></thead>
       <tbody id="monthlyTable"></tbody>
@@ -226,6 +238,73 @@
   </div>
 
 </div>
+
+<!-- DEMOGRAPHICS & RISK FACTOR PROFILING -->
+<div class="demo-section">
+  <div class="demo-header">
+    <h2>👥 Demographic & Risk Factor Profiling</h2>
+    <p>Analysis based on 209,408 borrower records — Region, Risk Category, Loan Amount Range, Present Address (Province), Occupation Category, and Age Range</p>
+  </div>
+
+  <div class="filters" style="margin-bottom: 20px;">
+    <div class="filter-group">
+      <label>Factor</label>
+      <select id="factorSelect" onchange="renderFactorView()">
+        <option value="Region">Region</option>
+        <option value="Risk Category">Risk Category</option>
+        <option value="Loan Amount Range">Loan Amount Range</option>
+        <option value="Present Address (Province)">Present Address (Province)</option>
+        <option value="Occupation Category">Occupation Category</option>
+        <option value="Age Range">Age Range</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Sort By</label>
+      <select id="factorSort" onchange="renderFactorView()">
+        <option value="Total_Releases">Total Releases</option>
+        <option value="Gross_FAR1_pct">Gross FAR1%</option>
+        <option value="Net_FAR1_pct">Net FAR1%</option>
+        <option value="NPL_pct">NPL%</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title" id="factorChartTitle">📊 FAR1% & NPL% by Factor</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="factorChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🥧 Volume Share (Total Releases)</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="factorVolumeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-title" id="factorTableTitle">📋 Detailed Breakdown</div>
+    <table>
+      <thead><tr><th>Level</th><th>Total Releases</th><th>Gross FAR1</th><th>Gross%</th><th>Net FAR1</th><th>Net%</th><th>NPL</th><th>NPL%</th></tr></thead>
+      <tbody id="factorTable"></tbody>
+    </table>
+  </div>
+
+  <div class="charts-grid2" style="grid-template-columns: 1fr;">
+    <div class="chart-card">
+      <div class="chart-title">🚩 Top Risk Factors (highest NPL%, min. 300 releases across all dimensions)</div>
+      <table>
+        <thead><tr><th>Factor</th><th>Level</th><th>Total Releases</th><th>Gross FAR1%</th><th>Net FAR1%</th><th>NPL%</th></tr></thead>
+        <tbody id="topRiskTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  .demo-section { margin-top: 10px; }
+  .demo-header { margin-bottom: 20px; }
+  .demo-header h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #00d4ff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .demo-header p { font-size: 13px; color: var(--muted); }
+</style>
 
 <script>
 const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,NET FAR 1,NPL,TOTAL LOAN AMOUNT
@@ -2023,6 +2102,119 @@ function projectSeries(keys, series){
 }
 function riskLabel(r) { return r === 'Very High Risk' ? 'Red Zone' : r; }
 
+const EMBEDDED_FACTORS_CSV = `Factor,Level,Total_Releases,Gross_FAR1,Net_FAR1,NPL,Gross_FAR1_pct,Net_FAR1_pct,NPL_pct
+Region,MINDANAO,16484,6197,3359,1205,37.59,20.38,7.31
+Region,NCR NORTH,15487,5071,2876,1008,32.74,18.57,6.51
+Region,NCR SOUTH,18946,6528,3699,1210,34.46,19.52,6.39
+Region,REGION 1,28586,10643,6431,1620,37.23,22.5,5.67
+Region,REGION 2- CAGAYAN,9646,3133,1639,404,32.48,16.99,4.19
+Region,REGION 2- ISABELA,21660,7274,3234,588,33.58,14.93,2.71
+Region,REGION 3A,21406,6889,3678,1308,32.18,17.18,6.11
+Region,REGION 3B,24444,7559,4112,1110,30.92,16.82,4.54
+Region,REGION 4,30020,10050,5596,1542,33.48,18.64,5.14
+Region,REGION 5,6249,2523,999,584,40.37,15.99,9.35
+Region,VISAYAS,16480,5919,3163,804,35.92,19.19,4.88
+Unit,BN 3RD PARTY,20189,2926,400,655,14.49,1.98,3.24
+Unit,BN DA,3422,631,103,110,18.44,3.01,3.21
+Unit,BN ROPALI,126084,53527,30903,7040,42.45,24.51,5.58
+Unit,REPO,59713,14702,7380,3578,24.62,12.36,5.99
+Year,2018,7228,4970,475,613,68.76,6.57,8.48
+Year,2019,37831,14071,8623,2830,37.19,22.79,7.48
+Year,2020,49672,31431,21758,2379,63.28,43.8,4.79
+Year,2021,17339,4047,2254,1003,23.34,13.0,5.78
+Year,2022,19720,4344,2434,1421,22.03,12.34,7.21
+Year,2023,18569,3402,1365,1365,18.32,7.35,7.35
+Year,2024,17406,2780,655,843,15.97,3.76,4.84
+Year,2025,29601,4948,763,897,16.72,2.58,3.03
+Year,2026,12042,1793,459,32,14.89,3.81,0.27
+Risk Category,Green Zone,42191,6131,1274,1295,14.53,3.02,3.07
+Risk Category,Not Applicable,509,83,28,30,16.31,5.5,5.89
+Risk Category,Orange Zone,16201,2769,651,694,17.09,4.02,4.28
+Risk Category,Pink Zone,7992,1618,426,339,20.25,5.33,4.24
+Risk Category,Red Zone,3541,817,261,206,23.07,7.37,5.82
+Loan Amount Range,100k-120k,16245,5320,2754,1026,32.75,16.95,6.32
+Loan Amount Range,120k-150k,10269,1990,672,635,19.38,6.54,6.18
+Loan Amount Range,150k+,1530,289,108,115,18.89,7.06,7.52
+Loan Amount Range,Below 100k,181364,64187,35252,9607,35.39,19.44,5.3
+Present Address (Province),Abra,1107,296,152,32,26.74,13.73,2.89
+Present Address (Province),Agusan del Sur,1,0,0,0,0.0,0.0,0.0
+Present Address (Province),Aklan,4,1,1,0,25.0,25.0,0.0
+Present Address (Province),Albay,1740,562,263,110,32.3,15.11,6.32
+Present Address (Province),Antique,751,153,29,35,20.37,3.86,4.66
+Present Address (Province),Apayao,420,159,91,17,37.86,21.67,4.05
+Present Address (Province),Aurora,752,432,184,36,57.45,24.47,4.79
+Present Address (Province),Bataan,3731,1323,781,141,35.46,20.93,3.78
+Present Address (Province),Batangas,1894,634,380,87,33.47,20.06,4.59
+Present Address (Province),Benguet,151,118,83,19,78.15,54.97,12.58
+Present Address (Province),Bohol,858,164,45,31,19.11,5.24,3.61
+Present Address (Province),Bukidnon,1764,708,386,89,40.14,21.88,5.05
+Present Address (Province),Bulacan,15275,4613,2773,877,30.2,18.15,5.74
+Present Address (Province),Cagayan,8622,2653,1476,341,30.77,17.12,3.95
+Present Address (Province),Camarines Sur,702,250,106,75,35.61,15.1,10.68
+Present Address (Province),Capiz,1853,789,487,60,42.58,26.28,3.24
+Present Address (Province),Catanduanes,82,38,18,29,46.34,21.95,35.37
+Present Address (Province),Cavite,16683,5458,3142,829,32.72,18.83,4.97
+Present Address (Province),Cebu,4945,1574,778,248,31.83,15.73,5.02
+Present Address (Province),Davao Oriental,3,2,0,1,66.67,0.0,33.33
+Present Address (Province),Davao del Norte,2389,968,614,205,40.52,25.7,8.58
+Present Address (Province),Davao del Sur,4719,1513,812,348,32.06,17.21,7.37
+Present Address (Province),Eastern Samar,1,0,0,0,0.0,0.0,0.0
+Present Address (Province),Ifugao,113,41,21,8,36.28,18.58,7.08
+Present Address (Province),Ilocos Norte,1792,680,353,61,37.95,19.7,3.4
+Present Address (Province),Ilocos Sur,2250,664,320,62,29.51,14.22,2.76
+Present Address (Province),Iloilo,2105,974,617,128,46.27,29.31,6.08
+Present Address (Province),Isabela,16652,4660,2643,273,27.98,15.87,1.64
+Present Address (Province),Kalinga,16,8,5,1,50.0,31.25,6.25
+Present Address (Province),La Union,2848,1761,1335,722,61.83,46.88,25.35
+Present Address (Province),Laguna,4509,1769,1038,253,39.23,23.02,5.61
+Present Address (Province),Lanao del Norte,2,1,1,0,50.0,50.0,0.0
+Present Address (Province),Leyte,2,2,1,0,100.0,50.0,0.0
+Present Address (Province),Masbate,315,116,53,25,36.83,16.83,7.94
+Present Address (Province),Metro Manila,30086,9857,5763,1887,32.76,19.16,6.27
+Present Address (Province),Misamis Occidental,3,0,0,0,0.0,0.0,0.0
+Present Address (Province),Misamis Oriental,2159,650,324,120,30.11,15.01,5.56
+Present Address (Province),Mountain Province,12,6,3,1,50.0,25.0,8.33
+Present Address (Province),Negros Occidental,1863,815,500,101,43.75,26.84,5.42
+Present Address (Province),Negros Oriental,2040,717,420,66,35.15,20.59,3.24
+Present Address (Province),Nueva Ecija,3433,1168,611,193,34.02,17.8,5.62
+Present Address (Province),Nueva Vizcaya,570,199,130,47,34.91,22.81,8.25
+Present Address (Province),Occidental Mindoro,246,138,67,27,56.1,27.24,10.98
+Present Address (Province),Oriental Mindoro,274,150,74,25,54.74,27.01,9.12
+Present Address (Province),Palawan,424,161,89,57,37.97,20.99,13.44
+Present Address (Province),Pampanga,12443,3078,1588,593,24.74,12.76,4.77
+Present Address (Province),Pangasinan,18957,6350,3961,604,33.5,20.89,3.19
+Present Address (Province),Quezon,1148,556,353,38,48.43,30.75,3.31
+Present Address (Province),Quirino,789,320,233,20,40.56,29.53,2.53
+Present Address (Province),Rizal,7347,2236,1158,402,30.43,15.76,5.47
+Present Address (Province),Romblon,124,79,38,5,63.71,30.65,4.03
+Present Address (Province),Sarangani,147,58,22,8,39.46,14.97,5.44
+Present Address (Province),Sorsogon,785,297,142,64,37.83,18.09,8.15
+Present Address (Province),South Cotabato,3272,1412,762,257,43.15,23.29,7.85
+Present Address (Province),Sultan Kudarat,47,21,13,2,44.68,27.66,4.26
+Present Address (Province),Tarlac,3946,1363,883,145,34.54,22.38,3.67
+Present Address (Province),Valley,108,48,27,10,44.44,25.0,9.26
+Present Address (Province),Zambales,2863,1079,607,148,37.69,21.2,5.17
+Present Address (Province),Zamboanga Sibugay,1,0,0,0,0.0,0.0,0.0
+Present Address (Province),Zamboanga del Norte,1139,445,253,74,39.07,22.21,6.5
+Present Address (Province),Zamboanga del Sur,4,2,2,1,50.0,50.0,25.0
+Occupation Category,"Agriculture, Fisheries & Livestock",7080,2179,1210,271,30.78,17.09,3.83
+Occupation Category,Business Owner / Self-Employed,20095,7483,4423,1066,37.24,22.01,5.3
+Occupation Category,Education & Training,2542,894,497,79,35.17,19.55,3.11
+Occupation Category,Government & Uniformed Service,2401,930,533,113,38.73,22.2,4.71
+Occupation Category,Healthcare & Medical,757,199,103,29,26.29,13.61,3.83
+Occupation Category,Office & Professional,39194,11673,6313,1929,29.78,16.11,4.92
+Occupation Category,Others / Non-Working,56496,21879,13207,3350,38.73,23.38,5.93
+Occupation Category,"Sales, Retail & Customer Service",14581,4025,2202,710,27.6,15.1,4.87
+Occupation Category,"Skilled Trades, Technical & Construction",21385,6008,3382,897,28.09,15.81,4.19
+Occupation Category,"Transportation, Logistics & Maritime",29670,9424,5382,1631,31.76,18.14,5.5
+Age Range,18-24,35650,11157,6570,1557,31.3,18.43,4.37
+Age Range,25-34,79548,27015,15774,4395,33.96,19.83,5.52
+Age Range,35-44,49591,17306,9910,2766,34.9,19.98,5.58
+Age Range,45-54,22703,7296,4032,1048,32.14,17.76,4.62
+Age Range,55-64,5852,1714,912,231,29.29,15.58,3.95
+Age Range,65+,370,80,28,14,21.62,7.57,3.78
+`;
+
 const RISK_COLORS = {
   'Green Zone': '#06d6a0',
   'Orange Zone': '#ffd166',
@@ -2089,7 +2281,17 @@ function applyFilters() {
   renderRiskChart(filtered);
   renderRiskBarCharts(filtered);
   renderSummaryTable(filtered);
-  renderMonthlyTable(filtered);
+
+  // Monthly table has its own independent Unit filter (separate from the top unit tabs)
+  var monthlyUnit = document.getElementById('monthlyUnitFilter') ? document.getElementById('monthlyUnitFilter').value : 'ALL';
+  var monthlyFiltered = allData.filter(r => {
+    var unitMatch = monthlyUnit === 'ALL' || r['UNIT'] === monthlyUnit;
+    var riskMatch = currentRisk === 'ALL' || r['RISK CATEGORY'] === currentRisk;
+    var yearMatch = year === 'ALL' || String(r['YEAR']) === String(year);
+    var monthMatch = month === 'ALL' || String(r['MONTH']) === String(month);
+    return unitMatch && riskMatch && yearMatch && monthMatch;
+  });
+  renderMonthlyTable(monthlyFiltered);
 }
 
 function renderKPIs(data) {
@@ -2277,7 +2479,87 @@ function renderMonthlyTable(data) {
   }).join('');
 }
 
+let factorsData = [];
+
+function parseFactorsCSV() {
+  return new Promise((resolve, reject) => {
+    Papa.parse(EMBEDDED_FACTORS_CSV, { header: true, skipEmptyLines: true, dynamicTyping: true, complete: r => resolve(r.data), error: e => reject(e) });
+  });
+}
+
+async function loadFactors() {
+  try {
+    factorsData = await parseFactorsCSV();
+    renderFactorView();
+    renderTopRiskTable();
+  } catch(e) {
+    console.error('Factors load error:', e);
+  }
+}
+
+function renderFactorView() {
+  var factor = document.getElementById('factorSelect').value;
+  var sortBy = document.getElementById('factorSort').value;
+  var rows = factorsData.filter(r => r['Factor'] === factor);
+  rows = rows.slice().sort((a,b) => (b[sortBy]||0) - (a[sortBy]||0));
+
+  document.getElementById('factorChartTitle').textContent = '📊 FAR1% & NPL% by ' + factor;
+  document.getElementById('factorTableTitle').textContent = '📋 Detailed Breakdown — ' + factor;
+
+  var labels = rows.map(r => String(r['Level']));
+  var gross = rows.map(r => r['Gross_FAR1_pct']);
+  var net = rows.map(r => r['Net_FAR1_pct']);
+  var npl = rows.map(r => r['NPL_pct']);
+  var releases = rows.map(r => r['Total_Releases']);
+
+  var ctx = document.getElementById('factorChart').getContext('2d');
+  if (charts.factorChart) charts.factorChart.destroy();
+  charts.factorChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Gross FAR1%', data: gross, backgroundColor: '#ffd166', borderRadius: 4 },
+        { label: 'Net FAR1%', data: net, backgroundColor: '#a78bfa', borderRadius: 4 },
+        { label: 'NPL%', data: npl, backgroundColor: '#ff6b6b', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#6b7280', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#6b7280', font: { size: 10 }, maxRotation: 60, minRotation: 30 }, grid: { display: false } },
+        y: { ticks: { color: '#6b7280', font: { size: 11 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      }
+    }
+  });
+
+  var ctx2 = document.getElementById('factorVolumeChart').getContext('2d');
+  if (charts.factorVolumeChart) charts.factorVolumeChart.destroy();
+  var palette = ['#00d4ff','#ff6b6b','#06d6a0','#ffd166','#a78bfa','#f9a8d4','#6b7280','#ff9f40','#4dd0e1','#ba68c8','#81c784'];
+  charts.factorVolumeChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: releases, backgroundColor: labels.map((_,i)=>palette[i % palette.length]), borderColor: 'rgba(255,255,255,0.1)', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { color: '#6b7280', font: { size: 10 }, boxWidth: 10, padding: 6 } }, tooltip: { callbacks: { label: c => c.label + ': ' + c.raw.toLocaleString() + ' accts' } } } }
+  });
+
+  var tbody = document.getElementById('factorTable');
+  tbody.innerHTML = rows.map(r => `<tr><td>${r['Level']}</td><td>${Number(r['Total_Releases']).toLocaleString()}</td><td>${r['Gross_FAR1']}</td><td>${r['Gross_FAR1_pct']}%</td><td>${r['Net_FAR1']}</td><td>${r['Net_FAR1_pct']}%</td><td>${r['NPL']}</td><td>${r['NPL_pct']}%</td></tr>`).join('');
+}
+
+function renderTopRiskTable() {
+  var MIN_SAMPLE = 300;
+  var sig = factorsData.filter(r => r['Total_Releases'] >= MIN_SAMPLE);
+  var topNPL = sig.slice().sort((a,b) => b['NPL_pct'] - a['NPL_pct']).slice(0, 10);
+  var tbody = document.getElementById('topRiskTable');
+  tbody.innerHTML = topNPL.map(r => {
+    var badgeClass = r['NPL_pct'] > 10 ? 'over' : (r['NPL_pct'] > 6 ? 'warn' : 'ok');
+    return `<tr><td>${r['Factor']}</td><td>${r['Level']}</td><td>${Number(r['Total_Releases']).toLocaleString()}</td><td>${r['Gross_FAR1_pct']}%</td><td>${r['Net_FAR1_pct']}%</td><td><span class="badge ${badgeClass}">${r['NPL_pct']}%</span></td></tr>`;
+  }).join('');
+}
+
 loadData();
+loadFactors();
 </script>
 </body>
 </html>
