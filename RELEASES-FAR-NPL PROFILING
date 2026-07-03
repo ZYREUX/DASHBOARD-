@@ -15,19 +15,19 @@
     --text: #e8eaf0; --muted: #6b7280; --border: rgba(255,255,255,0.07);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 20px; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 20px; font-size: 15px; }
 
   .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
-  .header h1 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #ff6b6b, #ffd166); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .header h1 { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; background: linear-gradient(90deg, #ff6b6b, #ffd166); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { font-size: 14px; color: var(--muted); margin-top: 4px; }
 
   .filters { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
   .filter-group { display: flex; flex-direction: column; gap: 4px; }
-  .filter-group label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; min-width: 120px; }
+  .filter-group label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; min-width: 130px; }
 
   .tabs { display: flex; gap: 4px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
-  .tab-btn { padding: 7px 20px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .tab-btn { padding: 9px 22px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .tab-btn.active { background: linear-gradient(135deg, #ff6b6b, #ffd166); color: #000; }
 
   .unit-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -35,7 +35,7 @@
   .unit-btn.active { background: var(--surface2); color: var(--text); border-color: var(--accent); }
 
   .risk-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
-  .risk-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .risk-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .risk-btn.active { color: #000; }
   .risk-btn[data-risk="ALL"].active { background: var(--accent); border-color: var(--accent); color: #000; }
   .risk-btn[data-risk="Green Zone"].active { background: #06d6a0; border-color: #06d6a0; }
@@ -51,15 +51,15 @@
   .kpi-card.gross::before { background: var(--yellow); }
   .kpi-card.net::before { background: var(--purple); }
   .kpi-card.npl::before { background: var(--red); }
-  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
-  .kpi-actual { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+  .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .kpi-actual { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
   .kpi-card.releases .kpi-actual { color: var(--accent); }
   .kpi-card.current .kpi-actual { color: var(--green); }
   .kpi-card.gross .kpi-actual { color: var(--yellow); }
   .kpi-card.net .kpi-actual { color: var(--purple); }
   .kpi-card.npl .kpi-actual { color: var(--red); }
-  .kpi-meta { font-size: 11px; color: var(--muted); }
-  .kpi-threshold { font-size: 11px; margin-top: 4px; font-weight: 600; }
+  .kpi-meta { font-size: 13px; color: var(--muted); }
+  .kpi-threshold { font-size: 13px; margin-top: 4px; font-weight: 600; }
   .kpi-threshold.ok { color: var(--green); }
   .kpi-threshold.warn { color: var(--yellow); }
   .kpi-threshold.over { color: var(--red); }
@@ -67,28 +67,28 @@
   .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
   .charts-grid2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
-  .chart-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .chart-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 14px; }
   .chart-wrap { position: relative; height: 200px; }
   .chart-wrap-sm { position: relative; height: 160px; }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; cursor: pointer; }
+  .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); padding: 10px 18px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 14px; cursor: pointer; }
   .refresh-btn:hover { background: var(--accent); color: #000; }
 
   .status-bar { display: flex; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; flex-wrap: wrap; }
-  .status-item { font-size: 12px; color: var(--muted); }
+  .status-item { font-size: 14px; color: var(--muted); }
   .status-item span { color: var(--text); font-weight: 500; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; }
-  td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 10px 14px; color: var(--muted); font-size: 13px; text-transform: uppercase; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--surface2); }
   .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; overflow-x: auto; margin-bottom: 20px; }
-  .table-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; }
   .badge.ok { background: rgba(6,214,160,0.15); color: var(--green); }
   .badge.over { background: rgba(255,107,107,0.15); color: var(--red); }
   .badge.warn { background: rgba(255,209,102,0.15); color: var(--yellow); }
@@ -130,7 +130,7 @@
 <div class="tabs">
   <button class="tab-btn active" data-unit="ALL" onclick="setUnit('ALL')">All Units</button>
   <button class="tab-btn" data-unit="BN ROPALI" onclick="setUnit('BN ROPALI')">BN Ropali</button>
-  <button class="tab-btn" data-unit="3RD PARTY" onclick="setUnit('3RD PARTY')">3rd Party</button>
+  <button class="tab-btn" data-unit="BN 3RD PARTY" onclick="setUnit('BN 3RD PARTY')">3rd Party</button>
   <button class="tab-btn" data-unit="BN DA" onclick="setUnit('BN DA')">BN DA</button>
   <button class="tab-btn" data-unit="REPO" onclick="setUnit('REPO')">Repo</button>
 </div>
@@ -141,7 +141,7 @@
   <button class="risk-btn" data-risk="Green Zone" onclick="setRisk('Green Zone')">🟢 Green Zone</button>
   <button class="risk-btn" data-risk="Orange Zone" onclick="setRisk('Orange Zone')">🟠 Orange Zone</button>
   <button class="risk-btn" data-risk="Pink Zone" onclick="setRisk('Pink Zone')">🩷 Pink Zone</button>
-  <button class="risk-btn" data-risk="Very High Risk" onclick="setRisk('Very High Risk')">🔴 Very High Risk</button>
+  <button class="risk-btn" data-risk="Very High Risk" onclick="setRisk('Very High Risk')">🔴 Red Zone</button>
 </div>
 
 <!-- Main Tab Content -->
@@ -233,10 +233,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,1,BN ROPALI,Very High Risk,0,0,0,0,0
-2018,1,3RD PARTY,Green Zone,0,0,0,0,0
-2018,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,1,BN DA,Green Zone,0,0,0,0,0
 2018,1,BN DA,Orange Zone,0,0,0,0,0
 2018,1,BN DA,Pink Zone,0,0,0,0,0
@@ -249,10 +249,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,2,BN ROPALI,Very High Risk,0,0,0,0,0
-2018,2,3RD PARTY,Green Zone,0,0,0,0,0
-2018,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,2,BN DA,Green Zone,0,0,0,0,0
 2018,2,BN DA,Orange Zone,0,0,0,0,0
 2018,2,BN DA,Pink Zone,0,0,0,0,0
@@ -265,10 +265,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,3,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,3,BN ROPALI,Very High Risk,8,8,1,0,491951.33
-2018,3,3RD PARTY,Green Zone,0,0,0,0,0
-2018,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,3,BN DA,Green Zone,0,0,0,0,0
 2018,3,BN DA,Orange Zone,0,0,0,0,0
 2018,3,BN DA,Pink Zone,0,0,0,0,0
@@ -281,10 +281,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,4,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,4,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,4,BN ROPALI,Very High Risk,107,107,12,7,6825889.9
-2018,4,3RD PARTY,Green Zone,0,0,0,0,0
-2018,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,4,BN DA,Green Zone,0,0,0,0,0
 2018,4,BN DA,Orange Zone,0,0,0,0,0
 2018,4,BN DA,Pink Zone,0,0,0,0,0
@@ -297,10 +297,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,5,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,5,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,5,BN ROPALI,Very High Risk,139,138,20,9,8771405.89
-2018,5,3RD PARTY,Green Zone,0,0,0,0,0
-2018,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,5,BN DA,Green Zone,0,0,0,0,0
 2018,5,BN DA,Orange Zone,0,0,0,0,0
 2018,5,BN DA,Pink Zone,0,0,0,0,0
@@ -313,10 +313,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,6,BN ROPALI,Very High Risk,204,201,22,9,12641972.33
-2018,6,3RD PARTY,Green Zone,0,0,0,0,0
-2018,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,6,BN DA,Green Zone,0,0,0,0,0
 2018,6,BN DA,Orange Zone,0,0,0,0,0
 2018,6,BN DA,Pink Zone,0,0,0,0,0
@@ -329,10 +329,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,7,BN ROPALI,Very High Risk,452,450,43,26,26603051.13
-2018,7,3RD PARTY,Green Zone,0,0,0,0,0
-2018,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,7,BN DA,Green Zone,0,0,0,0,0
 2018,7,BN DA,Orange Zone,0,0,0,0,0
 2018,7,BN DA,Pink Zone,0,0,0,0,0
@@ -345,10 +345,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,8,BN ROPALI,Very High Risk,427,419,44,25,26403347.05
-2018,8,3RD PARTY,Green Zone,0,0,0,0,0
-2018,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,8,BN DA,Green Zone,0,0,0,0,0
 2018,8,BN DA,Orange Zone,0,0,0,0,0
 2018,8,BN DA,Pink Zone,0,0,0,0,0
@@ -361,10 +361,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,9,BN ROPALI,Very High Risk,759,757,34,61,51656304.2
-2018,9,3RD PARTY,Green Zone,0,0,0,0,0
-2018,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,9,BN DA,Green Zone,0,0,0,0,0
 2018,9,BN DA,Orange Zone,0,0,0,0,0
 2018,9,BN DA,Pink Zone,0,0,0,0,0
@@ -377,10 +377,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,10,BN ROPALI,Very High Risk,1160,1140,55,87,82315739.97
-2018,10,3RD PARTY,Green Zone,0,0,0,0,0
-2018,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,10,BN DA,Green Zone,0,0,0,0,0
 2018,10,BN DA,Orange Zone,0,0,0,0,0
 2018,10,BN DA,Pink Zone,0,0,0,0,0
@@ -393,10 +393,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,11,BN ROPALI,Very High Risk,1867,961,131,180,131860895.7
-2018,11,3RD PARTY,Green Zone,0,0,0,0,0
-2018,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,11,BN DA,Green Zone,0,0,0,0,0
 2018,11,BN DA,Orange Zone,0,0,0,0,0
 2018,11,BN DA,Pink Zone,0,0,0,0,0
@@ -409,10 +409,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2018,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2018,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2018,12,BN ROPALI,Very High Risk,1962,668,108,190,143723410.6
-2018,12,3RD PARTY,Green Zone,0,0,0,0,0
-2018,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2018,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2018,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2018,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2018,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2018,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2018,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2018,12,BN DA,Green Zone,0,0,0,0,0
 2018,12,BN DA,Orange Zone,0,0,0,0,0
 2018,12,BN DA,Pink Zone,0,0,0,0,0
@@ -425,10 +425,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,1,BN ROPALI,Very High Risk,1357,334,48,122,100918802.7
-2019,1,3RD PARTY,Green Zone,0,0,0,0,0
-2019,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,1,BN DA,Green Zone,0,0,0,0,0
 2019,1,BN DA,Orange Zone,0,0,0,0,0
 2019,1,BN DA,Pink Zone,0,0,0,0,0
@@ -441,10 +441,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,2,BN ROPALI,Very High Risk,2055,786,112,226,152910448.2
-2019,2,3RD PARTY,Green Zone,0,0,0,0,0
-2019,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,2,BN DA,Green Zone,0,0,0,0,0
 2019,2,BN DA,Orange Zone,0,0,0,0,0
 2019,2,BN DA,Pink Zone,0,0,0,0,0
@@ -457,10 +457,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,3,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,3,BN ROPALI,Very High Risk,1642,410,47,197,128218074.8
-2019,3,3RD PARTY,Green Zone,0,0,0,0,0
-2019,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,3,BN DA,Green Zone,0,0,0,0,0
 2019,3,BN DA,Orange Zone,0,0,0,0,0
 2019,3,BN DA,Pink Zone,0,0,0,0,0
@@ -473,10 +473,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,4,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,4,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,4,BN ROPALI,Very High Risk,2386,657,130,210,188380118.8
-2019,4,3RD PARTY,Green Zone,0,0,0,0,0
-2019,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,4,BN DA,Green Zone,0,0,0,0,0
 2019,4,BN DA,Orange Zone,0,0,0,0,0
 2019,4,BN DA,Pink Zone,0,0,0,0,0
@@ -489,10 +489,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,5,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,5,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,5,BN ROPALI,Very High Risk,2587,676,194,199,206833829.3
-2019,5,3RD PARTY,Green Zone,0,0,0,0,0
-2019,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,5,BN DA,Green Zone,0,0,0,0,0
 2019,5,BN DA,Orange Zone,0,0,0,0,0
 2019,5,BN DA,Pink Zone,0,0,0,0,0
@@ -505,10 +505,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,6,BN ROPALI,Very High Risk,1380,404,144,108,109563078.7
-2019,6,3RD PARTY,Green Zone,0,0,0,0,0
-2019,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,6,BN DA,Green Zone,0,0,0,0,0
 2019,6,BN DA,Orange Zone,0,0,0,0,0
 2019,6,BN DA,Pink Zone,0,0,0,0,0
@@ -521,10 +521,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,7,BN ROPALI,Very High Risk,3817,1078,720,428,307124760.1
-2019,7,3RD PARTY,Green Zone,0,0,0,0,0
-2019,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,7,BN DA,Green Zone,0,0,0,0,0
 2019,7,BN DA,Orange Zone,0,0,0,0,0
 2019,7,BN DA,Pink Zone,0,0,0,0,0
@@ -537,10 +537,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,8,BN ROPALI,Very High Risk,2212,613,441,163,180117164
-2019,8,3RD PARTY,Green Zone,0,0,0,0,0
-2019,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,8,BN DA,Green Zone,0,0,0,0,0
 2019,8,BN DA,Orange Zone,0,0,0,0,0
 2019,8,BN DA,Pink Zone,0,0,0,0,0
@@ -553,10 +553,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,9,BN ROPALI,Very High Risk,3450,1359,987,192,278104525.9
-2019,9,3RD PARTY,Green Zone,0,0,0,0,0
-2019,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,9,BN DA,Green Zone,0,0,0,0,0
 2019,9,BN DA,Orange Zone,0,0,0,0,0
 2019,9,BN DA,Pink Zone,0,0,0,0,0
@@ -569,10 +569,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,10,BN ROPALI,Very High Risk,3007,1131,853,124,241171531.7
-2019,10,3RD PARTY,Green Zone,0,0,0,0,0
-2019,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,10,BN DA,Green Zone,0,0,0,0,0
 2019,10,BN DA,Orange Zone,0,0,0,0,0
 2019,10,BN DA,Pink Zone,0,0,0,0,0
@@ -585,10 +585,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,11,BN ROPALI,Very High Risk,4083,1947,1495,194,323317195
-2019,11,3RD PARTY,Green Zone,0,0,0,0,0
-2019,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,11,BN DA,Green Zone,0,0,0,0,0
 2019,11,BN DA,Orange Zone,0,0,0,0,0
 2019,11,BN DA,Pink Zone,0,0,0,0,0
@@ -601,10 +601,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2019,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2019,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2019,12,BN ROPALI,Very High Risk,5444,3563,2972,221,438897612.6
-2019,12,3RD PARTY,Green Zone,0,0,0,0,0
-2019,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2019,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2019,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2019,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2019,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2019,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2019,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2019,12,BN DA,Green Zone,0,0,0,0,0
 2019,12,BN DA,Orange Zone,0,0,0,0,0
 2019,12,BN DA,Pink Zone,0,0,0,0,0
@@ -617,10 +617,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,1,BN ROPALI,Very High Risk,4942,3549,2389,242,401074544.9
-2020,1,3RD PARTY,Green Zone,0,0,0,0,0
-2020,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,1,BN DA,Green Zone,0,0,0,0,0
 2020,1,BN DA,Orange Zone,0,0,0,0,0
 2020,1,BN DA,Pink Zone,0,0,0,0,0
@@ -633,10 +633,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,2,BN ROPALI,Very High Risk,5626,4555,3262,276,465915946.3
-2020,2,3RD PARTY,Green Zone,0,0,0,0,0
-2020,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,2,BN DA,Green Zone,0,0,0,0,0
 2020,2,BN DA,Orange Zone,0,0,0,0,0
 2020,2,BN DA,Pink Zone,0,0,0,0,0
@@ -649,10 +649,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,3,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,3,BN ROPALI,Very High Risk,3632,3244,2327,165,300293508
-2020,3,3RD PARTY,Green Zone,0,0,0,0,0
-2020,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,3,BN DA,Green Zone,0,0,0,0,0
 2020,3,BN DA,Orange Zone,0,0,0,0,0
 2020,3,BN DA,Pink Zone,0,0,0,0,0
@@ -665,10 +665,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,4,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,4,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,4,BN ROPALI,Very High Risk,355,106,47,21,28617961.58
-2020,4,3RD PARTY,Green Zone,0,0,0,0,0
-2020,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,4,BN DA,Green Zone,0,0,0,0,0
 2020,4,BN DA,Orange Zone,0,0,0,0,0
 2020,4,BN DA,Pink Zone,0,0,0,0,0
@@ -681,10 +681,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,5,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,5,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,5,BN ROPALI,Very High Risk,3757,2258,1596,204,299119661
-2020,5,3RD PARTY,Green Zone,0,0,0,0,0
-2020,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,5,BN DA,Green Zone,0,0,0,0,0
 2020,5,BN DA,Orange Zone,0,0,0,0,0
 2020,5,BN DA,Pink Zone,0,0,0,0,0
@@ -697,10 +697,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,6,BN ROPALI,Very High Risk,8169,5876,4066,372,674757189.5
-2020,6,3RD PARTY,Green Zone,0,0,0,0,0
-2020,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,6,BN DA,Green Zone,0,0,0,0,0
 2020,6,BN DA,Orange Zone,0,0,0,0,0
 2020,6,BN DA,Pink Zone,0,0,0,0,0
@@ -713,10 +713,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,7,BN ROPALI,Very High Risk,6225,4895,3635,230,518082152.3
-2020,7,3RD PARTY,Green Zone,0,0,0,0,0
-2020,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,7,BN DA,Green Zone,0,0,0,0,0
 2020,7,BN DA,Orange Zone,0,0,0,0,0
 2020,7,BN DA,Pink Zone,0,0,0,0,0
@@ -729,10 +729,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,8,BN ROPALI,Very High Risk,4227,3577,2531,214,350974908.3
-2020,8,3RD PARTY,Green Zone,0,0,0,0,0
-2020,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,8,BN DA,Green Zone,0,0,0,0,0
 2020,8,BN DA,Orange Zone,0,0,0,0,0
 2020,8,BN DA,Pink Zone,0,0,0,0,0
@@ -745,10 +745,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,9,BN ROPALI,Very High Risk,1445,560,366,66,123175332.6
-2020,9,3RD PARTY,Green Zone,0,0,0,0,0
-2020,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,9,BN DA,Green Zone,0,0,0,0,0
 2020,9,BN DA,Orange Zone,0,0,0,0,0
 2020,9,BN DA,Pink Zone,0,0,0,0,0
@@ -761,10 +761,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,10,BN ROPALI,Very High Risk,296,132,21,14,26508292.11
-2020,10,3RD PARTY,Green Zone,0,0,0,0,0
-2020,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,10,BN DA,Green Zone,0,0,0,0,0
 2020,10,BN DA,Orange Zone,0,0,0,0,0
 2020,10,BN DA,Pink Zone,0,0,0,0,0
@@ -777,10 +777,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,11,BN ROPALI,Very High Risk,1,0,0,0,63500
-2020,11,3RD PARTY,Green Zone,0,0,0,0,0
-2020,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,11,BN DA,Green Zone,0,0,0,0,0
 2020,11,BN DA,Orange Zone,0,0,0,0,0
 2020,11,BN DA,Pink Zone,0,0,0,0,0
@@ -793,10 +793,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2020,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2020,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2020,12,BN ROPALI,Very High Risk,13,4,2,1,1282049.98
-2020,12,3RD PARTY,Green Zone,0,0,0,0,0
-2020,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2020,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2020,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2020,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2020,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2020,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2020,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2020,12,BN DA,Green Zone,0,0,0,0,0
 2020,12,BN DA,Orange Zone,0,0,0,0,0
 2020,12,BN DA,Pink Zone,0,0,0,0,0
@@ -809,10 +809,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,1,BN ROPALI,Very High Risk,43,6,3,2,3207495.67
-2021,1,3RD PARTY,Green Zone,0,0,0,0,0
-2021,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,1,BN DA,Green Zone,0,0,0,0,0
 2021,1,BN DA,Orange Zone,0,0,0,0,0
 2021,1,BN DA,Pink Zone,0,0,0,0,0
@@ -825,10 +825,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,2,BN ROPALI,Very High Risk,29,4,3,1,2352142.22
-2021,2,3RD PARTY,Green Zone,0,0,0,0,0
-2021,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,2,BN DA,Green Zone,0,0,0,0,0
 2021,2,BN DA,Orange Zone,0,0,0,0,0
 2021,2,BN DA,Pink Zone,0,0,0,0,0
@@ -841,10 +841,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,3,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,3,BN ROPALI,Very High Risk,45,10,5,2,3482332.1
-2021,3,3RD PARTY,Green Zone,0,0,0,0,0
-2021,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,3,BN DA,Green Zone,0,0,0,0,0
 2021,3,BN DA,Orange Zone,0,0,0,0,0
 2021,3,BN DA,Pink Zone,0,0,0,0,0
@@ -857,10 +857,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,4,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,4,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,4,BN ROPALI,Very High Risk,358,65,34,22,29159553.39
-2021,4,3RD PARTY,Green Zone,0,0,0,0,0
-2021,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,4,BN DA,Green Zone,0,0,0,0,0
 2021,4,BN DA,Orange Zone,0,0,0,0,0
 2021,4,BN DA,Pink Zone,0,0,0,0,0
@@ -873,10 +873,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,5,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,5,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,5,BN ROPALI,Very High Risk,611,102,29,28,49384753.61
-2021,5,3RD PARTY,Green Zone,0,0,0,0,0
-2021,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,5,BN DA,Green Zone,0,0,0,0,0
 2021,5,BN DA,Orange Zone,0,0,0,0,0
 2021,5,BN DA,Pink Zone,0,0,0,0,0
@@ -889,10 +889,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,6,BN ROPALI,Very High Risk,629,105,50,39,52124355.92
-2021,6,3RD PARTY,Green Zone,0,0,0,0,0
-2021,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,6,BN DA,Green Zone,0,0,0,0,0
 2021,6,BN DA,Orange Zone,0,0,0,0,0
 2021,6,BN DA,Pink Zone,0,0,0,0,0
@@ -905,10 +905,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,7,BN ROPALI,Very High Risk,531,67,30,34,44571572
-2021,7,3RD PARTY,Green Zone,0,0,0,0,0
-2021,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,7,BN DA,Green Zone,0,0,0,0,0
 2021,7,BN DA,Orange Zone,0,0,0,0,0
 2021,7,BN DA,Pink Zone,0,0,0,0,0
@@ -921,10 +921,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,8,BN ROPALI,Very High Risk,452,93,42,22,38620130.87
-2021,8,3RD PARTY,Green Zone,0,0,0,0,0
-2021,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,8,BN DA,Green Zone,0,0,0,0,0
 2021,8,BN DA,Orange Zone,0,0,0,0,0
 2021,8,BN DA,Pink Zone,0,0,0,0,0
@@ -937,10 +937,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,9,BN ROPALI,Very High Risk,578,123,62,31,48724431.1
-2021,9,3RD PARTY,Green Zone,0,0,0,0,0
-2021,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,9,BN DA,Green Zone,0,0,0,0,0
 2021,9,BN DA,Orange Zone,0,0,0,0,0
 2021,9,BN DA,Pink Zone,0,0,0,0,0
@@ -953,10 +953,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,10,BN ROPALI,Very High Risk,696,138,61,32,59640315.2
-2021,10,3RD PARTY,Green Zone,0,0,0,0,0
-2021,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,10,BN DA,Green Zone,0,0,0,0,0
 2021,10,BN DA,Orange Zone,0,0,0,0,0
 2021,10,BN DA,Pink Zone,0,0,0,0,0
@@ -969,10 +969,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,11,BN ROPALI,Very High Risk,873,155,62,50,73829511
-2021,11,3RD PARTY,Green Zone,0,0,0,0,0
-2021,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,11,BN DA,Green Zone,0,0,0,0,0
 2021,11,BN DA,Orange Zone,0,0,0,0,0
 2021,11,BN DA,Pink Zone,0,0,0,0,0
@@ -985,10 +985,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2021,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2021,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2021,12,BN ROPALI,Very High Risk,995,158,52,57,80087718.29
-2021,12,3RD PARTY,Green Zone,0,0,0,0,0
-2021,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2021,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2021,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2021,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2021,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2021,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2021,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2021,12,BN DA,Green Zone,0,0,0,0,0
 2021,12,BN DA,Orange Zone,0,0,0,0,0
 2021,12,BN DA,Pink Zone,0,0,0,0,0
@@ -1001,10 +1001,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,1,BN ROPALI,Very High Risk,739,113,47,41,60239006.7
-2022,1,3RD PARTY,Green Zone,0,0,0,0,0
-2022,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,1,BN DA,Green Zone,0,0,0,0,0
 2022,1,BN DA,Orange Zone,0,0,0,0,0
 2022,1,BN DA,Pink Zone,0,0,0,0,0
@@ -1017,10 +1017,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,2,BN ROPALI,Very High Risk,1071,126,49,72,89785174.1
-2022,2,3RD PARTY,Green Zone,0,0,0,0,0
-2022,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,2,BN DA,Green Zone,0,0,0,0,0
 2022,2,BN DA,Orange Zone,0,0,0,0,0
 2022,2,BN DA,Pink Zone,0,0,0,0,0
@@ -1033,10 +1033,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,3,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,3,BN ROPALI,Very High Risk,1004,173,74,59,83753313
-2022,3,3RD PARTY,Green Zone,0,0,0,0,0
-2022,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,3,BN DA,Green Zone,0,0,0,0,0
 2022,3,BN DA,Orange Zone,0,0,0,0,0
 2022,3,BN DA,Pink Zone,0,0,0,0,0
@@ -1049,10 +1049,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,4,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,4,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,4,BN ROPALI,Very High Risk,776,126,44,61,64885793
-2022,4,3RD PARTY,Green Zone,0,0,0,0,0
-2022,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,4,BN DA,Green Zone,0,0,0,0,0
 2022,4,BN DA,Orange Zone,0,0,0,0,0
 2022,4,BN DA,Pink Zone,0,0,0,0,0
@@ -1065,10 +1065,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,5,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,5,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,5,BN ROPALI,Very High Risk,725,121,51,44,58415716.07
-2022,5,3RD PARTY,Green Zone,0,0,0,0,0
-2022,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,5,BN DA,Green Zone,0,0,0,0,0
 2022,5,BN DA,Orange Zone,0,0,0,0,0
 2022,5,BN DA,Pink Zone,0,0,0,0,0
@@ -1081,10 +1081,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,6,BN ROPALI,Very High Risk,529,88,45,28,43120594
-2022,6,3RD PARTY,Green Zone,0,0,0,0,0
-2022,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,6,BN DA,Green Zone,0,0,0,0,0
 2022,6,BN DA,Orange Zone,0,0,0,0,0
 2022,6,BN DA,Pink Zone,0,0,0,0,0
@@ -1097,10 +1097,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,7,BN ROPALI,Very High Risk,393,85,46,29,31960470.43
-2022,7,3RD PARTY,Green Zone,0,0,0,0,0
-2022,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,7,BN DA,Green Zone,0,0,0,0,0
 2022,7,BN DA,Orange Zone,0,0,0,0,0
 2022,7,BN DA,Pink Zone,0,0,0,0,0
@@ -1113,10 +1113,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,8,BN ROPALI,Very High Risk,558,146,97,31,46765031.29
-2022,8,3RD PARTY,Green Zone,0,0,0,0,0
-2022,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,8,BN DA,Green Zone,0,0,0,0,0
 2022,8,BN DA,Orange Zone,0,0,0,0,0
 2022,8,BN DA,Pink Zone,0,0,0,0,0
@@ -1129,10 +1129,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,9,BN ROPALI,Very High Risk,667,155,65,69,57131643.4
-2022,9,3RD PARTY,Green Zone,0,0,0,0,0
-2022,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,9,BN DA,Green Zone,0,0,0,0,0
 2022,9,BN DA,Orange Zone,0,0,0,0,0
 2022,9,BN DA,Pink Zone,0,0,0,0,0
@@ -1145,10 +1145,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,10,BN ROPALI,Very High Risk,517,87,28,40,43901173
-2022,10,3RD PARTY,Green Zone,0,0,0,0,0
-2022,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,10,BN DA,Green Zone,0,0,0,0,0
 2022,10,BN DA,Orange Zone,0,0,0,0,0
 2022,10,BN DA,Pink Zone,0,0,0,0,0
@@ -1161,10 +1161,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,11,BN ROPALI,Very High Risk,596,106,35,47,54231523
-2022,11,3RD PARTY,Green Zone,0,0,0,0,0
-2022,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,11,BN DA,Green Zone,0,0,0,0,0
 2022,11,BN DA,Orange Zone,0,0,0,0,0
 2022,11,BN DA,Pink Zone,0,0,0,0,0
@@ -1177,10 +1177,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2022,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2022,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2022,12,BN ROPALI,Very High Risk,845,109,33,78,77548980.87
-2022,12,3RD PARTY,Green Zone,0,0,0,0,0
-2022,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2022,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2022,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2022,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2022,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2022,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2022,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2022,12,BN DA,Green Zone,0,0,0,0,0
 2022,12,BN DA,Orange Zone,0,0,0,0,0
 2022,12,BN DA,Pink Zone,0,0,0,0,0
@@ -1193,10 +1193,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,1,BN ROPALI,Orange Zone,0,0,0,0,0
 2023,1,BN ROPALI,Pink Zone,0,0,0,0,0
 2023,1,BN ROPALI,Very High Risk,764,82,23,66,68470382.57
-2023,1,3RD PARTY,Green Zone,0,0,0,0,0
-2023,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,1,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2023,1,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2023,1,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2023,1,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2023,1,BN DA,Green Zone,0,0,0,0,0
 2023,1,BN DA,Orange Zone,0,0,0,0,0
 2023,1,BN DA,Pink Zone,0,0,0,0,0
@@ -1209,10 +1209,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,2,BN ROPALI,Orange Zone,0,0,0,0,0
 2023,2,BN ROPALI,Pink Zone,0,0,0,0,0
 2023,2,BN ROPALI,Very High Risk,858,95,29,90,79664202.72
-2023,2,3RD PARTY,Green Zone,0,0,0,0,0
-2023,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,2,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2023,2,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2023,2,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2023,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2023,2,BN DA,Green Zone,0,0,0,0,0
 2023,2,BN DA,Orange Zone,0,0,0,0,0
 2023,2,BN DA,Pink Zone,0,0,0,0,0
@@ -1225,10 +1225,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,3,BN ROPALI,Orange Zone,0,0,0,0,0
 2023,3,BN ROPALI,Pink Zone,1,1,1,0,92267
 2023,3,BN ROPALI,Very High Risk,830,126,35,75,76967543.13
-2023,3,3RD PARTY,Green Zone,0,0,0,0,0
-2023,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,3,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2023,3,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2023,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2023,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2023,3,BN DA,Green Zone,0,0,0,0,0
 2023,3,BN DA,Orange Zone,0,0,0,0,0
 2023,3,BN DA,Pink Zone,0,0,0,0,0
@@ -1241,10 +1241,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,4,BN ROPALI,Orange Zone,137,17,4,18,13200499
 2023,4,BN ROPALI,Pink Zone,52,10,4,3,4856501
 2023,4,BN ROPALI,Very High Risk,128,24,13,12,11790281
-2023,4,3RD PARTY,Green Zone,0,0,0,0,0
-2023,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,4,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2023,4,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2023,4,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2023,4,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2023,4,BN DA,Green Zone,0,0,0,0,0
 2023,4,BN DA,Orange Zone,0,0,0,0,0
 2023,4,BN DA,Pink Zone,0,0,0,0,0
@@ -1257,10 +1257,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,5,BN ROPALI,Orange Zone,180,25,8,14,16403716
 2023,5,BN ROPALI,Pink Zone,70,14,2,8,6225512
 2023,5,BN ROPALI,Very High Risk,92,17,8,10,7632223.77
-2023,5,3RD PARTY,Green Zone,0,0,0,0,0
-2023,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,5,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2023,5,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2023,5,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2023,5,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2023,5,BN DA,Green Zone,0,0,0,0,0
 2023,5,BN DA,Orange Zone,0,0,0,0,0
 2023,5,BN DA,Pink Zone,0,0,0,0,0
@@ -1273,10 +1273,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,6,BN ROPALI,Orange Zone,174,27,6,17,16370741
 2023,6,BN ROPALI,Pink Zone,83,12,5,8,7430550
 2023,6,BN ROPALI,Very High Risk,63,7,2,5,5400062.42
-2023,6,3RD PARTY,Green Zone,0,0,0,0,0
-2023,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,6,BN 3RD PARTY,Green Zone,1,0,0,0,139400
+2023,6,BN 3RD PARTY,Orange Zone,7,1,0,1,558245
+2023,6,BN 3RD PARTY,Pink Zone,3,1,0,0,241200
+2023,6,BN 3RD PARTY,Very High Risk,3,0,0,0,301900
 2023,6,BN DA,Green Zone,0,0,0,0,0
 2023,6,BN DA,Orange Zone,0,0,0,0,0
 2023,6,BN DA,Pink Zone,0,0,0,0,0
@@ -1289,10 +1289,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,7,BN ROPALI,Orange Zone,148,30,5,17,14514409
 2023,7,BN ROPALI,Pink Zone,71,13,2,8,6570252
 2023,7,BN ROPALI,Very High Risk,84,9,2,8,7557960
-2023,7,3RD PARTY,Green Zone,0,0,0,0,0
-2023,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,7,BN 3RD PARTY,Green Zone,18,6,1,2,1504750
+2023,7,BN 3RD PARTY,Orange Zone,26,6,1,1,2260848
+2023,7,BN 3RD PARTY,Pink Zone,12,2,0,1,1029870
+2023,7,BN 3RD PARTY,Very High Risk,2,0,0,1,224200
 2023,7,BN DA,Green Zone,0,0,0,0,0
 2023,7,BN DA,Orange Zone,0,0,0,0,0
 2023,7,BN DA,Pink Zone,0,0,0,0,0
@@ -1305,10 +1305,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,8,BN ROPALI,Orange Zone,185,31,12,15,17512034
 2023,8,BN ROPALI,Pink Zone,77,15,5,7,6832233
 2023,8,BN ROPALI,Very High Risk,65,13,3,3,5776556
-2023,8,3RD PARTY,Green Zone,0,0,0,0,0
-2023,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,8,BN 3RD PARTY,Green Zone,39,8,3,1,3518306
+2023,8,BN 3RD PARTY,Orange Zone,26,3,0,6,2188956
+2023,8,BN 3RD PARTY,Pink Zone,6,2,0,0,520614
+2023,8,BN 3RD PARTY,Very High Risk,3,1,0,0,279600
 2023,8,BN DA,Green Zone,0,0,0,0,0
 2023,8,BN DA,Orange Zone,0,0,0,0,0
 2023,8,BN DA,Pink Zone,0,0,0,0,0
@@ -1321,10 +1321,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,9,BN ROPALI,Orange Zone,204,31,11,14,18992516
 2023,9,BN ROPALI,Pink Zone,73,12,3,4,6809871
 2023,9,BN ROPALI,Very High Risk,55,14,1,5,4812292
-2023,9,3RD PARTY,Green Zone,0,0,0,0,0
-2023,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,9,BN 3RD PARTY,Green Zone,72,10,1,6,6650823.8
+2023,9,BN 3RD PARTY,Orange Zone,43,12,2,5,3801360.99
+2023,9,BN 3RD PARTY,Pink Zone,12,3,0,2,1224135.21
+2023,9,BN 3RD PARTY,Very High Risk,8,2,0,0,727795.75
 2023,9,BN DA,Green Zone,0,0,0,0,0
 2023,9,BN DA,Orange Zone,0,0,0,0,0
 2023,9,BN DA,Pink Zone,0,0,0,0,0
@@ -1337,10 +1337,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,10,BN ROPALI,Orange Zone,216,29,7,17,20825592
 2023,10,BN ROPALI,Pink Zone,83,14,5,1,7707054
 2023,10,BN ROPALI,Very High Risk,62,7,1,5,5804566
-2023,10,3RD PARTY,Green Zone,0,0,0,0,0
-2023,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,10,BN 3RD PARTY,Green Zone,74,11,3,8,7452720
+2023,10,BN 3RD PARTY,Orange Zone,39,9,3,3,3429022
+2023,10,BN 3RD PARTY,Pink Zone,10,4,1,2,856088
+2023,10,BN 3RD PARTY,Very High Risk,9,1,0,2,842968
 2023,10,BN DA,Green Zone,0,0,0,0,0
 2023,10,BN DA,Orange Zone,0,0,0,0,0
 2023,10,BN DA,Pink Zone,0,0,0,0,0
@@ -1353,10 +1353,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,11,BN ROPALI,Orange Zone,193,28,3,15,18542397
 2023,11,BN ROPALI,Pink Zone,81,14,4,4,7403953
 2023,11,BN ROPALI,Very High Risk,66,10,1,4,6137768
-2023,11,3RD PARTY,Green Zone,0,0,0,0,0
-2023,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,11,BN 3RD PARTY,Green Zone,68,8,2,9,6685012
+2023,11,BN 3RD PARTY,Orange Zone,30,6,2,3,2800002
+2023,11,BN 3RD PARTY,Pink Zone,5,0,0,0,343972
+2023,11,BN 3RD PARTY,Very High Risk,8,2,0,1,825672
 2023,11,BN DA,Green Zone,0,0,0,0,0
 2023,11,BN DA,Orange Zone,0,0,0,0,0
 2023,11,BN DA,Pink Zone,0,0,0,0,0
@@ -1369,10 +1369,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2023,12,BN ROPALI,Orange Zone,228,25,3,15,22096711
 2023,12,BN ROPALI,Pink Zone,107,26,5,7,9765422
 2023,12,BN ROPALI,Very High Risk,48,6,2,2,4383014
-2023,12,3RD PARTY,Green Zone,0,0,0,0,0
-2023,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2023,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2023,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2023,12,BN 3RD PARTY,Green Zone,44,4,0,4,4389344
+2023,12,BN 3RD PARTY,Orange Zone,16,4,0,2,1339618
+2023,12,BN 3RD PARTY,Pink Zone,4,0,0,0,307398
+2023,12,BN 3RD PARTY,Very High Risk,6,1,1,0,751098
 2023,12,BN DA,Green Zone,0,0,0,0,0
 2023,12,BN DA,Orange Zone,0,0,0,0,0
 2023,12,BN DA,Pink Zone,0,0,0,0,0
@@ -1385,10 +1385,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,1,BN ROPALI,Orange Zone,189,20,2,11,17443598
 2024,1,BN ROPALI,Pink Zone,77,6,2,5,7248599
 2024,1,BN ROPALI,Very High Risk,42,6,2,1,3791486
-2024,1,3RD PARTY,Green Zone,0,0,0,0,0
-2024,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,1,BN 3RD PARTY,Green Zone,40,7,1,7,3615286
+2024,1,BN 3RD PARTY,Orange Zone,14,1,0,0,1142860
+2024,1,BN 3RD PARTY,Pink Zone,6,2,1,1,600342
+2024,1,BN 3RD PARTY,Very High Risk,1,1,1,0,76800
 2024,1,BN DA,Green Zone,0,0,0,0,0
 2024,1,BN DA,Orange Zone,0,0,0,0,0
 2024,1,BN DA,Pink Zone,0,0,0,0,0
@@ -1401,10 +1401,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,2,BN ROPALI,Orange Zone,224,29,8,19,21689684
 2024,2,BN ROPALI,Pink Zone,100,9,2,1,9680017
 2024,2,BN ROPALI,Very High Risk,55,5,1,3,5093761
-2024,2,3RD PARTY,Green Zone,0,0,0,0,0
-2024,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,2,BN 3RD PARTY,Green Zone,11,1,1,1,1253680
+2024,2,BN 3RD PARTY,Orange Zone,3,2,1,1,272668
+2024,2,BN 3RD PARTY,Pink Zone,1,1,0,0,78866
+2024,2,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2024,2,BN DA,Green Zone,0,0,0,0,0
 2024,2,BN DA,Orange Zone,0,0,0,0,0
 2024,2,BN DA,Pink Zone,0,0,0,0,0
@@ -1417,10 +1417,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,3,BN ROPALI,Orange Zone,226,40,9,16,22340372
 2024,3,BN ROPALI,Pink Zone,96,24,6,6,9163778
 2024,3,BN ROPALI,Very High Risk,68,14,3,8,6537462
-2024,3,3RD PARTY,Green Zone,0,0,0,0,0
-2024,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,3,BN 3RD PARTY,Green Zone,9,2,0,0,722146
+2024,3,BN 3RD PARTY,Orange Zone,6,2,0,1,522408
+2024,3,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2024,3,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2024,3,BN DA,Green Zone,0,0,0,0,0
 2024,3,BN DA,Orange Zone,0,0,0,0,0
 2024,3,BN DA,Pink Zone,0,0,0,0,0
@@ -1433,10 +1433,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,4,BN ROPALI,Orange Zone,227,36,7,22,23261549
 2024,4,BN ROPALI,Pink Zone,81,12,1,11,7631747
 2024,4,BN ROPALI,Very High Risk,59,3,1,7,5695257
-2024,4,3RD PARTY,Green Zone,0,0,0,0,0
-2024,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,4,BN 3RD PARTY,Green Zone,15,1,0,0,1366183
+2024,4,BN 3RD PARTY,Orange Zone,3,1,0,0,233350
+2024,4,BN 3RD PARTY,Pink Zone,1,0,0,0,78800
+2024,4,BN 3RD PARTY,Very High Risk,1,0,0,0,87210
 2024,4,BN DA,Green Zone,33,10,1,0,3315335
 2024,4,BN DA,Orange Zone,11,1,1,3,1086874
 2024,4,BN DA,Pink Zone,7,4,1,2,719475
@@ -1449,10 +1449,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,5,BN ROPALI,Orange Zone,215,25,3,9,21177100
 2024,5,BN ROPALI,Pink Zone,83,11,2,2,8259864
 2024,5,BN ROPALI,Very High Risk,69,13,2,3,6694412
-2024,5,3RD PARTY,Green Zone,0,0,0,0,0
-2024,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,5,BN 3RD PARTY,Green Zone,29,2,0,1,2406200
+2024,5,BN 3RD PARTY,Orange Zone,22,8,3,3,1950890
+2024,5,BN 3RD PARTY,Pink Zone,7,1,1,0,582486
+2024,5,BN 3RD PARTY,Very High Risk,2,0,0,0,235700
 2024,5,BN DA,Green Zone,40,13,1,2,4039779
 2024,5,BN DA,Orange Zone,29,10,2,2,2807491
 2024,5,BN DA,Pink Zone,7,1,1,0,754814.98
@@ -1465,10 +1465,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,6,BN ROPALI,Orange Zone,169,28,7,9,16600770
 2024,6,BN ROPALI,Pink Zone,75,10,3,7,6960429
 2024,6,BN ROPALI,Very High Risk,38,3,3,2,3790768
-2024,6,3RD PARTY,Green Zone,0,0,0,0,0
-2024,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,6,BN 3RD PARTY,Green Zone,51,14,0,6,4826777
+2024,6,BN 3RD PARTY,Orange Zone,15,5,2,3,1340898
+2024,6,BN 3RD PARTY,Pink Zone,4,2,1,1,379484
+2024,6,BN 3RD PARTY,Very High Risk,1,0,0,0,76040
 2024,6,BN DA,Green Zone,33,6,1,5,3286349
 2024,6,BN DA,Orange Zone,10,3,2,1,840529
 2024,6,BN DA,Pink Zone,6,2,0,1,586458
@@ -1481,10 +1481,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,7,BN ROPALI,Orange Zone,159,24,7,5,15856409.9
 2024,7,BN ROPALI,Pink Zone,78,9,2,4,7725934.04
 2024,7,BN ROPALI,Very High Risk,39,6,1,1,3717494
-2024,7,3RD PARTY,Green Zone,0,0,0,0,0
-2024,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,7,BN 3RD PARTY,Green Zone,79,16,5,6,7097097
+2024,7,BN 3RD PARTY,Orange Zone,33,6,1,4,3024904
+2024,7,BN 3RD PARTY,Pink Zone,10,1,0,2,920176
+2024,7,BN 3RD PARTY,Very High Risk,2,0,0,0,215600
 2024,7,BN DA,Green Zone,40,4,0,0,3862642
 2024,7,BN DA,Orange Zone,16,4,0,0,1504280.57
 2024,7,BN DA,Pink Zone,12,1,0,1,1187033
@@ -1497,10 +1497,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,8,BN ROPALI,Orange Zone,157,23,4,9,15578002
 2024,8,BN ROPALI,Pink Zone,65,11,1,6,6398662
 2024,8,BN ROPALI,Very High Risk,34,4,1,2,3187493
-2024,8,3RD PARTY,Green Zone,0,0,0,0,0
-2024,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,8,BN 3RD PARTY,Green Zone,116,19,2,10,10138173
+2024,8,BN 3RD PARTY,Orange Zone,36,8,1,3,3299771
+2024,8,BN 3RD PARTY,Pink Zone,11,3,0,1,881032
+2024,8,BN 3RD PARTY,Very High Risk,9,1,0,1,994202
 2024,8,BN DA,Green Zone,47,7,3,3,4636185
 2024,8,BN DA,Orange Zone,19,2,0,2,1804250
 2024,8,BN DA,Pink Zone,7,2,0,0,657150
@@ -1513,10 +1513,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,9,BN ROPALI,Orange Zone,133,22,4,3,12996466
 2024,9,BN ROPALI,Pink Zone,49,7,0,2,4824630
 2024,9,BN ROPALI,Very High Risk,31,5,0,0,3042972
-2024,9,3RD PARTY,Green Zone,0,0,0,0,0
-2024,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,9,BN 3RD PARTY,Green Zone,105,19,5,7,9713585
+2024,9,BN 3RD PARTY,Orange Zone,32,9,2,5,3034391
+2024,9,BN 3RD PARTY,Pink Zone,5,1,0,0,507250
+2024,9,BN 3RD PARTY,Very High Risk,8,0,0,0,711706
 2024,9,BN DA,Green Zone,69,12,2,2,6499853
 2024,9,BN DA,Orange Zone,13,1,0,1,1295215
 2024,9,BN DA,Pink Zone,13,3,0,2,1271688
@@ -1529,10 +1529,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,10,BN ROPALI,Orange Zone,142,24,2,8,13944249
 2024,10,BN ROPALI,Pink Zone,61,14,4,2,5951592
 2024,10,BN ROPALI,Very High Risk,29,6,1,0,2842155
-2024,10,3RD PARTY,Green Zone,0,0,0,0,0
-2024,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,10,BN 3RD PARTY,Green Zone,171,29,4,7,16477763
+2024,10,BN 3RD PARTY,Orange Zone,58,17,1,3,4984916
+2024,10,BN 3RD PARTY,Pink Zone,13,7,0,1,972616
+2024,10,BN 3RD PARTY,Very High Risk,7,1,0,1,743788
 2024,10,BN DA,Green Zone,33,10,0,1,3159439
 2024,10,BN DA,Orange Zone,17,4,1,2,1643834
 2024,10,BN DA,Pink Zone,10,1,0,1,923007
@@ -1545,10 +1545,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,11,BN ROPALI,Orange Zone,148,16,3,8,14500326
 2024,11,BN ROPALI,Pink Zone,54,4,0,2,4999704
 2024,11,BN ROPALI,Very High Risk,33,4,1,2,3208873.08
-2024,11,3RD PARTY,Green Zone,0,0,0,0,0
-2024,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,11,BN 3RD PARTY,Green Zone,229,33,6,14,20576488
+2024,11,BN 3RD PARTY,Orange Zone,66,13,2,4,5706125
+2024,11,BN 3RD PARTY,Pink Zone,11,2,0,2,1043356
+2024,11,BN 3RD PARTY,Very High Risk,10,1,0,0,897300
 2024,11,BN DA,Green Zone,26,4,0,1,2496937
 2024,11,BN DA,Orange Zone,7,1,0,0,649415
 2024,11,BN DA,Pink Zone,6,1,0,0,531358
@@ -1561,10 +1561,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2024,12,BN ROPALI,Orange Zone,191,19,2,6,19141183
 2024,12,BN ROPALI,Pink Zone,58,8,1,0,5347890
 2024,12,BN ROPALI,Very High Risk,40,5,1,1,3795148.94
-2024,12,3RD PARTY,Green Zone,0,0,0,0,0
-2024,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2024,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2024,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2024,12,BN 3RD PARTY,Green Zone,388,53,7,16,33709967
+2024,12,BN 3RD PARTY,Orange Zone,116,17,1,5,9615544
+2024,12,BN 3RD PARTY,Pink Zone,30,8,2,3,2843016
+2024,12,BN 3RD PARTY,Very High Risk,13,1,0,1,1266697
 2024,12,BN DA,Green Zone,27,2,0,1,2604640
 2024,12,BN DA,Orange Zone,11,2,0,0,1090606
 2024,12,BN DA,Pink Zone,5,1,1,0,432719
@@ -1577,10 +1577,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,1,BN ROPALI,Orange Zone,134,15,3,3,13133310
 2025,1,BN ROPALI,Pink Zone,64,6,0,0,6206747
 2025,1,BN ROPALI,Very High Risk,24,0,0,1,2332048
-2025,1,3RD PARTY,Green Zone,0,0,0,0,0
-2025,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,1,BN 3RD PARTY,Green Zone,464,58,9,20,39317407
+2025,1,BN 3RD PARTY,Orange Zone,148,20,2,13,12486112
+2025,1,BN 3RD PARTY,Pink Zone,26,5,2,2,2172326
+2025,1,BN 3RD PARTY,Very High Risk,8,1,0,2,735700
 2025,1,BN DA,Green Zone,31,4,0,0,2917487
 2025,1,BN DA,Orange Zone,10,2,0,0,1024342
 2025,1,BN DA,Pink Zone,5,1,0,0,525344
@@ -1593,10 +1593,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,2,BN ROPALI,Orange Zone,117,21,6,6,11694432
 2025,2,BN ROPALI,Pink Zone,45,6,1,0,4667361
 2025,2,BN ROPALI,Very High Risk,32,5,0,3,3117235
-2025,2,3RD PARTY,Green Zone,0,0,0,0,0
-2025,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,2,BN 3RD PARTY,Green Zone,587,71,8,20,51137377.12
+2025,2,BN 3RD PARTY,Orange Zone,174,38,5,8,14709346
+2025,2,BN 3RD PARTY,Pink Zone,39,4,0,0,3270450
+2025,2,BN 3RD PARTY,Very High Risk,19,3,0,1,1876812
 2025,2,BN DA,Green Zone,52,7,0,5,5143943
 2025,2,BN DA,Orange Zone,16,4,2,2,1582813
 2025,2,BN DA,Pink Zone,5,0,0,0,472352
@@ -1609,10 +1609,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,3,BN ROPALI,Orange Zone,128,17,1,3,12448152
 2025,3,BN ROPALI,Pink Zone,40,9,1,1,3987931
 2025,3,BN ROPALI,Very High Risk,13,5,1,1,1070587
-2025,3,3RD PARTY,Green Zone,0,0,0,0,0
-2025,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,3,BN 3RD PARTY,Green Zone,649,103,8,25,56681268
+2025,3,BN 3RD PARTY,Orange Zone,177,29,5,9,15377742
+2025,3,BN 3RD PARTY,Pink Zone,38,8,0,3,3640792
+2025,3,BN 3RD PARTY,Very High Risk,21,2,0,0,1977244
 2025,3,BN DA,Green Zone,63,8,0,1,6487991
 2025,3,BN DA,Orange Zone,25,10,2,4,2351510
 2025,3,BN DA,Pink Zone,26,5,0,3,2559952
@@ -1625,10 +1625,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,4,BN ROPALI,Orange Zone,132,17,1,3,13614284.48
 2025,4,BN ROPALI,Pink Zone,46,7,0,1,4607060
 2025,4,BN ROPALI,Very High Risk,20,5,1,1,1786303
-2025,4,3RD PARTY,Green Zone,0,0,0,0,0
-2025,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,4,BN 3RD PARTY,Green Zone,669,94,8,23,59786558
+2025,4,BN 3RD PARTY,Orange Zone,179,28,2,13,15896752
+2025,4,BN 3RD PARTY,Pink Zone,44,12,1,2,3894922
+2025,4,BN 3RD PARTY,Very High Risk,14,3,0,0,1190950
 2025,4,BN DA,Green Zone,74,9,1,2,7476751
 2025,4,BN DA,Orange Zone,33,6,1,3,3538697
 2025,4,BN DA,Pink Zone,28,2,0,3,2718154
@@ -1641,10 +1641,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,5,BN ROPALI,Orange Zone,117,11,2,1,11598674
 2025,5,BN ROPALI,Pink Zone,56,5,1,1,5386861
 2025,5,BN ROPALI,Very High Risk,33,6,1,0,3196112.74
-2025,5,3RD PARTY,Green Zone,0,0,0,0,0
-2025,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,5,BN 3RD PARTY,Green Zone,775,124,16,35,67298916
+2025,5,BN 3RD PARTY,Orange Zone,202,37,7,13,17625030
+2025,5,BN 3RD PARTY,Pink Zone,64,16,2,3,5457966
+2025,5,BN 3RD PARTY,Very High Risk,19,3,0,0,1792726
 2025,5,BN DA,Green Zone,116,22,8,6,11262271
 2025,5,BN DA,Orange Zone,36,7,2,4,3647829
 2025,5,BN DA,Pink Zone,17,4,0,1,1643177
@@ -1657,10 +1657,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,6,BN ROPALI,Orange Zone,143,23,3,5,14003634.16
 2025,6,BN ROPALI,Pink Zone,53,5,0,1,4930984.71
 2025,6,BN ROPALI,Very High Risk,22,7,3,1,1944083
-2025,6,3RD PARTY,Green Zone,0,0,0,0,0
-2025,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,6,BN 3RD PARTY,Green Zone,690,95,10,27,59552114
+2025,6,BN 3RD PARTY,Orange Zone,240,36,1,13,20654815
+2025,6,BN 3RD PARTY,Pink Zone,60,12,0,3,5200408
+2025,6,BN 3RD PARTY,Very High Risk,12,1,0,0,1008300
 2025,6,BN DA,Green Zone,72,10,2,4,6838280
 2025,6,BN DA,Orange Zone,29,3,1,0,2755304
 2025,6,BN DA,Pink Zone,22,2,0,1,2165737
@@ -1673,10 +1673,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,7,BN ROPALI,Orange Zone,126,22,5,3,13090199.94
 2025,7,BN ROPALI,Pink Zone,50,9,0,3,5050258
 2025,7,BN ROPALI,Very High Risk,20,1,0,1,1844107.45
-2025,7,3RD PARTY,Green Zone,0,0,0,0,0
-2025,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,7,BN 3RD PARTY,Green Zone,822,95,10,29,71064569
+2025,7,BN 3RD PARTY,Orange Zone,290,57,3,8,24803068
+2025,7,BN 3RD PARTY,Pink Zone,52,9,3,3,4115150
+2025,7,BN 3RD PARTY,Very High Risk,11,0,0,0,881152
 2025,7,BN DA,Green Zone,101,10,2,6,9421801
 2025,7,BN DA,Orange Zone,32,5,2,0,3045325
 2025,7,BN DA,Pink Zone,21,3,1,0,1950907
@@ -1689,10 +1689,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,8,BN ROPALI,Orange Zone,126,21,4,6,12718861
 2025,8,BN ROPALI,Pink Zone,63,12,1,1,6077747
 2025,8,BN ROPALI,Very High Risk,30,9,0,3,2689987
-2025,8,3RD PARTY,Green Zone,0,0,0,0,0
-2025,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,8,BN 3RD PARTY,Green Zone,865,120,15,32,85870469.6
+2025,8,BN 3RD PARTY,Orange Zone,254,37,2,10,24852129.9
+2025,8,BN 3RD PARTY,Pink Zone,64,9,1,2,6404087.3
+2025,8,BN 3RD PARTY,Very High Risk,6,1,0,0,543997.9
 2025,8,BN DA,Green Zone,105,15,1,1,10138139
 2025,8,BN DA,Orange Zone,36,7,1,0,3433634
 2025,8,BN DA,Pink Zone,20,4,1,0,1933248
@@ -1705,10 +1705,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,9,BN ROPALI,Orange Zone,130,24,3,5,13748949.84
 2025,9,BN ROPALI,Pink Zone,68,12,1,2,6926869
 2025,9,BN ROPALI,Very High Risk,36,9,0,1,3720040
-2025,9,3RD PARTY,Green Zone,0,0,0,0,0
-2025,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,9,BN 3RD PARTY,Green Zone,880,137,14,31,88568510.69
+2025,9,BN 3RD PARTY,Orange Zone,262,52,11,11,25421687.3
+2025,9,BN 3RD PARTY,Pink Zone,66,18,0,1,6369344.99
+2025,9,BN 3RD PARTY,Very High Risk,17,6,0,0,1740270
 2025,9,BN DA,Green Zone,86,14,4,5,8616523
 2025,9,BN DA,Orange Zone,38,7,2,2,3680782
 2025,9,BN DA,Pink Zone,17,1,0,1,1716475
@@ -1721,10 +1721,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,10,BN ROPALI,Orange Zone,173,30,4,7,17980850.47
 2025,10,BN ROPALI,Pink Zone,89,22,7,4,8601506.8
 2025,10,BN ROPALI,Very High Risk,29,5,2,1,2640646
-2025,10,3RD PARTY,Green Zone,0,0,0,0,0
-2025,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,10,BN 3RD PARTY,Green Zone,909,128,16,24,90239541.65
+2025,10,BN 3RD PARTY,Orange Zone,308,57,6,15,30436291.55
+2025,10,BN 3RD PARTY,Pink Zone,67,15,0,2,6598792.9
+2025,10,BN 3RD PARTY,Very High Risk,29,9,1,3,2864697.8
 2025,10,BN DA,Green Zone,93,12,0,2,9331939
 2025,10,BN DA,Orange Zone,36,6,0,0,3559796
 2025,10,BN DA,Pink Zone,21,5,0,1,2250742
@@ -1737,10 +1737,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,11,BN ROPALI,Orange Zone,159,32,11,3,16558090
 2025,11,BN ROPALI,Pink Zone,62,8,0,1,5674391
 2025,11,BN ROPALI,Very High Risk,26,6,2,1,2481642
-2025,11,3RD PARTY,Green Zone,0,0,0,0,0
-2025,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,11,BN 3RD PARTY,Green Zone,1027,167,25,21,100698145.1
+2025,11,BN 3RD PARTY,Orange Zone,338,49,8,10,33218902.61
+2025,11,BN 3RD PARTY,Pink Zone,74,13,2,3,7321828.3
+2025,11,BN 3RD PARTY,Very High Risk,15,1,0,1,1447597
 2025,11,BN DA,Green Zone,97,12,1,4,9635184
 2025,11,BN DA,Orange Zone,43,10,2,0,4513533
 2025,11,BN DA,Pink Zone,23,2,0,0,2197734
@@ -1753,10 +1753,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2025,12,BN ROPALI,Orange Zone,204,29,6,3,20959423.3
 2025,12,BN ROPALI,Pink Zone,82,18,4,1,8005476.53
 2025,12,BN ROPALI,Very High Risk,39,7,2,1,3761939.71
-2025,12,3RD PARTY,Green Zone,0,0,0,0,0
-2025,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2025,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2025,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2025,12,BN 3RD PARTY,Green Zone,1116,171,23,13,108269206.7
+2025,12,BN 3RD PARTY,Orange Zone,345,47,5,7,33892618.72
+2025,12,BN 3RD PARTY,Pink Zone,61,9,2,3,5931244.5
+2025,12,BN 3RD PARTY,Very High Risk,13,0,0,0,1192505.9
 2025,12,BN DA,Green Zone,107,29,3,0,10875145
 2025,12,BN DA,Orange Zone,38,5,0,0,3649184
 2025,12,BN DA,Pink Zone,26,6,0,0,2679793
@@ -1769,10 +1769,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,1,BN ROPALI,Orange Zone,147,24,3,0,14760214
 2026,1,BN ROPALI,Pink Zone,88,15,5,1,8734622
 2026,1,BN ROPALI,Very High Risk,53,12,4,3,5082471.32
-2026,1,3RD PARTY,Green Zone,0,0,0,0,0
-2026,1,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,1,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,1,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,1,BN 3RD PARTY,Green Zone,809,94,12,5,79910940.92
+2026,1,BN 3RD PARTY,Orange Zone,306,36,4,4,31071398
+2026,1,BN 3RD PARTY,Pink Zone,74,10,0,0,7045973.8
+2026,1,BN 3RD PARTY,Very High Risk,10,0,0,0,838476.5
 2026,1,BN DA,Green Zone,105,13,1,0,10433403
 2026,1,BN DA,Orange Zone,40,6,0,0,4023097
 2026,1,BN DA,Pink Zone,26,3,0,0,2520555
@@ -1785,10 +1785,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,2,BN ROPALI,Orange Zone,172,27,4,0,17331221.89
 2026,2,BN ROPALI,Pink Zone,72,10,2,0,7082335
 2026,2,BN ROPALI,Very High Risk,23,4,0,0,2207767.95
-2026,2,3RD PARTY,Green Zone,0,0,0,0,0
-2026,2,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,2,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,2,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,2,BN 3RD PARTY,Green Zone,540,57,5,1,54075538.63
+2026,2,BN 3RD PARTY,Orange Zone,267,35,8,0,26790371.44
+2026,2,BN 3RD PARTY,Pink Zone,28,6,0,0,2762842
+2026,2,BN 3RD PARTY,Very High Risk,1,0,0,0,68055
 2026,2,BN DA,Green Zone,97,19,4,0,9533654
 2026,2,BN DA,Orange Zone,39,9,0,0,4165743
 2026,2,BN DA,Pink Zone,23,1,1,0,2282663
@@ -1801,10 +1801,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,3,BN ROPALI,Orange Zone,180,36,11,0,18326705
 2026,3,BN ROPALI,Pink Zone,99,15,2,0,9677655
 2026,3,BN ROPALI,Very High Risk,35,5,1,0,3396298
-2026,3,3RD PARTY,Green Zone,0,0,0,0,0
-2026,3,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,3,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,3,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,3,BN 3RD PARTY,Green Zone,777,78,12,0,78700052.11
+2026,3,BN 3RD PARTY,Orange Zone,350,41,7,0,35360791.64
+2026,3,BN 3RD PARTY,Pink Zone,51,10,1,0,4942324.4
+2026,3,BN 3RD PARTY,Very High Risk,4,1,0,0,345772
 2026,3,BN DA,Green Zone,98,18,1,0,9959493
 2026,3,BN DA,Orange Zone,56,14,1,0,5778363.95
 2026,3,BN DA,Pink Zone,33,9,0,0,3490305
@@ -1817,10 +1817,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,4,BN ROPALI,Orange Zone,132,19,6,0,12853255.84
 2026,4,BN ROPALI,Pink Zone,27,5,2,0,2604612
 2026,4,BN ROPALI,Very High Risk,4,1,1,0,334886.24
-2026,4,3RD PARTY,Green Zone,0,0,0,0,0
-2026,4,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,4,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,4,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,4,BN 3RD PARTY,Green Zone,601,61,12,0,59610073.2
+2026,4,BN 3RD PARTY,Orange Zone,142,15,3,0,13968623.92
+2026,4,BN 3RD PARTY,Pink Zone,14,5,2,0,1327731.65
+2026,4,BN 3RD PARTY,Very High Risk,1,0,0,0,96230
 2026,4,BN DA,Green Zone,85,13,2,0,8921280
 2026,4,BN DA,Orange Zone,44,5,2,0,4203042
 2026,4,BN DA,Pink Zone,14,2,0,0,1445254
@@ -1833,10 +1833,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,5,BN ROPALI,Orange Zone,129,21,12,0,13205337.68
 2026,5,BN ROPALI,Pink Zone,54,9,5,0,5187353
 2026,5,BN ROPALI,Very High Risk,5,0,0,0,574406
-2026,5,3RD PARTY,Green Zone,0,0,0,0,0
-2026,5,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,5,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,5,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,5,BN 3RD PARTY,Green Zone,489,29,19,0,47064758.2
+2026,5,BN 3RD PARTY,Orange Zone,117,13,11,0,11262871.7
+2026,5,BN 3RD PARTY,Pink Zone,3,0,0,0,253636
+2026,5,BN 3RD PARTY,Very High Risk,2,0,0,0,155775
 2026,5,BN DA,Green Zone,49,7,3,0,4824432
 2026,5,BN DA,Orange Zone,23,7,5,0,2335525
 2026,5,BN DA,Pink Zone,12,2,2,0,1172440
@@ -1849,10 +1849,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,6,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,6,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,6,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,6,3RD PARTY,Green Zone,0,0,0,0,0
-2026,6,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,6,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,6,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,6,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,6,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,6,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,6,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,6,BN DA,Green Zone,0,0,0,0,0
 2026,6,BN DA,Orange Zone,0,0,0,0,0
 2026,6,BN DA,Pink Zone,0,0,0,0,0
@@ -1865,10 +1865,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,7,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,7,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,7,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,7,3RD PARTY,Green Zone,0,0,0,0,0
-2026,7,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,7,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,7,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,7,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,7,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,7,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,7,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,7,BN DA,Green Zone,0,0,0,0,0
 2026,7,BN DA,Orange Zone,0,0,0,0,0
 2026,7,BN DA,Pink Zone,0,0,0,0,0
@@ -1881,10 +1881,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,8,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,8,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,8,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,8,3RD PARTY,Green Zone,0,0,0,0,0
-2026,8,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,8,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,8,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,8,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,8,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,8,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,8,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,8,BN DA,Green Zone,0,0,0,0,0
 2026,8,BN DA,Orange Zone,0,0,0,0,0
 2026,8,BN DA,Pink Zone,0,0,0,0,0
@@ -1897,10 +1897,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,9,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,9,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,9,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,9,3RD PARTY,Green Zone,0,0,0,0,0
-2026,9,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,9,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,9,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,9,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,9,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,9,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,9,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,9,BN DA,Green Zone,0,0,0,0,0
 2026,9,BN DA,Orange Zone,0,0,0,0,0
 2026,9,BN DA,Pink Zone,0,0,0,0,0
@@ -1913,10 +1913,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,10,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,10,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,10,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,10,3RD PARTY,Green Zone,0,0,0,0,0
-2026,10,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,10,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,10,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,10,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,10,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,10,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,10,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,10,BN DA,Green Zone,0,0,0,0,0
 2026,10,BN DA,Orange Zone,0,0,0,0,0
 2026,10,BN DA,Pink Zone,0,0,0,0,0
@@ -1929,10 +1929,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,11,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,11,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,11,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,11,3RD PARTY,Green Zone,0,0,0,0,0
-2026,11,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,11,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,11,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,11,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,11,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,11,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,11,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,11,BN DA,Green Zone,0,0,0,0,0
 2026,11,BN DA,Orange Zone,0,0,0,0,0
 2026,11,BN DA,Pink Zone,0,0,0,0,0
@@ -1945,10 +1945,10 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 2026,12,BN ROPALI,Orange Zone,0,0,0,0,0
 2026,12,BN ROPALI,Pink Zone,0,0,0,0,0
 2026,12,BN ROPALI,Very High Risk,0,0,0,0,0
-2026,12,3RD PARTY,Green Zone,0,0,0,0,0
-2026,12,3RD PARTY,Orange Zone,0,0,0,0,0
-2026,12,3RD PARTY,Pink Zone,0,0,0,0,0
-2026,12,3RD PARTY,Very High Risk,0,0,0,0,0
+2026,12,BN 3RD PARTY,Green Zone,0,0,0,0,0
+2026,12,BN 3RD PARTY,Orange Zone,0,0,0,0,0
+2026,12,BN 3RD PARTY,Pink Zone,0,0,0,0,0
+2026,12,BN 3RD PARTY,Very High Risk,0,0,0,0,0
 2026,12,BN DA,Green Zone,0,0,0,0,0
 2026,12,BN DA,Orange Zone,0,0,0,0,0
 2026,12,BN DA,Pink Zone,0,0,0,0,0
@@ -1960,7 +1960,7 @@ const EMBEDDED_CSV = `YEAR,MONTH,UNIT,RISK CATEGORY,TOTAL RELEASES,GROSS FAR 1,N
 
 const THRESHOLDS = {
   'BN ROPALI': { gross: 8, net: 4, npl: 6 },
-  '3RD PARTY': { gross: 8, net: 4, npl: 6 },
+  'BN 3RD PARTY': { gross: 8, net: 4, npl: 6 },
   'BN DA':     { gross: 8, net: 4, npl: 6 },
   'REPO':      { gross: 15, net: 10, npl: 6 },
   'ALL':       { gross: 8, net: 4, npl: 6 }
@@ -2021,6 +2021,8 @@ function projectSeries(keys, series){
   }
   return {projKeys, projValues};
 }
+function riskLabel(r) { return r === 'Very High Risk' ? 'Red Zone' : r; }
+
 const RISK_COLORS = {
   'Green Zone': '#06d6a0',
   'Orange Zone': '#ffd166',
@@ -2186,12 +2188,12 @@ function renderTrendChart(data, yearFilter, monthFilter) {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: '#6b7280', font: { size: 10 } } },
+        legend: { labels: { color: '#6b7280', font: { size: 12 } } },
         tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'—'}` } }
       },
       scales: {
-        x: { ticks: { color: '#6b7280', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        x: { ticks: { color: '#6b7280', font: { size: 11 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#6b7280', font: { size: 11 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
       }
     }
   });
@@ -2204,8 +2206,8 @@ function renderRiskChart(data) {
   var counts = risks.map(r => data.filter(d => d['RISK CATEGORY'] === r).reduce((s,d) => s + getNum(d['TOTAL RELEASES']), 0));
   charts.risk = new Chart(ctx, {
     type: 'doughnut',
-    data: { labels: risks, datasets: [{ data: counts, backgroundColor: Object.values(RISK_COLORS), borderColor: 'rgba(255,255,255,0.1)', borderWidth: 2 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#6b7280', font: { size: 10 }, boxWidth: 10, padding: 8 } }, tooltip: { callbacks: { label: c => c.label + ': ' + c.raw.toLocaleString() + ' accts' } } } }
+    data: { labels: risks.map(riskLabel), datasets: [{ data: counts, backgroundColor: Object.values(RISK_COLORS), borderColor: 'rgba(255,255,255,0.1)', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#6b7280', font: { size: 12 }, boxWidth: 10, padding: 8 } }, tooltip: { callbacks: { label: c => c.label + ': ' + c.raw.toLocaleString() + ' accts' } } } }
   });
 }
 
@@ -2224,8 +2226,8 @@ function renderRiskBarCharts(data) {
     });
     charts[id] = new Chart(ctx, {
       type: 'bar',
-      data: { labels: ['Green', 'Orange', 'Pink', 'Very High'], datasets: [{ label, data: vals, backgroundColor: colors, borderRadius: 6 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } }, y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+      data: { labels: ['Green', 'Orange', 'Pink', 'Red Zone'], datasets: [{ label, data: vals, backgroundColor: colors, borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 11 } }, grid: { display: false } }, y: { ticks: { color: '#6b7280', font: { size: 11 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
     });
   }
 
@@ -2271,7 +2273,7 @@ function renderMonthlyTable(data) {
     var gp = rel ? (getNum(r['GROSS FAR 1'])/rel*100).toFixed(1)+'%' : '0%';
     var np = rel ? (getNum(r['NET FAR 1'])/rel*100).toFixed(1)+'%' : '0%';
     var pp = rel ? (getNum(r['NPL'])/rel*100).toFixed(1)+'%' : '0%';
-    return `<tr><td>${r['YEAR']}</td><td>${MONTHS[getNum(r['MONTH'])]}</td><td>${r['UNIT']}</td><td>${r['RISK CATEGORY']}</td><td>${rel.toLocaleString()}</td><td>${getNum(r['GROSS FAR 1'])}</td><td>${gp}</td><td>${getNum(r['NET FAR 1'])}</td><td>${np}</td><td>${getNum(r['NPL'])}</td><td>${pp}</td></tr>`;
+    return `<tr><td>${r['YEAR']}</td><td>${MONTHS[getNum(r['MONTH'])]}</td><td>${r['UNIT']}</td><td>${riskLabel(r['RISK CATEGORY'])}</td><td>${rel.toLocaleString()}</td><td>${getNum(r['GROSS FAR 1'])}</td><td>${gp}</td><td>${getNum(r['NET FAR 1'])}</td><td>${np}</td><td>${getNum(r['NPL'])}</td><td>${pp}</td></tr>`;
   }).join('');
 }
 
