@@ -261,7 +261,6 @@ async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Loading...';
   try {
     allData = await parseCSV(SUMMARY_CSV);
-    // Populate year dropdown
     var years = [...new Set(allData.map(r => r['YEAR']).filter(Boolean))].sort();
     var yearSel = document.getElementById('yearFilter');
     yearSel.innerHTML = '<option value="ALL">All Years</option>';
