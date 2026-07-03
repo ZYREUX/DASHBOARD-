@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Collection Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
+    --accent: #00d4ff; --red: #ff6b6b; --green: #06d6a0;
+    --yellow: #ffd166; --purple: #a78bfa;
+    --text: #e8eaf0; --muted: #6b7280; --border: rgba(255,255,255,0.07);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 20px; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+  .header h1 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #ff6b6b, #ffd166); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .filters { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; min-width: 120px; }
+
+  .tabs { display: flex; gap: 4px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn { padding: 7px 20px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active { background: linear-gradient(135deg, #ff6b6b, #ffd166); color: #000; }
+
+  .unit-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .unit-btn { padding: 7px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .unit-btn.active { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+
+  .risk-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .risk-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .risk-btn.active { color: #000; }
+  .risk-btn[data-risk="ALL"].active { background: var(--accent); border-color: var(--accent); color: #000; }
+  .risk-btn[data-risk="Green Zone"].active { background: #06d6a0; border-color: #06d6a0; }
+  .risk-btn[data-risk="Orange Zone"].active { background: #ffd166; border-color: #ffd166; }
+  .risk-btn[data-risk="Pink Zone"].active { background: #f9a8d4; border-color: #f9a8d4; }
+  .risk-btn[data-risk="Very High Risk"].active { background: #ff6b6b; border-color: #ff6b6b; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.releases::before { background: var(--accent); }
+  .kpi-card.current::before { background: var(--green); }
+  .kpi-card.gross::before { background: var(--yellow); }
+  .kpi-card.net::before { background: var(--purple); }
+  .kpi-card.npl::before { background: var(--red); }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .kpi-actual { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+  .kpi-card.releases .kpi-actual { color: var(--accent); }
+  .kpi-card.current .kpi-actual { color: var(--green); }
+  .kpi-card.gross .kpi-actual { color: var(--yellow); }
+  .kpi-card.net .kpi-actual { color: var(--purple); }
+  .kpi-card.npl .kpi-actual { color: var(--red); }
+  .kpi-meta { font-size: 11px; color: var(--muted); }
+  .kpi-threshold { font-size: 11px; margin-top: 4px; font-weight: 600; }
+  .kpi-threshold.ok { color: var(--green); }
+  .kpi-threshold.warn { color: var(--yellow); }
+  .kpi-threshold.over { color: var(--red); }
+
+  .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .charts-grid2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .chart-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .chart-wrap { position: relative; height: 200px; }
+  .chart-wrap-sm { position: relative; height: 160px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; cursor: pointer; }
+  .refresh-btn:hover { background: var(--accent); color: #000; }
+
+  .status-bar { display: flex; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .status-item { font-size: 12px; color: var(--muted); }
+  .status-item span { color: var(--text); font-weight: 500; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; overflow-x: auto; margin-bottom: 20px; }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge.ok { background: rgba(6,214,160,0.15); color: var(--green); }
+  .badge.over { background: rgba(255,107,107,0.15); color: var(--red); }
+  .badge.warn { background: rgba(255,209,102,0.15); color: var(--yellow); }
+
+  @media (max-width: 768px) { .charts-grid, .charts-grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>CREDIT COLLECTION DASHBOARD</h1>
+    <p id="lastUpdate">Loading data...</p>
+  </div>
+  <div class="filters">
+    <div class="filter-group">
+      <label>Year</label>
+      <select id="yearFilter" onchange="applyFilters()">
+        <option value="ALL">All Years</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Month</label>
+      <select id="monthFilter" onchange="applyFilters()">
+        <option value="ALL">All Months</option>
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+    </div>
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  </div>
+</div>
+
+<!-- Unit Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-unit="ALL" onclick="setUnit('ALL')">All Units</button>
+  <button class="tab-btn" data-unit="BN ROPALI" onclick="setUnit('BN ROPALI')">BN Ropali</button>
+  <button class="tab-btn" data-unit="3RD PARTY" onclick="setUnit('3RD PARTY')">3rd Party</button>
+  <button class="tab-btn" data-unit="BN DA" onclick="setUnit('BN DA')">BN DA</button>
+  <button class="tab-btn" data-unit="REPO" onclick="setUnit('REPO')">Repo</button>
+</div>
+
+<!-- Risk Filter -->
+<div class="risk-toggle">
+  <button class="risk-btn active" data-risk="ALL" onclick="setRisk('ALL')">All Risk</button>
+  <button class="risk-btn" data-risk="Green Zone" onclick="setRisk('Green Zone')">🟢 Green Zone</button>
+  <button class="risk-btn" data-risk="Orange Zone" onclick="setRisk('Orange Zone')">🟠 Orange Zone</button>
+  <button class="risk-btn" data-risk="Pink Zone" onclick="setRisk('Pink Zone')">🩷 Pink Zone</button>
+  <button class="risk-btn" data-risk="Very High Risk" onclick="setRisk('Very High Risk')">🔴 Very High Risk</button>
+</div>
+
+<!-- Main Tab Content -->
+<div id="tab-main" class="tab-content active">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card releases">
+      <div class="kpi-label">Total Releases</div>
+      <div class="kpi-actual" id="kpi-releases">—</div>
+      <div class="kpi-meta">accounts</div>
+    </div>
+    <div class="kpi-card gross">
+      <div class="kpi-label">Gross FAR1</div>
+      <div class="kpi-actual" id="kpi-gross">—</div>
+      <div class="kpi-meta">Expected: <span id="exp-gross">—</span></div>
+      <div class="kpi-threshold" id="thr-gross">—</div>
+    </div>
+    <div class="kpi-card net">
+      <div class="kpi-label">Net FAR1</div>
+      <div class="kpi-actual" id="kpi-net">—</div>
+      <div class="kpi-meta">Expected: <span id="exp-net">—</span></div>
+      <div class="kpi-threshold" id="thr-net">—</div>
+    </div>
+    <div class="kpi-card npl">
+      <div class="kpi-label">NPL</div>
+      <div class="kpi-actual" id="kpi-npl">—</div>
+      <div class="kpi-meta">Expected: <span id="exp-npl">—</span></div>
+      <div class="kpi-threshold" id="thr-npl">—</div>
+    </div>
+    <div class="kpi-card releases" style="--accent:#a78bfa;">
+      <div class="kpi-label">Total Loan Amount</div>
+      <div class="kpi-actual" id="kpi-loan" style="color:#a78bfa;">—</div>
+      <div class="kpi-meta">financed</div>
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">📈 FAR1 & NPL Trend (Monthly)</div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🥧 Risk Category Breakdown</div>
+      <div class="chart-wrap"><canvas id="riskChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Bar Charts -->
+  <div class="charts-grid2">
+    <div class="chart-card">
+      <div class="chart-title">📊 Gross FAR1 by Risk Category</div>
+      <div class="chart-wrap-sm"><canvas id="grossRiskChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📊 Net FAR1 by Risk Category</div>
+      <div class="chart-wrap-sm"><canvas id="netRiskChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📊 NPL by Risk Category</div>
+      <div class="chart-wrap-sm"><canvas id="nplRiskChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Yearly Summary Table -->
+  <div class="table-card">
+    <div class="table-title">📋 Yearly Summary</div>
+    <table>
+      <thead><tr><th>Year</th><th>Unit</th><th>Total Releases</th><th>Gross FAR1</th><th>Gross FAR1%</th><th>Status</th><th>Net FAR1</th><th>Net FAR1%</th><th>Status</th><th>NPL</th><th>NPL%</th><th>Status</th></tr></thead>
+      <tbody id="summaryTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Monthly Table -->
+  <div class="table-card">
+    <div class="table-title">📋 Monthly Breakdown</div>
+    <table>
+      <thead><tr><th>Year</th><th>Month</th><th>Unit</th><th>Risk Category</th><th>Total Releases</th><th>Gross FAR1</th><th>Gross%</th><th>Net FAR1</th><th>Net%</th><th>NPL</th><th>NPL%</th></tr></thead>
+      <tbody id="monthlyTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const SUMMARY_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIm6NuF_jbBLzu6X_rgnVp-oDsKuyjE7rS8T8kDgDvb1_NpD6xXpyfHSQKk_eHbONMd_QEyoBdmnjk/pub?gid=756464931&single=true&output=csv';
+
+const THRESHOLDS = {
+  'BN ROPALI': { gross: 8, net: 4, npl: 6 },
+  '3RD PARTY': { gross: 8, net: 4, npl: 6 },
+  'BN DA':     { gross: 8, net: 4, npl: 6 },
+  'REPO':      { gross: 15, net: 10, npl: 6 },
+  'ALL':       { gross: 8, net: 4, npl: 6 }
+};
+
+const MONTHS = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const RISK_COLORS = {
+  'Green Zone': '#06d6a0',
+  'Orange Zone': '#ffd166',
+  'Pink Zone': '#f9a8d4',
+  'Very High Risk': '#ff6b6b'
+};
+
+let allData = [];
+let currentUnit = 'ALL';
+let currentRisk = 'ALL';
+let charts = {};
+
+function parseCSV(url) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: r => resolve(r.data), error: e => reject(e) });
+  });
+}
+
+async function loadData() {
+  document.getElementById('lastUpdate').textContent = 'Loading...';
+  try {
+    allData = await parseCSV(SUMMARY_CSV);
+    // Populate year dropdown
+    var years = [...new Set(allData.map(r => r['YEAR']).filter(Boolean))].sort();
+    var yearSel = document.getElementById('yearFilter');
+    yearSel.innerHTML = '<option value="ALL">All Years</option>';
+    years.forEach(y => { var o = document.createElement('option'); o.value = y; o.textContent = y; yearSel.appendChild(o); });
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    applyFilters();
+  } catch(e) {
+    document.getElementById('lastUpdate').textContent = 'Error loading data.';
+    console.error(e);
+  }
+}
+
+function setUnit(unit) {
+  currentUnit = unit;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+  applyFilters();
+}
+
+function setRisk(risk) {
+  currentRisk = risk;
+  document.querySelectorAll('.risk-btn').forEach(b => b.classList.toggle('active', b.dataset.risk === risk));
+  applyFilters();
+}
+
+function getNum(v) { var n = parseFloat(String(v||'0').replace(/,/g,'')); return isNaN(n)?0:n; }
+
+function applyFilters() {
+  if (!allData.length) return;
+  var year = document.getElementById('yearFilter').value;
+  var month = document.getElementById('monthFilter').value;
+
+  var filtered = allData.filter(r => {
+    var unitMatch = currentUnit === 'ALL' || r['UNIT'] === currentUnit;
+    var riskMatch = currentRisk === 'ALL' || r['RISK CATEGORY'] === currentRisk;
+    var yearMatch = year === 'ALL' || String(r['YEAR']) === String(year);
+    var monthMatch = month === 'ALL' || String(r['MONTH']) === String(month);
+    return unitMatch && riskMatch && yearMatch && monthMatch;
+  });
+
+  renderKPIs(filtered);
+  renderTrendChart(filtered, year, month);
+  renderRiskChart(filtered);
+  renderRiskBarCharts(filtered);
+  renderSummaryTable(filtered);
+  renderMonthlyTable(filtered);
+}
+
+function renderKPIs(data) {
+  var totalRel = data.reduce((s,r) => s + getNum(r['TOTAL RELEASES']), 0);
+  var totalGross = data.reduce((s,r) => s + getNum(r['GROSS FAR 1']), 0);
+  var totalNet = data.reduce((s,r) => s + getNum(r['NET FAR 1']), 0);
+  var totalNPL = data.reduce((s,r) => s + getNum(r['NPL']), 0);
+  var totalLoan = data.reduce((s,r) => s + getNum(r['TOTAL LOAN AMOUNT']), 0);
+
+  var grossPct = totalRel ? (totalGross/totalRel*100) : 0;
+  var netPct = totalRel ? (totalNet/totalRel*100) : 0;
+  var nplPct = totalRel ? (totalNPL/totalRel*100) : 0;
+
+  var thr = THRESHOLDS[currentUnit] || THRESHOLDS['ALL'];
+
+  document.getElementById('kpi-releases').textContent = totalRel.toLocaleString();
+  document.getElementById('kpi-gross').textContent = grossPct.toFixed(1) + '%';
+  document.getElementById('kpi-net').textContent = netPct.toFixed(1) + '%';
+  document.getElementById('kpi-npl').textContent = nplPct.toFixed(1) + '%';
+  document.getElementById('kpi-loan').textContent = '₱' + (totalLoan/1000000).toFixed(1) + 'M';
+  document.getElementById('exp-gross').textContent = '≤' + thr.gross + '%';
+  document.getElementById('exp-net').textContent = '≤' + thr.net + '%';
+  document.getElementById('exp-npl').textContent = '≤' + thr.npl + '%';
+
+  function setThreshold(elId, pct, limit) {
+    var el = document.getElementById(elId);
+    var diff = pct - limit;
+    if (pct <= limit * 0.8) { el.textContent = '✅ Within threshold'; el.className = 'kpi-threshold ok'; }
+    else if (pct <= limit) { el.textContent = '⚠️ Approaching limit'; el.className = 'kpi-threshold warn'; }
+    else { el.textContent = '🔴 Exceeded by ' + Math.abs(diff).toFixed(1) + '%'; el.className = 'kpi-threshold over'; }
+  }
+  setThreshold('thr-gross', grossPct, thr.gross);
+  setThreshold('thr-net', netPct, thr.net);
+  setThreshold('thr-npl', nplPct, thr.npl);
+}
+
+function renderTrendChart(data, yearFilter, monthFilter) {
+  var ctx = document.getElementById('trendChart').getContext('2d');
+  if (charts.trend) charts.trend.destroy();
+
+  var grouped = {};
+  data.forEach(r => {
+    var key = r['YEAR'] + '-' + String(r['MONTH']).padStart(2,'0');
+    if (!grouped[key]) grouped[key] = { rel: 0, gross: 0, net: 0, npl: 0 };
+    grouped[key].rel += getNum(r['TOTAL RELEASES']);
+    grouped[key].gross += getNum(r['GROSS FAR 1']);
+    grouped[key].net += getNum(r['NET FAR 1']);
+    grouped[key].npl += getNum(r['NPL']);
+  });
+
+  var keys = Object.keys(grouped).sort().slice(-24);
+  var labels = keys.map(k => { var p = k.split('-'); return MONTHS[parseInt(p[1])] + ' ' + p[0]; });
+  var grossPcts = keys.map(k => grouped[k].rel ? (grouped[k].gross/grouped[k].rel*100) : 0);
+  var netPcts = keys.map(k => grouped[k].rel ? (grouped[k].net/grouped[k].rel*100) : 0);
+  var nplPcts = keys.map(k => grouped[k].rel ? (grouped[k].npl/grouped[k].rel*100) : 0);
+
+  var thr = THRESHOLDS[currentUnit] || THRESHOLDS['ALL'];
+
+  charts.trend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Gross FAR1%', data: grossPcts, borderColor: '#ffd166', backgroundColor: 'rgba(255,209,102,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
+        { label: 'Net FAR1%', data: netPcts, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
+        { label: 'NPL%', data: nplPcts, borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
+        { label: 'Gross Threshold', data: keys.map(() => thr.gross), borderColor: 'rgba(255,209,102,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 },
+        { label: 'NPL Threshold', data: keys.map(() => thr.npl), borderColor: 'rgba(255,107,107,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#6b7280', font: { size: 10 } } } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+  });
+}
+
+function renderRiskChart(data) {
+  var ctx = document.getElementById('riskChart').getContext('2d');
+  if (charts.risk) charts.risk.destroy();
+  var risks = ['Green Zone', 'Orange Zone', 'Pink Zone', 'Very High Risk'];
+  var counts = risks.map(r => data.filter(d => d['RISK CATEGORY'] === r).reduce((s,d) => s + getNum(d['TOTAL RELEASES']), 0));
+  charts.risk = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: risks, datasets: [{ data: counts, backgroundColor: Object.values(RISK_COLORS), borderColor: 'rgba(255,255,255,0.1)', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#6b7280', font: { size: 10 }, boxWidth: 10, padding: 8 } }, tooltip: { callbacks: { label: c => c.label + ': ' + c.raw.toLocaleString() + ' accts' } } } }
+  });
+}
+
+function renderRiskBarCharts(data) {
+  var risks = ['Green Zone', 'Orange Zone', 'Pink Zone', 'Very High Risk'];
+  var colors = Object.values(RISK_COLORS);
+
+  function renderBar(id, metricKey, label) {
+    var ctx = document.getElementById(id).getContext('2d');
+    if (charts[id]) charts[id].destroy();
+    var vals = risks.map(r => {
+      var rows = data.filter(d => d['RISK CATEGORY'] === r);
+      var rel = rows.reduce((s,d) => s + getNum(d['TOTAL RELEASES']), 0);
+      var met = rows.reduce((s,d) => s + getNum(d[metricKey]), 0);
+      return rel ? (met/rel*100) : 0;
+    });
+    charts[id] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ['Green', 'Orange', 'Pink', 'Very High'], datasets: [{ label, data: vals, backgroundColor: colors, borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } }, y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+  }
+
+  renderBar('grossRiskChart', 'GROSS FAR 1', 'Gross FAR1%');
+  renderBar('netRiskChart', 'NET FAR 1', 'Net FAR1%');
+  renderBar('nplRiskChart', 'NPL', 'NPL%');
+}
+
+function renderSummaryTable(data) {
+  var tbody = document.getElementById('summaryTable');
+  var grouped = {};
+  data.forEach(r => {
+    var key = r['YEAR'] + '|' + (currentUnit === 'ALL' ? r['UNIT'] : currentUnit);
+    if (!grouped[key]) grouped[key] = { year: r['YEAR'], unit: currentUnit === 'ALL' ? r['UNIT'] : currentUnit, rel: 0, gross: 0, net: 0, npl: 0 };
+    grouped[key].rel += getNum(r['TOTAL RELEASES']);
+    grouped[key].gross += getNum(r['GROSS FAR 1']);
+    grouped[key].net += getNum(r['NET FAR 1']);
+    grouped[key].npl += getNum(r['NPL']);
+  });
+
+  var rows = Object.values(grouped).sort((a,b) => a.year - b.year || a.unit.localeCompare(b.unit));
+
+  function badge(pct, limit) {
+    if (pct <= limit * 0.8) return '<span class="badge ok">✅ OK</span>';
+    if (pct <= limit) return '<span class="badge warn">⚠️ Near</span>';
+    return '<span class="badge over">🔴 Over</span>';
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    var thr = THRESHOLDS[r.unit] || THRESHOLDS['ALL'];
+    var gp = r.rel ? (r.gross/r.rel*100) : 0;
+    var np = r.rel ? (r.net/r.rel*100) : 0;
+    var pp = r.rel ? (r.npl/r.rel*100) : 0;
+    return `<tr><td>${r.year}</td><td>${r.unit}</td><td>${r.rel.toLocaleString()}</td><td>${r.gross}</td><td>${gp.toFixed(1)}%</td><td>${badge(gp,thr.gross)}</td><td>${r.net}</td><td>${np.toFixed(1)}%</td><td>${badge(np,thr.net)}</td><td>${r.npl}</td><td>${pp.toFixed(1)}%</td><td>${badge(pp,thr.npl)}</td></tr>`;
+  }).join('');
+}
+
+function renderMonthlyTable(data) {
+  var tbody = document.getElementById('monthlyTable');
+  var sorted = [...data].sort((a,b) => a['YEAR']-b['YEAR'] || a['MONTH']-b['MONTH']);
+  tbody.innerHTML = sorted.slice(0, 100).map(r => {
+    var rel = getNum(r['TOTAL RELEASES']);
+    var gp = rel ? (getNum(r['GROSS FAR 1'])/rel*100).toFixed(1)+'%' : '0%';
+    var np = rel ? (getNum(r['NET FAR 1'])/rel*100).toFixed(1)+'%' : '0%';
+    var pp = rel ? (getNum(r['NPL'])/rel*100).toFixed(1)+'%' : '0%';
+    return `<tr><td>${r['YEAR']}</td><td>${MONTHS[getNum(r['MONTH'])]}</td><td>${r['UNIT']}</td><td>${r['RISK CATEGORY']}</td><td>${rel.toLocaleString()}</td><td>${getNum(r['GROSS FAR 1'])}</td><td>${gp}</td><td>${getNum(r['NET FAR 1'])}</td><td>${np}</td><td>${getNum(r['NPL'])}</td><td>${pp}</td></tr>`;
+  }).join('');
+}
+
+loadData();
+</script>
+</body>
+</html>
