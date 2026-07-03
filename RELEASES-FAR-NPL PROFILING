@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credit Collection Dashboard</title>
+<title>RELEASES x FAR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
@@ -100,7 +100,7 @@
 
 <div class="header">
   <div>
-    <h1>CREDIT COLLECTION DASHBOARD</h1>
+    <h1>RELEASES x FAR</h1>
     <p id="lastUpdate">Loading data...</p>
   </div>
   <div class="filters">
@@ -239,6 +239,60 @@ const THRESHOLDS = {
 };
 
 const MONTHS = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Historical PH inflation (%) used to macro-adjust the projection
+const INFLATION = {2018:5.2,2019:2.5,2020:2.4,2021:3.9,2022:5.8,2023:6.0,2024:3.2,2025:1.7,2026:4.1};
+const AVG_INFLATION = Object.values(INFLATION).reduce((a,b)=>a+b,0)/Object.keys(INFLATION).length;
+
+function linearRegression(points){
+  const n = points.length;
+  if(n < 2) return {slope:0, intercept: points[0]?points[0].y:0};
+  let sumX=0,sumY=0,sumXY=0,sumX2=0;
+  points.forEach(p=>{ sumX+=p.x; sumY+=p.y; sumXY+=p.x*p.y; sumX2+=p.x*p.x; });
+  const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX || 1);
+  const intercept = (sumY - slope*sumX)/n;
+  return {slope, intercept};
+}
+
+function pearson(xs, ys){
+  const n = xs.length;
+  if(n < 2) return 0;
+  const mx = xs.reduce((a,b)=>a+b,0)/n, my = ys.reduce((a,b)=>a+b,0)/n;
+  let num=0, dx=0, dy=0;
+  for(let i=0;i<n;i++){ num += (xs[i]-mx)*(ys[i]-my); dx += (xs[i]-mx)**2; dy += (ys[i]-my)**2; }
+  const denom = Math.sqrt(dx*dy);
+  return denom ? num/denom : 0;
+}
+
+// Projects a monthly rate series 6 months forward using linear regression
+// trended with a macro adjustment based on how correlated the metric is
+// historically with PH inflation.
+function projectSeries(keys, series){
+  const points = series.map((y,i)=>({x:i, y}));
+  const reg = linearRegression(points);
+
+  const byYear = {};
+  keys.forEach((k,i)=>{ const yr = parseInt(k.split('-')[0]); (byYear[yr]=byYear[yr]||[]).push(series[i]); });
+  const years = Object.keys(byYear).map(Number).filter(y=>INFLATION[y]!==undefined);
+  const avgByYear = years.map(y=>byYear[y].reduce((a,b)=>a+b,0)/byYear[y].length);
+  const inflByYear = years.map(y=>INFLATION[y]);
+  const correlation = pearson(inflByYear, avgByYear);
+
+  let lastKey = keys[keys.length-1] || '2026-01';
+  let lastYear = parseInt(lastKey.split('-')[0]), lastMonth = parseInt(lastKey.split('-')[1]);
+  const projKeys = [], projValues = [];
+  for(let step=1; step<=6; step++){
+    let m = lastMonth+step, y = lastYear;
+    while(m>12){ m-=12; y+=1; }
+    const x = points.length - 1 + step;
+    const trendVal = reg.slope*x + reg.intercept;
+    const infl = INFLATION[y] !== undefined ? INFLATION[y] : INFLATION[2026];
+    const macroAdj = correlation * (infl - AVG_INFLATION) * 0.5;
+    projKeys.push(`${y}-${String(m).padStart(2,'0')}`);
+    projValues.push(Math.max(0, trendVal + macroAdj));
+  }
+  return {projKeys, projValues};
+}
 const RISK_COLORS = {
   'Green Zone': '#06d6a0',
   'Orange Zone': '#ffd166',
@@ -364,19 +418,54 @@ function renderTrendChart(data, yearFilter, monthFilter) {
 
   var thr = THRESHOLDS[currentUnit] || THRESHOLDS['ALL'];
 
+  // --- Projection: next 6 months, using the FULL history (not just the last 24 shown) ---
+  var allKeysSorted = Object.keys(grouped).sort();
+  var allGrossPcts = allKeysSorted.map(k => grouped[k].rel ? (grouped[k].gross/grouped[k].rel*100) : 0);
+  var allNetPcts = allKeysSorted.map(k => grouped[k].rel ? (grouped[k].net/grouped[k].rel*100) : 0);
+  var allNplPcts = allKeysSorted.map(k => grouped[k].rel ? (grouped[k].npl/grouped[k].rel*100) : 0);
+
+  var grossProj = projectSeries(allKeysSorted, allGrossPcts);
+  var netProj = projectSeries(allKeysSorted, allNetPcts);
+  var nplProj = projectSeries(allKeysSorted, allNplPcts);
+
+  var projLabels = grossProj.projKeys.map(k => { var p = k.split('-'); return MONTHS[parseInt(p[1])] + ' ' + p[0]; });
+  var fullLabels = labels.concat(projLabels);
+
+  var grossProjLine = new Array(Math.max(grossPcts.length-1,0)).fill(null).concat([grossPcts[grossPcts.length-1]]).concat(grossProj.projValues);
+  var netProjLine = new Array(Math.max(netPcts.length-1,0)).fill(null).concat([netPcts[netPcts.length-1]]).concat(netProj.projValues);
+  var nplProjLine = new Array(Math.max(nplPcts.length-1,0)).fill(null).concat([nplPcts[nplPcts.length-1]]).concat(nplProj.projValues);
+
+  var grossActualLine = grossPcts.concat(new Array(projLabels.length).fill(null));
+  var netActualLine = netPcts.concat(new Array(projLabels.length).fill(null));
+  var nplActualLine = nplPcts.concat(new Array(projLabels.length).fill(null));
+
   charts.trend = new Chart(ctx, {
     type: 'line',
     data: {
-      labels,
+      labels: fullLabels,
       datasets: [
-        { label: 'Gross FAR1%', data: grossPcts, borderColor: '#ffd166', backgroundColor: 'rgba(255,209,102,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
-        { label: 'Net FAR1%', data: netPcts, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
-        { label: 'NPL%', data: nplPcts, borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true },
-        { label: 'Gross Threshold', data: keys.map(() => thr.gross), borderColor: 'rgba(255,209,102,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 },
-        { label: 'NPL Threshold', data: keys.map(() => thr.npl), borderColor: 'rgba(255,107,107,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 }
+        { label: 'Gross FAR1%', data: grossActualLine, borderColor: '#ffd166', backgroundColor: 'rgba(255,209,102,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true, spanGaps:false },
+        { label: 'Net FAR1%', data: netActualLine, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true, spanGaps:false },
+        { label: 'NPL%', data: nplActualLine, borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', borderWidth: 2, tension: 0.4, pointRadius: 3, fill: true, spanGaps:false },
+        { label: 'Gross Threshold', data: fullLabels.map(() => thr.gross), borderColor: 'rgba(255,209,102,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 },
+        { label: 'NPL Threshold', data: fullLabels.map(() => thr.npl), borderColor: 'rgba(255,107,107,0.4)', borderWidth: 1, borderDash: [5,3], pointRadius: 0 },
+        { label: 'Gross Projected', data: grossProjLine, borderColor: '#ffd166', borderWidth: 2, borderDash: [6,4], pointRadius: 0, tension: 0.3, spanGaps:false },
+        { label: 'Net Projected', data: netProjLine, borderColor: '#a78bfa', borderWidth: 2, borderDash: [6,4], pointRadius: 0, tension: 0.3, spanGaps:false },
+        { label: 'NPL Projected', data: nplProjLine, borderColor: '#ff6b6b', borderWidth: 2, borderDash: [6,4], pointRadius: 0, tension: 0.3, spanGaps:false }
       ]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#6b7280', font: { size: 10 } } } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#6b7280', font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'—'}` } }
+      },
+      scales: {
+        x: { ticks: { color: '#6b7280', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      }
+    }
   });
 }
 
