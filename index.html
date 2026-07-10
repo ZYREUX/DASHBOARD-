@@ -87,12 +87,21 @@
     <h1>CREDIT 2026 DASHBOARD</h1>
     <p id="lastUpdate">Loading data...</p>
   </div>
-  <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Month</label>
+      <select id="monthSelect" onchange="onMonthChange()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;">
+        <option value="june">June 2026</option>
+        <option value="july">July 2026</option>
+      </select>
+    </div>
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  </div>
 </div>
 
 <!-- Main Tabs -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('june')">📊 June Performance</button>
+  <button class="tab-btn active" id="perfTabBtn" onclick="switchTab('june')">📊 June Performance</button>
   <button class="tab-btn" onclick="switchTab('tat')">⏱ TAT Dashboard</button>
   <button class="tab-btn" onclick="switchTab('dual')">🎯 DUAL Performance</button>
 </div>
@@ -193,14 +202,34 @@
 
 <script>
 const BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSpw52uF92DZ0PPv5Hfu3m6_xAFxWxzTDXGVCQ61jVfbir3bTZgi7ssRAl2_-iCrjLiFGDWOCpVxMQ8/pub?single=true&output=csv';
-const UNIT_CSVS = {
+
+// June data sources
+const JUNE_UNIT_CSVS = {
   'BN ROPALI': BASE + '&gid=1038665023',
   '3RD PARTY': BASE + '&gid=1672822117',
   'BN DA':     BASE + '&gid=295129063',
   'REPO':      BASE + '&gid=1754896665',
 };
-const RELEASES_CSV = BASE + '&gid=698256967';
-const TAT_CSV = BASE + '&gid=2075419555';
+const JUNE_RELEASES_CSV = BASE + '&gid=698256967';
+const JUNE_TAT_CSV = BASE + '&gid=2075419555';
+
+// July data sources
+const JULY_UNIT_CSVS = {
+  'BN ROPALI': BASE + '&gid=1038665023',
+  '3RD PARTY': BASE + '&gid=1672822117',
+  'BN DA':     BASE + '&gid=295129063',
+  'REPO':      BASE + '&gid=1754896665',
+};
+const JULY_RELEASES_CSV = BASE + '&gid=1574300742';
+const JULY_TAT_CSV = BASE + '&gid=461947011';
+const JULY_TARGET_CSV = BASE + '&gid=1171149380';
+
+// Active month
+let currentMonth = 'june';
+
+function getUnitCSVs() { return currentMonth === 'july' ? JULY_UNIT_CSVS : JUNE_UNIT_CSVS; }
+function getReleasesCSV() { return currentMonth === 'july' ? JULY_RELEASES_CSV : JUNE_RELEASES_CSV; }
+function getTATCSV() { return currentMonth === 'july' ? JULY_TAT_CSV : JUNE_TAT_CSV; }
 
 let allData = [], releasesData = [], tatData = [];
 let currentUnit = 'ALL', currentTATUnit = 'ALL', currentDualUnit = 'ALL', currentDualZone = 'ALL';
@@ -212,20 +241,28 @@ function parseCSV(url) {
   });
 }
 
+function onMonthChange() {
+  currentMonth = document.getElementById('monthSelect').value;
+  const monthLabel = currentMonth === 'july' ? 'July' : 'June';
+  document.getElementById('perfTabBtn').textContent = '📊 ' + monthLabel + ' Performance';
+  loadData();
+}
+
 async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
+    const UNIT_CSVS = getUnitCSVs();
     const unitKeys = Object.keys(UNIT_CSVS);
     const results = await Promise.all([
       ...unitKeys.map(u => parseCSV(UNIT_CSVS[u])),
-      parseCSV(RELEASES_CSV),
-      parseCSV(TAT_CSV)
+      parseCSV(getReleasesCSV()),
+      parseCSV(getTATCSV())
     ]);
     allData = [];
     unitKeys.forEach((unit, i) => { results[i].forEach(row => { allData.push({...row, _unit: unit}); }); });
     releasesData = results[unitKeys.length];
     tatData = results[unitKeys.length + 1];
-    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' (' + (currentMonth === 'july' ? 'July 2026' : 'June 2026') + ')';
     renderDashboard();
     renderTATDashboard();
     renderDualDashboard();
