@@ -241,6 +241,28 @@ function parseCSV(url) {
   });
 }
 
+// Robust parser for sheets that may have a decorative/merged row (e.g. "JULY2026" spanning
+// several columns) ABOVE the real header row. Scans raw rows for the one containing
+// "Target Endo" and treats that as the true header row, ignoring anything above it.
+function parseRawCSV(url) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(url, { download: true, header: false, skipEmptyLines: true, complete: r => resolve(r.data), error: e => reject(e) });
+  });
+}
+
+async function parseTargetCSV(url) {
+  const rows = await parseRawCSV(url);
+  let headerIdx = rows.findIndex(row => row.some(cell => /target\s*endo/i.test(String(cell||''))));
+  if (headerIdx === -1) headerIdx = 0;
+  const headers = rows[headerIdx].map(h => String(h||'').trim());
+  const dataRows = rows.slice(headerIdx + 1);
+  return dataRows.map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h || ('col' + i)] = row[i]; });
+    return obj;
+  });
+}
+
 function onMonthChange() {
   currentMonth = document.getElementById('monthSelect').value;
   const monthLabel = currentMonth === 'july' ? 'July' : 'June';
@@ -256,7 +278,7 @@ async function loadData() {
     if (currentMonth === 'july') {
       const [refRows, tgtRows, relRows] = await Promise.all([
         parseCSV(JULY_REF_CSV),
-        parseCSV(JULY_TARGET_CSV),
+        parseTargetCSV(JULY_TARGET_CSV),
         parseCSV(JULY_RELEASES_CSV)
       ]);
       tatData = refRows;       // powers TAT tab + DUAL tab (same raw sheet)
@@ -395,7 +417,12 @@ function setUnit(unit) {
 }
 
 function renderDashboard() {
-  if (!allData.length) return;
+  if (!allData.length) {
+    ['kpi-endo','kpi-nola','kpi-nola-var-card','kpi-releases','kpi-loan'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+    const tbody = document.getElementById('tableBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#6b7280;padding:20px;">No data found — check CSV/column mapping.</td></tr>';
+    return;
+  }
   const sample = allData[0];
   const keys = Object.keys(sample);
 
