@@ -250,19 +250,6 @@ function parseRawCSV(url) {
   });
 }
 
-async function parseTargetCSV(url) {
-  const rows = await parseRawCSV(url);
-  let headerIdx = rows.findIndex(row => row.some(cell => /target\s*endo/i.test(String(cell||''))));
-  if (headerIdx === -1) headerIdx = 0;
-  const headers = rows[headerIdx].map(h => String(h||'').trim());
-  const dataRows = rows.slice(headerIdx + 1);
-  return dataRows.map(row => {
-    const obj = {};
-    headers.forEach((h, i) => { obj[h || ('col' + i)] = row[i]; });
-    return obj;
-  });
-}
-
 function onMonthChange() {
   currentMonth = document.getElementById('monthSelect').value;
   const monthLabel = currentMonth === 'july' ? 'July' : 'June';
@@ -276,18 +263,17 @@ async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
     if (currentMonth === 'july') {
-      const [refRows, tgtRows, relRows] = await Promise.all([
+      const [refRows, tgtRawRows, relRows] = await Promise.all([
         parseCSV(JULY_REF_CSV),
-        parseTargetCSV(JULY_TARGET_CSV),
+        parseRawCSV(JULY_TARGET_CSV),
         parseCSV(JULY_RELEASES_CSV)
       ]);
       tatData = refRows;       // powers TAT tab + DUAL tab (same raw sheet)
-      releasesData = relRows;  // powers Total Loan Amount KPI + dealer breakdown fallback
-      targetData = tgtRows;
-      allData = buildJulyPerformanceRows(refRows, tgtRows, relRows);
-      console.log('[JULY DEBUG] refRows:', refRows.length, 'tgtRows:', tgtRows.length, 'relRows:', relRows.length, '-> allData built:', allData.length);
-      if (tgtRows.length) console.log('[JULY DEBUG] target sheet columns detected:', Object.keys(tgtRows[0]));
-      if (!allData.length) console.warn('[JULY DEBUG] allData is EMPTY - Performance tab will show "No data". Check the columns logged above.');
+      releasesData = relRows;  // powers Total Loan Amount KPI
+      allData = parseJulyTargetCSV(tgtRawRows);
+      console.log('[JULY DEBUG] refRows:', refRows.length, 'targetRawRows:', tgtRawRows.length, 'relRows:', relRows.length, '-> allData built:', allData.length);
+      if (!allData.length) console.warn('[JULY DEBUG] allData is EMPTY - check that Unit names in column A match BN ROPALI / 3RD PARTY / BN DA / REPO exactly.');
+      else console.log('[JULY DEBUG] sample row:', allData[0]);
     } else {
       const UNIT_CSVS = getUnitCSVs();
       const unitKeys = Object.keys(UNIT_CSVS);
@@ -311,83 +297,43 @@ async function loadData() {
   }
 }
 
-// Build synthetic per-Unit/Region rows for July by merging:
-//  - JULY REF (raw endorsement-level rows) -> Actual Endo (row count), Actual NOLA% (status count)
-//  - JULY TARGET sheet -> Target Endo, Target NOLA%, Target Releases
-//  - JULY RELEASES (assumed raw per-account rows with Unit/Region) -> Actual Releases (row count)
-// Output shape matches what renderDashboard()/renderJuneTable() already expect.
-function buildJulyPerformanceRows(refRows, targetRows, releasesRows) {
-  if (!refRows.length || !targetRows.length) return [];
-  const refKeys = Object.keys(refRows[0]);
-  const unitColRef = refKeys[6], regionColRef = refKeys[7], statusColRef = refKeys[3];
-
-  const tgtKeys = Object.keys(targetRows[0]);
-  const tUnitCol = findKeyIn(tgtKeys, 'unit');
-  const tRegionCol = findKeyIn(tgtKeys, 'region');
-  const tEndoCol = findKeyIn(tgtKeys, 'target endo');
-  const tNolaCol = findKeyIn(tgtKeys, 'target nola');
-  const tRelCol = findKeyIn(tgtKeys, 'target releases');
-
-  const relKeys = releasesRows.length ? Object.keys(releasesRows[0]) : [];
-  const rUnitCol = findKeyIn(relKeys, 'unit');
-  const rRegionCol = findKeyIn(relKeys, 'region');
-
-  // Real region rows only: skip blank-region TOTAL rows AND any stray repeated header rows
-  // (some sheets repeat "Unit | Region | Target Endo..." before each unit's mini-table)
-  const targetRegionRows = targetRows.filter(t => {
-    const reg = (t[tRegionCol]||'').trim();
-    if (reg === '') return false;
-    if (/^region$/i.test(reg)) return false;
-    if (getNum(t[tEndoCol]) === 0 && !/\d/.test(String(t[tEndoCol]||''))) return false; // non-numeric Target Endo
-    return true;
-  });
-  const units = [...new Set(targetRegionRows.map(t => (t[tUnitCol]||'').trim().toUpperCase()).filter(Boolean))];
-
-  let rows = [];
-  units.forEach(unit => {
-    const unitTargetRows = targetRegionRows.filter(t => (t[tUnitCol]||'').trim().toUpperCase() === unit);
-    let sTgtEndo=0, sActEndo=0, sTgtRel=0, sActRel=0, sTgtNolaW=0, sActNolaW=0;
-
-    unitTargetRows.forEach(t => {
-      const region = (t[tRegionCol]||'').trim();
-      const targetEndo = getNum(t[tEndoCol]);
-      const targetNola = getPct(t[tNolaCol]);
-      const targetRel = getNum(t[tRelCol]);
-
-      const refMatches = refRows.filter(r => (r[unitColRef]||'').trim().toUpperCase() === unit && (r[regionColRef]||'').trim().toUpperCase() === region.toUpperCase());
-      const actualEndo = refMatches.length;
-      const nolaCount = refMatches.filter(r => (r[statusColRef]||'').trim().toUpperCase() === 'NOLA').length;
-      const actualNola = actualEndo ? nolaCount/actualEndo : 0;
-
-      let actualRel = 0;
-      if (rUnitCol && rRegionCol) {
-        actualRel = releasesRows.filter(r => (r[rUnitCol]||'').trim().toUpperCase() === unit && (r[rRegionCol]||'').trim().toUpperCase() === region.toUpperCase()).length;
-      }
-
-      rows.push({
-        _unit: unit, 'Unit': unit, 'Region': region,
-        'Target Endo': targetEndo, 'Actual Endo': actualEndo, 'VAR ENDO': actualEndo-targetEndo,
-        'Target NOLA': targetNola, 'Actual NOLA': actualNola, 'VAR NOLA': actualNola-targetNola,
-        'Target Releases': targetRel, 'Actual Releases': actualRel, 'VAR RELEASES': actualRel-targetRel
+// The July Target sheet (gid=1171149380) is structured as 4 stacked mini-tables (one per unit),
+// each with 2 header rows, then region rows, then a blank-Unit/Region TOTAL row, then a blank separator.
+// Column headers repeat (e.g. "Target Endo" appears once for JUNE and once for JULY), so we read
+// by fixed column POSITION instead of by name. Verified against the live sheet on 2026-07 data:
+//   0=Unit 1=Region 2=Q4'25 Total Endo 7=Q1'26 Total Endo
+//   22=July Target Endo 23=July Target NOLA% 24=July Target Releases
+//   25=July Actual Endo 26=July Actual NOLA% 27=July Actual Releases
+//   28=VAR ENDO 29=VAR NOLA 30=VAR RELEASES
+function parseJulyTargetCSV(rows) {
+  const KNOWN_UNITS = ['BN ROPALI', '3RD PARTY', 'BN DA', 'REPO'];
+  let currentUnit = null;
+  let out = [];
+  rows.forEach(row => {
+    const c0 = String(row[0]||'').trim();
+    const c1 = String(row[1]||'').trim();
+    if (KNOWN_UNITS.includes(c0.toUpperCase())) {
+      currentUnit = c0;
+      out.push({
+        _unit: c0.toUpperCase(), 'Unit': c0, 'Region': c1,
+        'Q4_2025_Endo': row[2], 'Q1_2026_Endo': row[7],
+        'Target Endo': row[22], 'Target NOLA': row[23], 'Target Releases': row[24],
+        'Actual Endo': row[25], 'Actual NOLA': row[26], 'Actual Releases': row[27],
+        'VAR ENDO': row[28], 'VAR NOLA': row[29], 'VAR RELEASES': row[30]
       });
-
-      sTgtEndo += targetEndo; sActEndo += actualEndo; sTgtRel += targetRel; sActRel += actualRel;
-      sTgtNolaW += targetNola*targetEndo; sActNolaW += actualNola*actualEndo;
-    });
-
-    const avgTgtNola = sTgtEndo ? sTgtNolaW/sTgtEndo : 0;
-    const avgActNola = sActEndo ? sActNolaW/sActEndo : 0;
-
-    // Per-unit grand total row (mirrors June's per-unit-file total row so KPI math works unchanged)
-    rows.push({
-      _unit: unit, 'Unit': unit, 'Region': '', 'Note': 'GRAND TOTAL',
-      'Target Endo': sTgtEndo, 'Actual Endo': sActEndo, 'VAR ENDO': sActEndo-sTgtEndo,
-      'Target NOLA': avgTgtNola, 'Actual NOLA': avgActNola, 'VAR NOLA': avgActNola-avgTgtNola,
-      'Target Releases': sTgtRel, 'Actual Releases': sActRel, 'VAR RELEASES': sActRel-sTgtRel
-    });
+    } else if (currentUnit && c0 === '' && c1 === '' && String(row[2]||'').trim() !== '') {
+      // Blank-Unit/Region TOTAL row belonging to the unit block we just finished reading
+      out.push({
+        _unit: currentUnit.toUpperCase(), 'Unit': currentUnit, 'Region': '', 'Note': 'GRAND TOTAL',
+        'Q4_2025_Endo': row[2], 'Q1_2026_Endo': row[7],
+        'Target Endo': row[22], 'Target NOLA': row[23], 'Target Releases': row[24],
+        'Actual Endo': row[25], 'Actual NOLA': row[26], 'Actual Releases': row[27],
+        'VAR ENDO': row[28], 'VAR NOLA': row[29], 'VAR RELEASES': row[30]
+      });
+      currentUnit = null;
+    }
   });
-
-  return rows;
+  return out;
 }
 
 function switchTab(tab) {
@@ -444,8 +390,9 @@ function renderDashboard() {
   let q12025EndoCol, q12026EndoCol, targetEndoCol, targetNolaCol, targetRelCol, actualEndoCol, actualNolaCol, actualRelCol, varEndoCol, varNolaCol, varRelCol;
 
   if (currentMonth === 'july') {
-    // Synthetic rows built in buildJulyPerformanceRows() use these exact literal keys
-    q12025EndoCol = null; q12026EndoCol = null; // no Q4'25/Q1'26 history available for July yet
+    // Real historical data is embedded in the Target sheet itself
+    q12025EndoCol = 'Q4_2025_Endo';
+    q12026EndoCol = 'Q1_2026_Endo';
     targetEndoCol = 'Target Endo';
     targetNolaCol = 'Target NOLA';
     targetRelCol = 'Target Releases';
@@ -523,16 +470,10 @@ function renderTrendChart(data, q1, q2, tgt, act) {
   const ctx = document.getElementById('trendChart').getContext('2d');
   if (charts.trend) charts.trend.destroy();
   const monthLabel = currentMonth === 'july' ? 'July' : 'June';
-  let labels, points;
-  if (currentMonth === 'july') {
-    labels = [monthLabel+' Target', monthLabel+' Actual'];
-    points = [data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)];
-  } else {
-    labels = ['Q4 2025','Q1 2026', monthLabel+' Target', monthLabel+' Actual'];
-    points = [data.reduce((s,r)=>s+getNum(r[q1]),0), data.reduce((s,r)=>s+getNum(r[q2]),0), data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)];
-  }
+  const labels = ['Q4 2025','Q1 2026', monthLabel+' Target', monthLabel+' Actual'];
+  const points = [data.reduce((s,r)=>s+getNum(r[q1]),0), data.reduce((s,r)=>s+getNum(r[q2]),0), data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)];
   const titleEl = document.getElementById('trendChartTitle');
-  if (titleEl) titleEl.textContent = currentMonth === 'july' ? '📈 Trend: July Target → July Actual' : '📈 Trend: Q4 2025 → Q1 2026 → June Target → June Actual';
+  if (titleEl) titleEl.textContent = currentMonth === 'july' ? '📈 Trend: Q4 2025 → Q1 2026 → July Target → July Actual' : '📈 Trend: Q4 2025 → Q1 2026 → June Target → June Actual';
   charts.trend = new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[{ label:'Endo', data:points, borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.1)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor:'#00d4ff' }]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
 }
 
