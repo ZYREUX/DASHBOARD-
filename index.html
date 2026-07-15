@@ -285,6 +285,9 @@ async function loadData() {
       releasesData = relRows;  // powers Total Loan Amount KPI + dealer breakdown fallback
       targetData = tgtRows;
       allData = buildJulyPerformanceRows(refRows, tgtRows, relRows);
+      console.log('[JULY DEBUG] refRows:', refRows.length, 'tgtRows:', tgtRows.length, 'relRows:', relRows.length, '-> allData built:', allData.length);
+      if (tgtRows.length) console.log('[JULY DEBUG] target sheet columns detected:', Object.keys(tgtRows[0]));
+      if (!allData.length) console.warn('[JULY DEBUG] allData is EMPTY - Performance tab will show "No data". Check the columns logged above.');
     } else {
       const UNIT_CSVS = getUnitCSVs();
       const unitKeys = Object.keys(UNIT_CSVS);
@@ -329,8 +332,15 @@ function buildJulyPerformanceRows(refRows, targetRows, releasesRows) {
   const rUnitCol = findKeyIn(relKeys, 'unit');
   const rRegionCol = findKeyIn(relKeys, 'region');
 
-  // Real region rows only (skip the shaded per-unit TOTAL row which has a blank Region cell)
-  const targetRegionRows = targetRows.filter(t => (t[tRegionCol]||'').trim() !== '');
+  // Real region rows only: skip blank-region TOTAL rows AND any stray repeated header rows
+  // (some sheets repeat "Unit | Region | Target Endo..." before each unit's mini-table)
+  const targetRegionRows = targetRows.filter(t => {
+    const reg = (t[tRegionCol]||'').trim();
+    if (reg === '') return false;
+    if (/^region$/i.test(reg)) return false;
+    if (getNum(t[tEndoCol]) === 0 && !/\d/.test(String(t[tEndoCol]||''))) return false; // non-numeric Target Endo
+    return true;
+  });
   const units = [...new Set(targetRegionRows.map(t => (t[tUnitCol]||'').trim().toUpperCase()).filter(Boolean))];
 
   let rows = [];
