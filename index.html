@@ -96,7 +96,7 @@
         <option value="august">August 2026</option>
       </select>
     </div>
-    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+    <button class="refresh-btn" onclick="loadData(); loadMonthlyComparison();">⟳ Refresh</button>
   </div>
 </div>
 
@@ -278,7 +278,7 @@ async function loadData() {
   try {
     if (currentMonth === 'august' || currentMonth === 'july') {
       const [refRows, tgtRawRows, relRows] = await Promise.all([
-        parseCSV(JULY_REF_CSV),
+        parseCSV(currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
         parseRawCSV(currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
         parseCSV(currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
       ]);
@@ -311,16 +311,44 @@ async function loadData() {
   }
 }
 
-// The July Target sheet (gid=1171149380) is structured as 4 stacked mini-tables (one per unit),
-// each with 2 header rows, then region rows, then a blank-Unit/Region TOTAL row, then a blank separator.
-// Column headers repeat (e.g. "Target Endo" appears once for JUNE and once for JULY), so we read
-// by fixed column POSITION instead of by name. Verified against the live sheet on 2026-07 data:
-//   0=Unit 1=Region 2=Q4'25 Total Endo 7=Q1'26 Total Endo
-//   22=July Target Endo 23=July Target NOLA% 24=July Target Releases
-//   25=July Actual Endo 26=July Actual NOLA% 27=July Actual Releases
-//   28=VAR ENDO 29=VAR NOLA 30=VAR RELEASES
+// The Target sheet (July/August, and future months) is structured as 4 stacked mini-tables
+// (one per unit), each with its own header rows, then region rows, a blank-Unit/Region TOTAL
+// row, then a blank separator. Every new month, the sheet owner adds a fresh 9-column block
+// (Target Endo/NOLA/Releases, Actual Endo/NOLA/Releases, VAR Endo/NOLA/Releases) to the right,
+// which shifts all fixed column positions — this broke August (block moved from col W/idx22
+// in July to col AC/idx28 in August). Instead of hardcoding a position, we scan the sheet for
+// the RIGHT-MOST cell that reads "Target Endo" and treat that as the start of the current
+// month's block — this self-adjusts every month without needing a code change.
 function parseJulyTargetCSV(rows) {
   const KNOWN_UNITS = ['BN ROPALI', '3RD PARTY', 'BN DA', 'REPO'];
+  const Q4_ENDO_IDX = 2, Q1_ENDO_IDX = 7; // stable — near the start of the sheet, unaffected by monthly growth
+
+  let targetEndoIdx = -1;
+  rows.forEach(row => {
+    row.forEach((cell, ci) => {
+      if (String(cell||'').trim().toLowerCase() === 'target endo' && ci > targetEndoIdx) targetEndoIdx = ci;
+    });
+  });
+  if (targetEndoIdx === -1) targetEndoIdx = 22; // fallback to last-known-good July position if header text isn't found
+  const idx = {
+    targetEndo: targetEndoIdx, targetNola: targetEndoIdx+1, targetRel: targetEndoIdx+2,
+    actualEndo: targetEndoIdx+3, actualNola: targetEndoIdx+4, actualRel: targetEndoIdx+5,
+    varEndo: targetEndoIdx+6, varNola: targetEndoIdx+7, varRel: targetEndoIdx+8
+  };
+  console.log('[TARGET SHEET] current-month block detected starting at column index', targetEndoIdx);
+
+  function buildRow(unit, region) {
+    return function(row) {
+      return {
+        _unit: unit.toUpperCase(), 'Unit': unit, 'Region': region,
+        'Q4_2025_Endo': row[Q4_ENDO_IDX], 'Q1_2026_Endo': row[Q1_ENDO_IDX],
+        'Target Endo': row[idx.targetEndo], 'Target NOLA': row[idx.targetNola], 'Target Releases': row[idx.targetRel],
+        'Actual Endo': row[idx.actualEndo], 'Actual NOLA': row[idx.actualNola], 'Actual Releases': row[idx.actualRel],
+        'VAR ENDO': row[idx.varEndo], 'VAR NOLA': row[idx.varNola], 'VAR RELEASES': row[idx.varRel]
+      };
+    };
+  }
+
   let currentUnit = null;
   let out = [];
   rows.forEach(row => {
@@ -328,22 +356,10 @@ function parseJulyTargetCSV(rows) {
     const c1 = String(row[1]||'').trim();
     if (KNOWN_UNITS.includes(c0.toUpperCase())) {
       currentUnit = c0;
-      out.push({
-        _unit: c0.toUpperCase(), 'Unit': c0, 'Region': c1,
-        'Q4_2025_Endo': row[2], 'Q1_2026_Endo': row[7],
-        'Target Endo': row[22], 'Target NOLA': row[23], 'Target Releases': row[24],
-        'Actual Endo': row[25], 'Actual NOLA': row[26], 'Actual Releases': row[27],
-        'VAR ENDO': row[28], 'VAR NOLA': row[29], 'VAR RELEASES': row[30]
-      });
-    } else if (currentUnit && c0 === '' && c1 === '' && String(row[2]||'').trim() !== '') {
+      out.push(buildRow(c0, c1)(row));
+    } else if (currentUnit && c0 === '' && c1 === '' && String(row[idx.targetEndo]||'').trim() !== '') {
       // Blank-Unit/Region TOTAL row belonging to the unit block we just finished reading
-      out.push({
-        _unit: currentUnit.toUpperCase(), 'Unit': currentUnit, 'Region': '', 'Note': 'GRAND TOTAL',
-        'Q4_2025_Endo': row[2], 'Q1_2026_Endo': row[7],
-        'Target Endo': row[22], 'Target NOLA': row[23], 'Target Releases': row[24],
-        'Actual Endo': row[25], 'Actual NOLA': row[26], 'Actual Releases': row[27],
-        'VAR ENDO': row[28], 'VAR NOLA': row[29], 'VAR RELEASES': row[30]
-      });
+      out.push({ ...buildRow(currentUnit, '')(row), Note: 'GRAND TOTAL' });
       currentUnit = null;
     }
   });
@@ -403,7 +419,7 @@ function renderDashboard() {
   const unitCol = 'Unit', regionCol = 'Region';
   let q12025EndoCol, q12026EndoCol, targetEndoCol, targetNolaCol, targetRelCol, actualEndoCol, actualNolaCol, actualRelCol, varEndoCol, varNolaCol, varRelCol;
 
-  if (currentMonth === 'july') {
+  if (currentMonth === 'july' || currentMonth === 'august') {
     // Real historical data is embedded in the Target sheet itself
     q12025EndoCol = 'Q4_2025_Endo';
     q12026EndoCol = 'Q1_2026_Endo';
@@ -438,10 +454,19 @@ function renderDashboard() {
   const totalTargetEndo = totalRows.reduce((s,r) => s+getNum(r[targetEndoCol]),0);
   const totalActualRel = totalRows.reduce((s,r) => s+getNum(r[actualRelCol]),0);
   const totalTargetRel = totalRows.reduce((s,r) => s+getNum(r[targetRelCol]),0);
-  const avgActualNola = totalRows.length ? totalRows.reduce((s,r) => s+getPct(r[actualNolaCol]),0)/totalRows.length : 0;
   const avgTargetNola = totalRows.length ? totalRows.reduce((s,r) => s+getPct(r[targetNolaCol]),0)/totalRows.length : 0;
   const varEndo = totalActualEndo - totalTargetEndo;
   const varRel = totalActualRel - totalTargetRel;
+
+  // NOLA Rate (Actual) = NOLA-status accounts ÷ ALL accounts (total endorsements) from the
+  // raw account-level sheet (tatData) — not just accounts that already have a resolved status.
+  const tatKeys = tatData.length ? Object.keys(tatData[0]) : [];
+  const tatUnitCol = tatKeys[6], tatStatusCol = tatKeys[3];
+  let tatUnitFiltered = tatData;
+  if (tatUnitCol && currentUnit !== 'ALL') tatUnitFiltered = tatData.filter(r => (r[tatUnitCol]||'').toUpperCase() === currentUnit.toUpperCase());
+  const totalEndoAccounts = tatUnitFiltered.length;
+  const nolaAccounts = tatStatusCol ? tatUnitFiltered.filter(r => (r[tatStatusCol]||'').trim() === 'NOLA').length : 0;
+  const avgActualNola = totalEndoAccounts ? nolaAccounts/totalEndoAccounts : 0;
 
   let loanCol = null;
   if (releasesData.length) { const rk = Object.keys(releasesData[0]); loanCol = rk.find(k => k.toLowerCase().includes('loan') && k.toLowerCase().includes('amount')) || rk[8]; }
@@ -456,7 +481,7 @@ function renderDashboard() {
   evEl.className = 'kpi-var '+(varEndo>=0?'pos':'neg');
 
   document.getElementById('kpi-nola').textContent = (avgActualNola*100).toFixed(1)+'%';
-  const avgVarNola = totalRows.length && varNolaCol ? getPct(totalRows[0][varNolaCol]||'0') : (avgActualNola-avgTargetNola);
+  const avgVarNola = avgActualNola - avgTargetNola;
   const nvCard = document.getElementById('kpi-nola-var-card');
   nvCard.textContent = (avgVarNola>=0?'+':'')+(avgVarNola*100).toFixed(1)+'%';
   nvCard.style.color = avgVarNola>=0?'#06d6a0':'#ff6b6b';
@@ -474,7 +499,7 @@ function renderDashboard() {
   document.getElementById('kpi-loan').textContent = totalLoan>0?'₱'+(totalLoan/1000000).toFixed(1)+'M':'—';
 
   renderTrendChart(filtered, q12025EndoCol, q12026EndoCol, targetEndoCol, actualEndoCol);
-  renderNolaChart(avgActualNola, avgTargetNola);
+  renderNolaChart(nolaAccounts, totalEndoAccounts);
   renderBarChart('endoBarChart', filtered, regionCol, targetEndoCol, actualEndoCol, 'Endo');
   renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases');
   renderJuneTable(filtered, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol);
@@ -483,7 +508,7 @@ function renderDashboard() {
 function renderTrendChart(data, q1, q2, tgt, act) {
   const ctx = document.getElementById('trendChart').getContext('2d');
   if (charts.trend) charts.trend.destroy();
-  const monthLabel = currentMonth === 'july' ? 'July' : 'June';
+  const monthLabel = currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
   const labels = ['Q4 2025','Q1 2026', monthLabel+' Target', monthLabel+' Actual'];
   const points = [data.reduce((s,r)=>s+getNum(r[q1]),0), data.reduce((s,r)=>s+getNum(r[q2]),0), data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)];
   const titleEl = document.getElementById('trendChartTitle');
@@ -491,17 +516,16 @@ function renderTrendChart(data, q1, q2, tgt, act) {
   charts.trend = new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[{ label:'Endo', data:points, borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.1)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor:'#00d4ff' }]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
 }
 
-function renderNolaChart(actual, target) {
+function renderNolaChart(nolaCount, totalEndo) {
   const ctx = document.getElementById('nolaChart').getContext('2d');
   if (charts.nola) charts.nola.destroy();
-  const nolaPct = (actual*100).toFixed(1);
-  const nonNolaPct = Math.max(0, 100 - actual*100).toFixed(1);
+  const otherCount = Math.max(0, totalEndo - nolaCount);
   charts.nola = new Chart(ctx, { 
     type:'doughnut', 
     data:{ 
-      labels:['NOLA (Approved)', 'Not Yet NOLA'], 
+      labels:['NOLA (Approved)', 'Other Endorsements'], 
       datasets:[{ 
-        data:[actual*100, Math.max(0,100-actual*100)], 
+        data:[nolaCount, otherCount], 
         backgroundColor:['#06d6a0','rgba(255,255,255,0.08)'], 
         borderColor:['#06d6a0','rgba(255,255,255,0.1)'], 
         borderWidth:2 
@@ -513,7 +537,7 @@ function renderNolaChart(actual, target) {
       cutout:'70%',
       plugins:{
         legend:{labels:{color:'#6b7280',font:{size:11}}},
-        tooltip:{callbacks:{label:c=>c.label+': '+parseFloat(c.raw).toFixed(1)+'% of total endorsements'}}
+        tooltip:{callbacks:{label:c=>c.label+': '+c.raw.toLocaleString()+' of '+totalEndo.toLocaleString()+' total endorsements ('+(totalEndo?(c.raw/totalEndo*100).toFixed(1):0)+'%)'}}
       }
     }
   });
@@ -716,7 +740,7 @@ function renderDualDashboard() {
   // Bar chart - status per activity
   renderDualGroupChart('dualActivityChart', filtered, activityCol, statusCol, false);
   // Detailed tables
-  renderDualDetailTable('dualStatusTable', filtered, dualCol, statusCol);
+  renderDualDetailTable('dualStatusTable', filtered, dualCol, statusCol, ['Green Zone','Orange Zone','Pink Zone','Red Zone','Not Applicable','No Score']);
   renderDualDetailTable('dualRegionTable', filtered, regionCol, statusCol);
 
   // Product Scheme dropdown - populate options once
@@ -816,10 +840,15 @@ function renderDualPieChart(id, data, statusCol) {
   });
 }
 
-function renderDualDetailTable(tbodyId, data, groupCol, statusCol) {
+function renderDualDetailTable(tbodyId, data, groupCol, statusCol, fixedOrder) {
   var tbody = document.getElementById(tbodyId);
   if (!tbody) return;
   var groups = [...new Set(data.map(function(r){ return (r[groupCol]||'').trim(); }).filter(Boolean))];
+  if (fixedOrder) {
+    var inOrder = fixedOrder.filter(function(g){ return groups.includes(g); });
+    var extras = groups.filter(function(g){ return !fixedOrder.includes(g); });
+    groups = inOrder.concat(extras);
+  }
   if (!groups.length) { tbody.innerHTML='<tr><td colspan="15" style="text-align:center;color:#6b7280;">No data</td></tr>'; return; }
 
   function cnt(rows, type) {
@@ -849,7 +878,90 @@ function renderDualDetailTable(tbodyId, data, groupCol, statusCol) {
   }).join('');
 }
 
+// ========== MONTHLY COMPARISON (June vs July vs August) ==========
+// Independently fetches each month's own data sources (does not touch currentMonth /
+// allData / tatData) so the comparison table always shows all 3 months regardless of
+// which month is selected in the dropdown.
+async function computeMonthSummary(month) {
+  const isGrandTotal = r => Object.values(r).some(v => String(v||'').trim().toLowerCase().includes('grand'));
+  let rows = [], tatRows = [], targetEndoCol, targetNolaCol, targetRelCol, actualEndoCol, actualRelCol;
+
+  if (month === 'june') {
+    const unitKeys = Object.keys(JUNE_UNIT_CSVS);
+    const results = await Promise.all([...unitKeys.map(u => parseCSV(JUNE_UNIT_CSVS[u])), parseCSV(JUNE_TAT_CSV)]);
+    unitKeys.forEach((u,i) => { results[i].forEach(row => rows.push({...row, _unit:u})); });
+    tatRows = results[unitKeys.length];
+    const keys = rows.length ? Object.keys(rows[0]) : [];
+    const findKey = partial => keys.find(k => k.replace(/\n/g,' ').toLowerCase().includes(partial.toLowerCase())) || null;
+    targetEndoCol = findKey('Target Endo'); targetNolaCol = findKey('Target NOLA'); targetRelCol = findKey('Target Releases');
+    actualEndoCol = keys.find(k => k.replace(/\n/g,'').trim()==='Actual Endo') || findKey('Actual Endo');
+    actualRelCol = findKey('Actual Releases');
+  } else {
+    const tgtCSV = month === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV;
+    const refCSV = month === 'august' ? AUG_REF_CSV : JULY_REF_CSV;
+    const [tgtRaw, ref] = await Promise.all([parseRawCSV(tgtCSV), parseCSV(refCSV)]);
+    rows = parseJulyTargetCSV(tgtRaw);
+    tatRows = ref;
+    targetEndoCol = 'Target Endo'; targetNolaCol = 'Target NOLA'; targetRelCol = 'Target Releases';
+    actualEndoCol = 'Actual Endo'; actualRelCol = 'Actual Releases';
+  }
+
+  const tatKeys = tatRows.length ? Object.keys(tatRows[0]) : [];
+  const tatUnitCol = tatKeys[6], tatStatusCol = tatKeys[3];
+  const units = ['ALL','BN ROPALI','3RD PARTY','BN DA','REPO'];
+
+  return units.map(unit => {
+    const unitRows = unit === 'ALL' ? rows : rows.filter(r => (r._unit||'').toUpperCase() === unit);
+    const totals = unitRows.filter(isGrandTotal);
+    const sumSrc = totals.length ? totals : unitRows;
+    const targetEndo = sumSrc.reduce((s,r) => s+getNum(r[targetEndoCol]),0);
+    const actualEndo = sumSrc.reduce((s,r) => s+getNum(r[actualEndoCol]),0);
+    const targetRel = sumSrc.reduce((s,r) => s+getNum(r[targetRelCol]),0);
+    const actualRel = sumSrc.reduce((s,r) => s+getNum(r[actualRelCol]),0);
+    const targetNola = sumSrc.length ? sumSrc.reduce((s,r) => s+getPct(r[targetNolaCol]),0)/sumSrc.length : 0;
+
+    let tatFiltered = tatRows;
+    if (tatUnitCol && unit !== 'ALL') tatFiltered = tatRows.filter(r => (r[tatUnitCol]||'').toUpperCase() === unit);
+    const totalEndoAccounts = tatFiltered.length;
+    const nolaAccounts = tatStatusCol ? tatFiltered.filter(r => (r[tatStatusCol]||'').trim()==='NOLA').length : 0;
+    const actualNola = totalEndoAccounts ? nolaAccounts/totalEndoAccounts : 0;
+
+    return { unit, targetEndo, actualEndo, targetNola, actualNola, targetRel, actualRel };
+  });
+}
+
+function renderMonthlyComparisonTable(summaries) {
+  const tbody = document.getElementById('monthlyCompareTable');
+  if (!tbody) return;
+  const monthLabels = { june:'June', july:'July', august:'August' };
+  let html = '';
+  ['june','july','august'].forEach(month => {
+    (summaries[month]||[]).forEach(row => {
+      html += '<tr><td>'+monthLabels[month]+'</td><td>'+row.unit+'</td>'+
+        '<td>'+row.actualEndo.toLocaleString()+'</td>'+
+        '<td>'+(row.actualNola*100).toFixed(1)+'%</td>'+
+        '<td>'+row.actualRel.toLocaleString()+'</td></tr>';
+    });
+  });
+  tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">No data</td></tr>';
+}
+
+async function loadMonthlyComparison() {
+  const tbody = document.getElementById('monthlyCompareTable');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>';
+  try {
+    const [june, july, august] = await Promise.all([
+      computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august')
+    ]);
+    renderMonthlyComparisonTable({ june, july, august });
+  } catch (e) {
+    console.error('[MONTHLY COMPARISON] failed to load', e);
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">Error loading comparison data.</td></tr>';
+  }
+}
+
 loadData();
+loadMonthlyComparison();
 </script>
 
 <!-- DUAL TAB -->
@@ -890,10 +1002,10 @@ loadData();
 
   <!-- Monthly Comparison Table -->
   <div class="table-card">
-    <div class="table-title">📋 Monthly Comparison (June vs July vs August)</div>
+    <div class="table-title">📋 Monthly Comparison</div>
     <table>
-      <thead><tr><th>Month</th><th>Unit</th><th>Target Endo</th><th>Actual Endo</th><th>Var Endo</th><th>Target NOLA%</th><th>Actual NOLA%</th><th>Var NOLA%</th><th>Target Releases</th><th>Actual Releases</th><th>Var Releases</th></tr></thead>
-      <tbody id="monthlyCompareTable"><tr><td colspan="11" style="text-align:center;color:#6b7280;padding:20px;">Select a month to see data</td></tr></tbody>
+      <thead><tr><th>Month</th><th>Unit</th><th>Actual Endo</th><th>Actual NOLA%</th><th>Actual Releases</th></tr></thead>
+      <tbody id="monthlyCompareTable"><tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">Select a month to see data</td></tr></tbody>
     </table>
   </div>
 
