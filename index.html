@@ -138,6 +138,13 @@
     <table><thead><tr><th>Unit</th><th>Region</th><th>Target Endo</th><th>Actual Endo</th><th>Var Endo</th><th>Target NOLA%</th><th>Actual NOLA%</th><th>Var NOLA%</th><th>Target Releases</th><th>Actual Releases</th><th>Var Releases</th></tr></thead>
     <tbody id="tableBody"><tr><td colspan="11"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr></tbody></table>
   </div>
+  <div class="table-card">
+    <div class="table-title">📋 Monthly Comparison</div>
+    <table>
+      <thead><tr><th>Month</th><th>Actual Endo</th><th>Actual NOLA%</th><th>Actual Releases</th></tr></thead>
+      <tbody id="monthlyCompareTable"><tr><td colspan="4" style="text-align:center;color:#6b7280;padding:20px;">Loading...</td></tr></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- TAT TAB -->
@@ -400,6 +407,7 @@ function setUnit(unit) {
   currentUnit = unit;
   document.querySelectorAll('[data-unit]').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
   renderDashboard();
+  renderMonthlyComparisonTable(monthlySummaryCache, currentUnit);
 }
 
 function renderDashboard() {
@@ -498,19 +506,30 @@ function renderDashboard() {
   rvEl.className = 'kpi-var '+(varRel>=0?'pos':'neg');
   document.getElementById('kpi-loan').textContent = totalLoan>0?'₱'+(totalLoan/1000000).toFixed(1)+'M':'—';
 
-  renderTrendChart(filtered, q12025EndoCol, q12026EndoCol, targetEndoCol, actualEndoCol);
+  renderTrendChart(filtered, q12025EndoCol, q12026EndoCol);
   renderNolaChart(nolaAccounts, totalEndoAccounts);
   renderBarChart('endoBarChart', filtered, regionCol, targetEndoCol, actualEndoCol, 'Endo');
   renderBarChart('releasesBarChart', filtered, regionCol, targetRelCol, actualRelCol, 'Releases');
   renderJuneTable(filtered, unitCol, regionCol, targetEndoCol, actualEndoCol, varEndoCol, targetNolaCol, actualNolaCol, targetRelCol, actualRelCol, varRelCol);
 }
 
-function renderTrendChart(data, q1, q2, tgt, act) {
+// Plots Q4 2025 -> Q1 2026 -> June -> July -> August (and future months, as their data
+// sources get added) using each month's ACTUAL Endo total for the currently selected unit,
+// pulled from monthlySummaryCache (the same cache backing the Monthly Comparison table).
+function renderTrendChart(data, q1, q2) {
   const ctx = document.getElementById('trendChart').getContext('2d');
   if (charts.trend) charts.trend.destroy();
-  const monthLabel = currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
-  const labels = ['Q4 2025','Q1 2026', monthLabel+' Target', monthLabel+' Actual'];
-  const points = [data.reduce((s,r)=>s+getNum(r[q1]),0), data.reduce((s,r)=>s+getNum(r[q2]),0), data.reduce((s,r)=>s+getNum(r[tgt]),0), data.reduce((s,r)=>s+getNum(r[act]),0)];
+  const q4Total = data.reduce((s,r)=>s+getNum(r[q1]),0);
+  const q1Total = data.reduce((s,r)=>s+getNum(r[q2]),0);
+  const monthOrder = ['june','july','august'];
+  const monthNames = { june:'June', july:'July', august:'August' };
+  const unit = currentUnit || 'ALL';
+  const monthPoints = monthOrder.map(m => {
+    const row = (monthlySummaryCache[m]||[]).find(r => r.unit === unit);
+    return row ? row.actualEndo : 0;
+  });
+  const labels = ['Q4 2025','Q1 2026'].concat(monthOrder.map(m => monthNames[m]));
+  const points = [q4Total, q1Total].concat(monthPoints);
   const titleEl = document.getElementById('trendChartTitle');
   if (titleEl) titleEl.textContent = '📈 Endorsement Trend';
   charts.trend = new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[{ label:'Endo', data:points, borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.1)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor:'#00d4ff' }]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#6b7280'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
@@ -930,33 +949,38 @@ async function computeMonthSummary(month) {
   });
 }
 
-function renderMonthlyComparisonTable(summaries) {
+let monthlySummaryCache = { june:[], july:[], august:[] };
+
+function renderMonthlyComparisonTable(summaries, unit) {
   const tbody = document.getElementById('monthlyCompareTable');
   if (!tbody) return;
+  unit = unit || currentUnit || 'ALL';
   const monthLabels = { june:'June', july:'July', august:'August' };
   let html = '';
   ['june','july','august'].forEach(month => {
-    (summaries[month]||[]).forEach(row => {
-      html += '<tr><td>'+monthLabels[month]+'</td><td>'+row.unit+'</td>'+
-        '<td>'+row.actualEndo.toLocaleString()+'</td>'+
-        '<td>'+(row.actualNola*100).toFixed(1)+'%</td>'+
-        '<td>'+row.actualRel.toLocaleString()+'</td></tr>';
-    });
+    const row = (summaries[month]||[]).find(r => r.unit === unit);
+    if (!row) return;
+    html += '<tr><td>'+monthLabels[month]+'</td>'+
+      '<td>'+row.actualEndo.toLocaleString()+'</td>'+
+      '<td>'+(row.actualNola*100).toFixed(1)+'%</td>'+
+      '<td>'+row.actualRel.toLocaleString()+'</td></tr>';
   });
-  tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">No data</td></tr>';
+  tbody.innerHTML = html || '<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:20px;">No data</td></tr>';
 }
 
 async function loadMonthlyComparison() {
   const tbody = document.getElementById('monthlyCompareTable');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="5"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="4"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>';
   try {
     const [june, july, august] = await Promise.all([
       computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august')
     ]);
-    renderMonthlyComparisonTable({ june, july, august });
+    monthlySummaryCache = { june, july, august };
+    renderMonthlyComparisonTable(monthlySummaryCache, currentUnit);
+    if (allData.length) renderDashboard(); // refresh trend chart now that real monthly actuals are in
   } catch (e) {
     console.error('[MONTHLY COMPARISON] failed to load', e);
-    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">Error loading comparison data.</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:20px;">Error loading comparison data.</td></tr>';
   }
 }
 
@@ -998,15 +1022,6 @@ loadMonthlyComparison();
   <div class="charts-grid2">
     <div class="chart-card"><div class="chart-title">🥧 Status Distribution per Dual Zone</div><div class="chart-wrap"><canvas id="dualStatusChart"></canvas></div></div>
     <div class="chart-card"><div class="chart-title">📊 Status per Activity</div><div class="chart-wrap"><canvas id="dualActivityChart"></canvas></div></div>
-  </div>
-
-  <!-- Monthly Comparison Table -->
-  <div class="table-card">
-    <div class="table-title">📋 Monthly Comparison</div>
-    <table>
-      <thead><tr><th>Month</th><th>Unit</th><th>Actual Endo</th><th>Actual NOLA%</th><th>Actual Releases</th></tr></thead>
-      <tbody id="monthlyCompareTable"><tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px;">Select a month to see data</td></tr></tbody>
-    </table>
   </div>
 
   <!-- Status Breakdown Table per Dual Zone -->
