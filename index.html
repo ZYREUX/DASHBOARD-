@@ -94,6 +94,7 @@
         <option value="june">June 2026</option>
         <option value="july">July 2026</option>
         <option value="august">August 2026</option>
+        <option value="september">September 2026</option>
       </select>
     </div>
     <button class="refresh-btn" onclick="loadData(); loadMonthlyComparison();">⟳ Refresh</button>
@@ -232,17 +233,24 @@ const AUG_RELEASES_CSV = BASE + '&gid=1800306118';
 const AUG_REF_CSV = BASE + '&gid=59009304';
 const AUG_TARGET_CSV = BASE + '&gid=357257060';
 
+// September data sources
+const SEP_RELEASES_CSV = BASE + '&gid=1167051871';
+const SEP_REF_CSV = BASE + '&gid=576011419';
+const SEP_TARGET_CSV = BASE + '&gid=450408352';
+
 // Active month
 let currentMonth = 'june';
 let targetData = []; // July target sheet (Unit/Region/Target Endo/Target NOLA/Target Releases)
 
 function getUnitCSVs() { return JUNE_UNIT_CSVS; } // June only now - July uses JULY_REF_CSV directly
 function getReleasesCSV() { 
+  if (currentMonth === 'september') return SEP_RELEASES_CSV;
   if (currentMonth === 'august') return AUG_RELEASES_CSV;
   if (currentMonth === 'july') return JULY_RELEASES_CSV;
   return JUNE_RELEASES_CSV; 
 }
 function getTATCSV() { 
+  if (currentMonth === 'september') return SEP_REF_CSV;
   if (currentMonth === 'august') return AUG_REF_CSV;
   if (currentMonth === 'july') return JULY_REF_CSV;
   return JUNE_TAT_CSV; 
@@ -273,7 +281,7 @@ function parseRawCSV(url) {
 
 function onMonthChange() {
   currentMonth = document.getElementById('monthSelect').value;
-  const monthLabel = currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
+  const monthLabel = currentMonth === 'september' ? 'September' : currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
   document.getElementById('perfTabBtn').textContent = '📊 ' + monthLabel + ' Performance';
   const schemeSelect = document.getElementById('productSchemeFilter');
   if (schemeSelect) { while (schemeSelect.options.length > 1) schemeSelect.remove(1); }
@@ -283,11 +291,11 @@ function onMonthChange() {
 async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
-    if (currentMonth === 'august' || currentMonth === 'july') {
+    if (currentMonth === 'september' || currentMonth === 'august' || currentMonth === 'july') {
       const [refRows, tgtRawRows, relRows] = await Promise.all([
         parseCSV(currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
-        parseRawCSV(currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
-        parseCSV(currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
+        parseRawCSV(currentMonth === 'september' ? SEP_TARGET_CSV : currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
+        parseCSV(currentMonth === 'september' ? SEP_RELEASES_CSV : currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
       ]);
       tatData = refRows;       // powers TAT tab + DUAL tab (same raw sheet)
       releasesData = relRows;  // powers Total Loan Amount KPI
@@ -308,7 +316,7 @@ async function loadData() {
       releasesData = results[unitKeys.length];
       tatData = results[unitKeys.length + 1];
     }
-    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' (' + (currentMonth === 'august' ? 'August 2026' : currentMonth === 'july' ? 'July 2026' : 'June 2026') + ')';
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' (' + (currentMonth === 'september' ? 'September 2026' : currentMonth === 'august' ? 'August 2026' : currentMonth === 'july' ? 'July 2026' : 'June 2026') + ')';
     renderDashboard();
     renderTATDashboard();
     renderDualDashboard();
