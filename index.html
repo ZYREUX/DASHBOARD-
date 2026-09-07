@@ -293,7 +293,7 @@ async function loadData() {
   try {
     if (currentMonth === 'september' || currentMonth === 'august' || currentMonth === 'july') {
       const [refRows, tgtRawRows, relRows] = await Promise.all([
-        parseCSV(currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
+        parseCSV(currentMonth === 'september' ? SEP_REF_CSV : currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
         parseRawCSV(currentMonth === 'september' ? SEP_TARGET_CSV : currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
         parseCSV(currentMonth === 'september' ? SEP_RELEASES_CSV : currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
       ]);
