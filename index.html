@@ -336,45 +336,123 @@ async function loadData() {
 // month's block — this self-adjusts every month without needing a code change.
 function parseJulyTargetCSV(rows) {
   const KNOWN_UNITS = ['BN ROPALI', '3RD PARTY', 'BN DA', 'REPO'];
-  const Q4_ENDO_IDX = 2, Q1_ENDO_IDX = 7; // stable — near the start of the sheet, unaffected by monthly growth
+  const Q4_ENDO_IDX = 2, Q1_ENDO_IDX = 7;
 
+  // Strategy 1: Look for the RIGHT-SIDE summary table (e.g. Sept format: UNIT col then T.Endo T.NOLA T.Rel A.Endo A.NOLA A.Rel)
+  // Find the row+col where "UNIT" header sits for the summary block (far right)
+  let summaryUnitCol = -1, summaryHeaderRow = -1;
+  rows.forEach((row, ri) => {
+    row.forEach((cell, ci) => {
+      if (String(cell||'').trim().toUpperCase() === 'UNIT' && ci > 20) {
+        // Check next cells are target/actual headers
+        const next = String(row[ci+1]||'').toLowerCase();
+        if (next.includes('target') || next.includes('endo')) {
+          summaryUnitCol = ci;
+          summaryHeaderRow = ri;
+        }
+      }
+    });
+  });
+
+  if (summaryUnitCol >= 0) {
+    // Use the right-side summary table
+    console.log('[TARGET SHEET] Found summary table at col', summaryUnitCol, 'row', summaryHeaderRow);
+    const tEndoCol = summaryUnitCol + 1;
+    const tNolaCol = summaryUnitCol + 2;
+    const tRelCol  = summaryUnitCol + 3;
+    const aEndoCol = summaryUnitCol + 4;
+    const aNolaCol = summaryUnitCol + 5;
+    const aRelCol  = summaryUnitCol + 6;
+    const vEndoCol = summaryUnitCol + 7;
+    const vNolaCol = summaryUnitCol + 8;
+    const vRelCol  = summaryUnitCol + 9;
+
+    let out = [];
+    rows.forEach((row, ri) => {
+      if (ri <= summaryHeaderRow) return;
+      const unit = String(row[summaryUnitCol]||'').trim().toUpperCase();
+      if (!KNOWN_UNITS.includes(unit)) return;
+      const q4Endo = row[Q4_ENDO_IDX];
+      const q1Endo = row[Q1_ENDO_IDX];
+      // Try to get Q4/Q1 from per-region rows (col 2 & 7)
+      out.push({
+        _unit: unit, 'Unit': unit, 'Region': 'GRAND TOTAL',
+        'Q4_2025_Endo': q4Endo, 'Q1_2026_Endo': q1Endo,
+        'Target Endo': row[tEndoCol], 'Target NOLA': row[tNolaCol], 'Target Releases': row[tRelCol],
+        'Actual Endo': row[aEndoCol], 'Actual NOLA': row[aNolaCol], 'Actual Releases': row[aRelCol],
+        'VAR ENDO': row[vEndoCol], 'VAR NOLA': row[vNolaCol], 'VAR RELEASES': row[vRelCol],
+        Note: 'GRAND TOTAL'
+      });
+    });
+
+    // Also get per-region rows from the left side for region breakdown charts
+    let currentUnit = null;
+    let targetEndoIdx = -1;
+    rows.forEach(row => {
+      row.forEach((cell, ci) => {
+        if (String(cell||'').trim().toLowerCase() === 'target endo' && ci < summaryUnitCol && ci > targetEndoIdx) 
+          targetEndoIdx = ci;
+      });
+    });
+    if (targetEndoIdx >= 0) {
+      const idx = {
+        targetEndo: targetEndoIdx, targetNola: targetEndoIdx+1, targetRel: targetEndoIdx+2,
+        actualEndo: targetEndoIdx+3, actualNola: targetEndoIdx+4, actualRel: targetEndoIdx+5,
+        varEndo: targetEndoIdx+6, varNola: targetEndoIdx+7, varRel: targetEndoIdx+8
+      };
+      rows.forEach(row => {
+        const c0 = String(row[0]||'').trim().toUpperCase();
+        const c1 = String(row[1]||'').trim();
+        if (KNOWN_UNITS.includes(c0) && c1 !== '') {
+          out.push({
+            _unit: c0, 'Unit': c0, 'Region': c1,
+            'Q4_2025_Endo': row[Q4_ENDO_IDX], 'Q1_2026_Endo': row[Q1_ENDO_IDX],
+            'Target Endo': row[idx.targetEndo], 'Target NOLA': row[idx.targetNola], 'Target Releases': row[idx.targetRel],
+            'Actual Endo': row[idx.actualEndo], 'Actual NOLA': row[idx.actualNola], 'Actual Releases': row[idx.actualRel],
+            'VAR ENDO': row[idx.varEndo], 'VAR NOLA': row[idx.varNola], 'VAR RELEASES': row[idx.varRel]
+          });
+        }
+      });
+    }
+    return out;
+  }
+
+  // Strategy 2: Original left-side scanning (for July/August format)
   let targetEndoIdx = -1;
   rows.forEach(row => {
     row.forEach((cell, ci) => {
       if (String(cell||'').trim().toLowerCase() === 'target endo' && ci > targetEndoIdx) targetEndoIdx = ci;
     });
   });
-  if (targetEndoIdx === -1) targetEndoIdx = 22; // fallback to last-known-good July position if header text isn't found
+  if (targetEndoIdx === -1) targetEndoIdx = 22;
   const idx = {
     targetEndo: targetEndoIdx, targetNola: targetEndoIdx+1, targetRel: targetEndoIdx+2,
     actualEndo: targetEndoIdx+3, actualNola: targetEndoIdx+4, actualRel: targetEndoIdx+5,
     varEndo: targetEndoIdx+6, varNola: targetEndoIdx+7, varRel: targetEndoIdx+8
   };
-  console.log('[TARGET SHEET] current-month block detected starting at column index', targetEndoIdx);
-
-  function buildRow(unit, region) {
-    return function(row) {
-      return {
-        _unit: unit.toUpperCase(), 'Unit': unit, 'Region': region,
-        'Q4_2025_Endo': row[Q4_ENDO_IDX], 'Q1_2026_Endo': row[Q1_ENDO_IDX],
-        'Target Endo': row[idx.targetEndo], 'Target NOLA': row[idx.targetNola], 'Target Releases': row[idx.targetRel],
-        'Actual Endo': row[idx.actualEndo], 'Actual NOLA': row[idx.actualNola], 'Actual Releases': row[idx.actualRel],
-        'VAR ENDO': row[idx.varEndo], 'VAR NOLA': row[idx.varNola], 'VAR RELEASES': row[idx.varRel]
-      };
-    };
-  }
+  console.log('[TARGET SHEET] Fallback: current-month block at column index', targetEndoIdx);
 
   let currentUnit = null;
   let out = [];
   rows.forEach(row => {
-    const c0 = String(row[0]||'').trim();
+    const c0 = String(row[0]||'').trim().toUpperCase();
     const c1 = String(row[1]||'').trim();
-    if (KNOWN_UNITS.includes(c0.toUpperCase())) {
+    if (KNOWN_UNITS.includes(c0)) {
       currentUnit = c0;
-      out.push(buildRow(c0, c1)(row));
+      if (c1) out.push({
+        _unit: c0, 'Unit': c0, 'Region': c1,
+        'Q4_2025_Endo': row[Q4_ENDO_IDX], 'Q1_2026_Endo': row[Q1_ENDO_IDX],
+        'Target Endo': row[idx.targetEndo], 'Target NOLA': row[idx.targetNola], 'Target Releases': row[idx.targetRel],
+        'Actual Endo': row[idx.actualEndo], 'Actual NOLA': row[idx.actualNola], 'Actual Releases': row[idx.actualRel],
+        'VAR ENDO': row[idx.varEndo], 'VAR NOLA': row[idx.varNola], 'VAR RELEASES': row[idx.varRel]
+      });
     } else if (currentUnit && c0 === '' && c1 === '' && String(row[idx.targetEndo]||'').trim() !== '') {
-      // Blank-Unit/Region TOTAL row belonging to the unit block we just finished reading
-      out.push({ ...buildRow(currentUnit, '')(row), Note: 'GRAND TOTAL' });
+      out.push({ _unit: currentUnit, 'Unit': currentUnit, 'Region': '',
+        'Q4_2025_Endo': row[Q4_ENDO_IDX], 'Q1_2026_Endo': row[Q1_ENDO_IDX],
+        'Target Endo': row[idx.targetEndo], 'Target NOLA': row[idx.targetNola], 'Target Releases': row[idx.targetRel],
+        'Actual Endo': row[idx.actualEndo], 'Actual NOLA': row[idx.actualNola], 'Actual Releases': row[idx.actualRel],
+        'VAR ENDO': row[idx.varEndo], 'VAR NOLA': row[idx.varNola], 'VAR RELEASES': row[idx.varRel],
+        Note: 'GRAND TOTAL' });
       currentUnit = null;
     }
   });
