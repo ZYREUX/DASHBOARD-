@@ -1002,11 +1002,13 @@ async function computeMonthSummary(month) {
     actualEndoCol = keys.find(k => k.replace(/\n/g,'').trim()==='Actual Endo') || findKey('Actual Endo');
     actualRelCol = findKey('Actual Releases');
   } else {
-    const tgtCSV = month === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV;
-    const refCSV = month === 'august' ? AUG_REF_CSV : JULY_REF_CSV;
-    const [tgtRaw, ref] = await Promise.all([parseRawCSV(tgtCSV), parseCSV(refCSV)]);
+    const tgtCSV = month === 'september' ? SEP_TARGET_CSV : month === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV;
+    const refCSV = month === 'september' ? SEP_REF_CSV : month === 'august' ? AUG_REF_CSV : JULY_REF_CSV;
+    const relCSV = month === 'september' ? SEP_RELEASES_CSV : month === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV;
+    const [tgtRaw, ref, rel] = await Promise.all([parseRawCSV(tgtCSV), parseCSV(refCSV), parseCSV(relCSV)]);
     rows = parseJulyTargetCSV(tgtRaw);
     tatRows = ref;
+    releasesData = rel;
     targetEndoCol = 'Target Endo'; targetNolaCol = 'Target NOLA'; targetRelCol = 'Target Releases';
     actualEndoCol = 'Actual Endo'; actualRelCol = 'Actual Releases';
   }
@@ -1022,7 +1024,14 @@ async function computeMonthSummary(month) {
     const targetEndo = sumSrc.reduce((s,r) => s+getNum(r[targetEndoCol]),0);
     const actualEndo = sumSrc.reduce((s,r) => s+getNum(r[actualEndoCol]),0);
     const targetRel = sumSrc.reduce((s,r) => s+getNum(r[targetRelCol]),0);
-    const actualRel = sumSrc.reduce((s,r) => s+getNum(r[actualRelCol]),0);
+    // For actual releases - use the releases data if available, otherwise from target sheet
+    let actualRel = sumSrc.reduce((s,r) => s+getNum(r[actualRelCol]),0);
+    if (!actualRel && releasesData && releasesData.length) {
+      const relKeys = Object.keys(releasesData[0]);
+      const relUnitCol = relKeys.find(k => k.toLowerCase() === 'unit') || relKeys[10];
+      const relFiltered = unit === 'ALL' ? releasesData : releasesData.filter(r => (r[relUnitCol]||'').toUpperCase() === unit);
+      actualRel = relFiltered.length;
+    }
     const targetNola = sumSrc.length ? sumSrc.reduce((s,r) => s+getPct(r[targetNolaCol]),0)/sumSrc.length : 0;
 
     let tatFiltered = tatRows;
@@ -1035,15 +1044,15 @@ async function computeMonthSummary(month) {
   });
 }
 
-let monthlySummaryCache = { june:[], july:[], august:[] };
+let monthlySummaryCache = { june:[], july:[], august:[], september:[] };
 
 function renderMonthlyComparisonTable(summaries, unit) {
   const tbody = document.getElementById('monthlyCompareTable');
   if (!tbody) return;
   unit = unit || currentUnit || 'ALL';
-  const monthLabels = { june:'June', july:'July', august:'August' };
+  const monthLabels = { june:'June', july:'July', august:'August', september:'September' };
   let html = '';
-  ['june','july','august'].forEach(month => {
+  ['june','july','august','september'].forEach(month => {
     const row = (summaries[month]||[]).find(r => r.unit === unit);
     if (!row) return;
     html += '<tr><td>'+monthLabels[month]+'</td>'+
@@ -1058,10 +1067,10 @@ async function loadMonthlyComparison() {
   const tbody = document.getElementById('monthlyCompareTable');
   if (tbody) tbody.innerHTML = '<tr><td colspan="4"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>';
   try {
-    const [june, july, august] = await Promise.all([
-      computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august')
+    const [june, july, august, september] = await Promise.all([
+      computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august'), computeMonthSummary('september')
     ]);
-    monthlySummaryCache = { june, july, august };
+    monthlySummaryCache = { june, july, august, september };
     renderMonthlyComparisonTable(monthlySummaryCache, currentUnit);
     if (allData.length) renderDashboard(); // refresh trend chart now that real monthly actuals are in
   } catch (e) {
