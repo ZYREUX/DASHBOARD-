@@ -418,18 +418,41 @@ function parseJulyTargetCSV(rows) {
   }
 
   // Strategy 2: Original left-side scanning (for July/August format)
+  // Find "Target Endo" header - use the one that has "Actual Endo" 3 cols to the right
   let targetEndoIdx = -1;
   rows.forEach(row => {
     row.forEach((cell, ci) => {
-      if (String(cell||'').trim().toLowerCase() === 'target endo' && ci > targetEndoIdx) targetEndoIdx = ci;
+      const cellStr = String(cell||'').trim().toLowerCase();
+      if (cellStr === 'target endo' && ci < 50) {
+        // Check if col ci+3 has "actual endo" header somewhere nearby
+        targetEndoIdx = ci;
+      }
     });
   });
-  if (targetEndoIdx === -1) targetEndoIdx = 22;
+  if (targetEndoIdx === -1) targetEndoIdx = 28; // Aug fallback: col AC
+
+  // For August format: Target Endo(AC=28), Target NOLA(AD=29), Target Releases(AE=30), Actual Endo(AF=31), Actual NOLA(AG=32), Actual Releases(AH=33)
+  // Verify by checking if actual endo col has numeric values
+  let actualEndoOffset = 3;
+  // Check header row for "actual endo" near targetEndoIdx
+  rows.forEach(row => {
+    row.forEach((cell, ci) => {
+      if (String(cell||'').trim().toLowerCase().includes('actual endo') && ci > targetEndoIdx && ci < targetEndoIdx + 6) {
+        actualEndoOffset = ci - targetEndoIdx;
+      }
+    });
+  });
+
   const idx = {
     targetEndo: targetEndoIdx, targetNola: targetEndoIdx+1, targetRel: targetEndoIdx+2,
-    actualEndo: targetEndoIdx+3, actualNola: targetEndoIdx+4, actualRel: targetEndoIdx+5,
-    varEndo: targetEndoIdx+6, varNola: targetEndoIdx+7, varRel: targetEndoIdx+8
+    actualEndo: targetEndoIdx+actualEndoOffset, 
+    actualNola: targetEndoIdx+actualEndoOffset+1, 
+    actualRel: targetEndoIdx+actualEndoOffset+2,
+    varEndo: targetEndoIdx+actualEndoOffset+3, 
+    varNola: targetEndoIdx+actualEndoOffset+4, 
+    varRel: targetEndoIdx+actualEndoOffset+5
   };
+  console.log('[TARGET SHEET] Strategy 2: targetEndoIdx=', targetEndoIdx, 'actualEndoOffset=', actualEndoOffset, 'idx=', idx);
   console.log('[TARGET SHEET] Fallback: current-month block at column index', targetEndoIdx);
 
   let currentUnit = null;
