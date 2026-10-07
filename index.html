@@ -95,6 +95,7 @@
         <option value="july">July 2026</option>
         <option value="august">August 2026</option>
         <option value="september">September 2026</option>
+        <option value="october">October 2026</option>
       </select>
     </div>
     <button class="refresh-btn" onclick="loadData(); loadMonthlyComparison();">⟳ Refresh</button>
@@ -238,18 +239,25 @@ const SEP_RELEASES_CSV = BASE + '&gid=1167051871';
 const SEP_REF_CSV = BASE + '&gid=576011419';
 const SEP_TARGET_CSV = BASE + '&gid=450408352';
 
+// October data sources
+const OCT_RELEASES_CSV = BASE + '&gid=2861371';
+const OCT_REF_CSV = BASE + '&gid=1539690514';
+const OCT_TARGET_CSV = BASE + '&gid=1708320274';
+
 // Active month
 let currentMonth = 'june';
 let targetData = []; // July target sheet (Unit/Region/Target Endo/Target NOLA/Target Releases)
 
 function getUnitCSVs() { return JUNE_UNIT_CSVS; } // June only now - July uses JULY_REF_CSV directly
 function getReleasesCSV() { 
+  if (currentMonth === 'october') return OCT_RELEASES_CSV;
   if (currentMonth === 'september') return SEP_RELEASES_CSV;
   if (currentMonth === 'august') return AUG_RELEASES_CSV;
   if (currentMonth === 'july') return JULY_RELEASES_CSV;
   return JUNE_RELEASES_CSV; 
 }
 function getTATCSV() { 
+  if (currentMonth === 'october') return OCT_REF_CSV;
   if (currentMonth === 'september') return SEP_REF_CSV;
   if (currentMonth === 'august') return AUG_REF_CSV;
   if (currentMonth === 'july') return JULY_REF_CSV;
@@ -281,7 +289,7 @@ function parseRawCSV(url) {
 
 function onMonthChange() {
   currentMonth = document.getElementById('monthSelect').value;
-  const monthLabel = currentMonth === 'september' ? 'September' : currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
+  const monthLabel = currentMonth === 'october' ? 'October' : currentMonth === 'september' ? 'September' : currentMonth === 'august' ? 'August' : currentMonth === 'july' ? 'July' : 'June';
   document.getElementById('perfTabBtn').textContent = '📊 ' + monthLabel + ' Performance';
   const schemeSelect = document.getElementById('productSchemeFilter');
   if (schemeSelect) { while (schemeSelect.options.length > 1) schemeSelect.remove(1); }
@@ -291,11 +299,11 @@ function onMonthChange() {
 async function loadData() {
   document.getElementById('lastUpdate').textContent = 'Refreshing...';
   try {
-    if (currentMonth === 'september' || currentMonth === 'august' || currentMonth === 'july') {
+    if (currentMonth === 'october' || currentMonth === 'september' || currentMonth === 'august' || currentMonth === 'july') {
       const [refRows, tgtRawRows, relRows] = await Promise.all([
-        parseCSV(currentMonth === 'september' ? SEP_REF_CSV : currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
-        parseRawCSV(currentMonth === 'september' ? SEP_TARGET_CSV : currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
-        parseCSV(currentMonth === 'september' ? SEP_RELEASES_CSV : currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
+        parseCSV(currentMonth === 'october' ? OCT_REF_CSV : currentMonth === 'september' ? SEP_REF_CSV : currentMonth === 'august' ? AUG_REF_CSV : JULY_REF_CSV),
+        parseRawCSV(currentMonth === 'october' ? OCT_TARGET_CSV : currentMonth === 'september' ? SEP_TARGET_CSV : currentMonth === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV),
+        parseCSV(currentMonth === 'october' ? OCT_RELEASES_CSV : currentMonth === 'september' ? SEP_RELEASES_CSV : currentMonth === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV)
       ]);
       tatData = refRows;       // powers TAT tab + DUAL tab (same raw sheet)
       releasesData = relRows;  // powers Total Loan Amount KPI
@@ -316,7 +324,7 @@ async function loadData() {
       releasesData = results[unitKeys.length];
       tatData = results[unitKeys.length + 1];
     }
-    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' (' + (currentMonth === 'september' ? 'September 2026' : currentMonth === 'august' ? 'August 2026' : currentMonth === 'july' ? 'July 2026' : 'June 2026') + ')';
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleTimeString() + ' (' + (currentMonth === 'october' ? 'October 2026' : currentMonth === 'september' ? 'September 2026' : currentMonth === 'august' ? 'August 2026' : currentMonth === 'july' ? 'July 2026' : 'June 2026') + ')';
     renderDashboard();
     renderTATDashboard();
     renderDualDashboard();
@@ -1025,9 +1033,9 @@ async function computeMonthSummary(month) {
     actualEndoCol = keys.find(k => k.replace(/\n/g,'').trim()==='Actual Endo') || findKey('Actual Endo');
     actualRelCol = findKey('Actual Releases');
   } else {
-    const tgtCSV = month === 'september' ? SEP_TARGET_CSV : month === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV;
-    const refCSV = month === 'september' ? SEP_REF_CSV : month === 'august' ? AUG_REF_CSV : JULY_REF_CSV;
-    const relCSV = month === 'september' ? SEP_RELEASES_CSV : month === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV;
+    const tgtCSV = month === 'october' ? OCT_TARGET_CSV : month === 'september' ? SEP_TARGET_CSV : month === 'august' ? AUG_TARGET_CSV : JULY_TARGET_CSV;
+    const refCSV = month === 'october' ? OCT_REF_CSV : month === 'september' ? SEP_REF_CSV : month === 'august' ? AUG_REF_CSV : JULY_REF_CSV;
+    const relCSV = month === 'october' ? OCT_RELEASES_CSV : month === 'september' ? SEP_RELEASES_CSV : month === 'august' ? AUG_RELEASES_CSV : JULY_RELEASES_CSV;
     const [tgtRaw, ref, rel] = await Promise.all([parseRawCSV(tgtCSV), parseCSV(refCSV), parseCSV(relCSV)]);
     rows = parseJulyTargetCSV(tgtRaw);
     tatRows = ref;
@@ -1067,15 +1075,15 @@ async function computeMonthSummary(month) {
   });
 }
 
-let monthlySummaryCache = { june:[], july:[], august:[], september:[] };
+let monthlySummaryCache = { june:[], july:[], august:[], september:[], october:[] };
 
 function renderMonthlyComparisonTable(summaries, unit) {
   const tbody = document.getElementById('monthlyCompareTable');
   if (!tbody) return;
   unit = unit || currentUnit || 'ALL';
-  const monthLabels = { june:'June', july:'July', august:'August', september:'September' };
+  const monthLabels = { june:'June', july:'July', august:'August', september:'September', october:'October' };
   let html = '';
-  ['june','july','august','september'].forEach(month => {
+  ['june','july','august','september','october'].forEach(month => {
     const row = (summaries[month]||[]).find(r => r.unit === unit);
     if (!row) return;
     html += '<tr><td>'+monthLabels[month]+'</td>'+
@@ -1090,10 +1098,10 @@ async function loadMonthlyComparison() {
   const tbody = document.getElementById('monthlyCompareTable');
   if (tbody) tbody.innerHTML = '<tr><td colspan="4"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></td></tr>';
   try {
-    const [june, july, august, september] = await Promise.all([
-      computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august'), computeMonthSummary('september')
+    const [june, july, august, september, october] = await Promise.all([
+      computeMonthSummary('june'), computeMonthSummary('july'), computeMonthSummary('august'), computeMonthSummary('september'), computeMonthSummary('october')
     ]);
-    monthlySummaryCache = { june, july, august, september };
+    monthlySummaryCache = { june, july, august, september, october };
     renderMonthlyComparisonTable(monthlySummaryCache, currentUnit);
     if (allData.length) renderDashboard(); // refresh trend chart now that real monthly actuals are in
   } catch (e) {
