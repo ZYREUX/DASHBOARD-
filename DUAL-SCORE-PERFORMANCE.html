@@ -81,7 +81,7 @@ const TVS=['TVS WORK','TVS HOUSE','TVS BRGY'];
 const REAS=['AGE REQUIREMENT','BAD CREDIT HISTORY','BASED ON RISK PROFILE','DEVIATE TO TELE - NO FTV','FAILED AT eKYC','HIGH END UNIT','INCORRECT ACTIVITY/ NO REASON','NEGATIVE AREA','NO ACTIVITY','NO POI SUBMITTED','OCCUPATION UNDER 3PS','PER DUAL SCORE','RED FLAG IN IDENTITY','SOI NEED FURTHER VALIDATION','UNCONTACTED REFERENCES','UNMATCHED ADDRESSES'];
 const PAL=['#52d890','#f4a259','#f27fb0','#ef5350','#9aa9a1','#5aa9e6','#b48ee0','#e6e06a'];
 const ZC={'Green Zone':'#52d890','Orange Zone':'#f4a259','Pink Zone':'#f27fb0','Red Zone':'#ef5350','Not Applicable':'#9aa9a1','No Score':'#5aa9e6'};
-let DZ=[],DL=[];let RAW=[],HEAD=[],MAP={},ROWS=[],F={y:0,m:0,unit:'ALL',zone:'Green Zone',act:'FIELD CI'},TAB='m',CH={};
+let DZ=[],DL=[],DROP=0;let RAW=[],HEAD=[],MAP={},ROWS=[],F={y:0,m:0,unit:'ALL',zone:'Green Zone',act:'FIELD CI'},TAB='m',CH={};
 Chart.defaults.font.size=15;Chart.defaults.color='#dcebe3';
 const $=s=>document.querySelector(s),uniq=a=>[...new Set(a)];
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -104,9 +104,9 @@ function parseText(t,hi){const r=Papa.parse(t,{skipEmptyLines:true}).data;const 
  const head=h.map((x,i)=>{x=(x||'').trim()||'col'+(i+1);seen[x]=(seen[x]||0)+1;return seen[x]>1?x+'_'+seen[x]:x});
  return{head,rows:r.slice(hi+1).map(a=>{const o={};head.forEach((k,i)=>o[k]=(a[i]??'').toString().trim());return o})}}
 let DMAP=new Map(),MAPERR='';
-async function loadMap(){DMAP=new Map();MAPERR='';const u=$('#mapurl').value.trim();if(!u)return;try{const p=parseText(await(await fetch(u)).text(),0);const c=re=>p.head.find(h=>re.test(h));const d=c(/dealer/i),r=c(/region/i),n=c(/unit|\bbu\b/i);p.rows.forEach(x=>{if(d&&x[d])DMAP.set(x[d].toUpperCase(),{region:r?x[r]:'',unit:n?x[n]:''})})}catch(e){MAPERR=' Hindi ma-load ang dealer mapping ('+e.message+').'}}
+async function loadMap(){DMAP=new Map();MAPERR='';const u=$('#mapurl').value.trim();if(!u)return;try{const p=parseText(await(await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'})).text(),0);const c=re=>p.head.find(h=>re.test(h));const d=c(/dealer/i),r=c(/region/i),n=c(/unit|\bbu\b/i);p.rows.forEach(x=>{if(d&&x[d])DMAP.set(x[d].toUpperCase(),{region:r?x[r]:'',unit:n?x[n]:''})})}catch(e){MAPERR=' Hindi ma-load ang dealer mapping ('+e.message+').'}}
 async function loadAll(){$('#demo').style.display='none';const hi=Math.max(0,(+$('#hdr').value||1)-1),msg=$('#msg');msg.textContent='Loading…';RAW=[];HEAD=[];
- try{for(const u of $('#urls').value.split('\n').map(s=>s.trim()).filter(Boolean)){const p=parseText(await(await fetch(u)).text(),hi);RAW.push(...p.rows);HEAD=uniq(HEAD.concat(p.head))}
+ try{for(const u of $('#urls').value.split('\n').map(s=>s.trim()).filter(Boolean)){const p=parseText(await(await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'})).text(),hi);RAW.push(...p.rows);HEAD=uniq(HEAD.concat(p.head))}
   for(const f of $('#files').files){const p=parseText(await f.text(),hi);RAW.push(...p.rows);HEAD=uniq(HEAD.concat(p.head))}
  }catch(e){msg.textContent='Hindi ma-load ang link ('+e.message+'). I-check kung published as CSV, o gamitin ang file upload.';return}
  if(!RAW.length){msg.textContent='Walang nabasang rows. I-check ang link o ang Header row #.';return}
@@ -119,7 +119,7 @@ function apply(){document.querySelectorAll('#map select').forEach(s=>MAP[s.datas
  ROWS=RAW.map(r=>{const v=k=>MAP[k]?r[MAP[k]]??'':'';const dm=DMAP.get(v('dealer').toUpperCase())||{};const a=parseFloat(v('amt').replace(/[,₱]/g,''))||0;
   return{yr:ynum(v('month')),mo:mnum(v('month')),unit:v('unit')||dm.unit||'(blank)',region:(v('region')||dm.region||'(blank)').toUpperCase(),dealer:v('dealer')||'(blank)',dkas:v('dkas')||'(blank)',zone:zoneOf(v('dual')),st:statOf(v('status')),act:actOf(v('act')),
    reason:v('reason').toUpperCase(),tat:tatH(v('tat')),tvs:v('tvs').toUpperCase(),rm:(()=>{const q=v('relm'),i=MN.findIndex(x=>q.toUpperCase().startsWith(x.slice(0,3)));return i>=0?i+1:mnum(q)})(),amt:a,rel:MAP.rel?yes(v('rel')):a>0,far:MAP.far?yes(v('far')):false}});
- ROWS=ROWS.filter(r=>r.mo>0);const ky=ROWS.map(r=>r.yr).filter(Boolean);ROWS.forEach(r=>{if(!r.yr)r.yr=ky.length?Math.max(...ky):new Date().getFullYear();if(!r.rm)r.rm=r.mo;r.ry=r.yr+(r.rm<r.mo?1:0)});
+ ROWS=ROWS.filter(r=>r.mo>0);DROP=RAW.length-ROWS.length;const ky=ROWS.map(r=>r.yr).filter(Boolean);ROWS.forEach(r=>{if(!r.yr)r.yr=ky.length?Math.max(...ky):new Date().getFullYear();if(!r.rm)r.rm=r.mo;r.ry=r.yr+(r.rm<r.mo?1:0)});
  if(!ROWS.length){$('#msg').textContent='Walang mabasang month. Piliin ang tamang Endorsement date column.';return}
  if(!ROWS.some(r=>r.yr===F.y))F.y=Math.max(...ROWS.map(r=>r.yr));
  if(!ROWS.some(r=>r.yr===F.y&&r.mo===F.m))F.m=Math.max(...ROWS.filter(r=>r.yr===F.y).map(r=>r.mo));
@@ -171,6 +171,7 @@ function render(){if(!ROWS.length)return;Object.values(CH).forEach(c=>c.destroy(
  let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt(months,F.m,m=>MN[m-1])}</select></label>
  <label>UNIT<select data-f="unit">${opt(['ALL'].concat(uniq(ROWS.map(r=>r.unit)).sort(nat)),F.unit,v=>v==='ALL'?'ALL UNITS':v)}</select></label>
  <label>ZONE (details)<select data-f="zone">${opt(['ALL'].concat(ZN),F.zone,v=>v==='ALL'?'ALL ZONES':v)}</select></label></div>
+ <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${months.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${DROP?` · ${DROP} rows walang nabasang date`:''}</div>
  <div class="tabs">${[['m',(F.m?MN[F.m-1]:'ALL MONTHS')+' PERFORMANCE'],['t','TAT DASHBOARD'],['d','DUAL PERFORMANCE SUMMARY']].map(t=>`<div class="tab ${TAB===t[0]?'on':''}" data-t="${t[0]}">${t[1]}</div>`).join('')}</div>`;
  if(TAB==='m'){
   const zc=ZN.map(z=>{const n=A.filter(r=>r.zone===z).length;return`<div class="card"><div class="t">${z.toUpperCase()}</div><b>${pct(n,A.length)}</b><div class="s">${fn(n)} accts</div></div>`}).join('');
