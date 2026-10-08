@@ -48,7 +48,7 @@ tr.tot td{font-weight:700;background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v6 · Oct 8</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v7 · Oct 8</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang CSV link kada linya (published Google Sheets CSV), o mag-upload ng CSV file. Pagsasamahin lahat ng files.</div>
@@ -176,11 +176,12 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
  const U=ROWS.filter(uf),A=U.filter(r=>!F.m||r.mo===F.m),Z=A.filter(zf),zl=F.zone==='ALL'?'All zones':F.zone;
  const months=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo).concat(ROWS.filter(r=>r.rel&&r.ry===F.y).map(r=>r.rm))).sort((a,b)=>a-b),years=uniq(ROWS.map(r=>r.yr)).sort((a,b)=>b-a);
  const opt=(vals,cur,lab)=>vals.map(v=>`<option value="${esc(v)}" ${String(v)===String(cur)?'selected':''}>${esc(lab?lab(v):v)}</option>`).join('');
+ const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
  const noGeo=ROWS.every(r=>r.region==='(BLANK)');
  let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(months.includes(m)?'':' (walang data)'))}</select></label>
  <label>UNIT<select data-f="unit">${opt(['ALL'].concat(uniq(ROWS.map(r=>r.unit)).sort(nat)),F.unit,v=>v==='ALL'?'ALL UNITS':v)}</select></label>
  <label>ZONE (details)<select data-f="zone">${opt(['ALL'].concat(ZN),F.zone,v=>v==='ALL'?'ALL ZONES':v)}</select></label></div>
- <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${months.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${SRC.length>1?` · ${SRC.length} links (${SRC.map(n=>n.toLocaleString()).join(' + ')} rows)`:''}${DROP?` · ${DROP} rows walang nabasang date (halimbawa: ${DROPS.map(x=>'"'+esc(x)+'"').join(', ')})`:''}</div>
+ <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${months.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${SRC.length>1?` · ${SRC.length} links (${SRC.map(n=>n.toLocaleString()).join(' + ')} rows)`:''}${DROP?` · ${DROP} rows walang nabasang date (halimbawa: ${DROPS.map(x=>'"'+esc(x)+'"').join(', ')})`:''}</div>${note}
  <div class="tabs">${[['m',(F.m?MN[F.m-1]:'ALL MONTHS')+' PERFORMANCE'],['t','TAT DASHBOARD'],['d','DUAL PERFORMANCE SUMMARY']].map(t=>`<div class="tab ${TAB===t[0]?'on':''}" data-t="${t[0]}">${t[1]}</div>`).join('')}</div>`;
  if(TAB==='m'){
   const zc=ZN.map(z=>{const n=A.filter(r=>r.zone===z).length;return`<div class="card"><div class="t">${z.toUpperCase()}</div><b>${pct(n,A.length)}</b><div class="s">${fn(n)} accts</div></div>`}).join('');
