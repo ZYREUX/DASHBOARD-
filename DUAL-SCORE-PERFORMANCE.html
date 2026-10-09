@@ -48,10 +48,10 @@ tr.tot td{font-weight:700;background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v7 · Oct 8</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v10 · Oct 8</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
-<div class="sub">Isang CSV link kada linya (published Google Sheets CSV), o mag-upload ng CSV file. Pagsasamahin lahat ng files.</div>
+<div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
 <textarea id="urls" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"></textarea>
 <div class="sub" style="margin-top:10px">Dealer mapping CSV (optional): DEALER, REGION, UNIT. Kailangan ito kung walang Region/Unit sa main CSV.</div>
 <textarea id="mapurl" style="height:44px" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"></textarea>
@@ -69,10 +69,23 @@ tr.tot td{font-weight:700;background:var(--pn2)}
 <div id="app"><div class="empty">I-load ang data para lumabas ang dashboard.</div></div>
 </main>
 <script>
-const DEFAULT_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?output=csv';
-const EXTRA_URLS=[];/* dagdag na published CSV links (hal. ibang tab/gid), isang link kada item */
+const DEFAULT_YEAR=2026;
+/* Bawat tab = isang buwan. Ang buong laman ng tab ang binibilang sa buwan na iyon (hindi ginagamit ang DATE ENDORSED).
+   Para sa susunod na taon, magdagdag ng ['JANUARY 2027','link'] dito. */
+const SHEETS=[
+ ['JANUARY 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=0&single=true&output=csv'],
+ ['FEBRUARY 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=414408865&single=true&output=csv'],
+ ['MARCH 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1457352181&single=true&output=csv'],
+ ['APRIL 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=2105725860&single=true&output=csv'],
+ ['MAY 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1289341492&single=true&output=csv'],
+ ['JUNE 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=588092388&single=true&output=csv'],
+ ['JULY 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1585232219&single=true&output=csv'],
+ ['AUGUST 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1596944592&single=true&output=csv'],
+ ['SEPTEMBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1059978116&single=true&output=csv'],
+ ['OCTOBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=444592159&single=true&output=csv']
+];
 const MAP_URL='';/* optional: published CSV link ng Dealer mapping (DEALER, REGION, UNIT) */
-const FIELDS=[['month','DATE ENDORSED',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['tvs','TVS type',/tvs/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
+const FIELDS=[['month','DATE ENDORSED (backup lang)',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['tvs','TVS type',/tvs/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
 const MN=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 const ST=['NOLA','DECLINE','PASSED FOR COMPLETION','TSAO','ENCODED','SENT FOR VERIFICATION','OTHERS'];
 const ZN=['Green Zone','Orange Zone','Pink Zone','Red Zone','Not Applicable','No Score'];
@@ -82,7 +95,7 @@ const TVS=['TVS WORK','TVS HOUSE','TVS BRGY'];
 const REAS=['AGE REQUIREMENT','BAD CREDIT HISTORY','BASED ON RISK PROFILE','DEVIATE TO TELE - NO FTV','FAILED AT eKYC','HIGH END UNIT','INCORRECT ACTIVITY/ NO REASON','NEGATIVE AREA','NO ACTIVITY','NO POI SUBMITTED','OCCUPATION UNDER 3PS','PER DUAL SCORE','RED FLAG IN IDENTITY','SOI NEED FURTHER VALIDATION','UNCONTACTED REFERENCES','UNMATCHED ADDRESSES'];
 const PAL=['#52d890','#f4a259','#f27fb0','#ef5350','#9aa9a1','#5aa9e6','#b48ee0','#e6e06a'];
 const ZC={'Green Zone':'#52d890','Orange Zone':'#f4a259','Pink Zone':'#f27fb0','Red Zone':'#ef5350','Not Applicable':'#9aa9a1','No Score':'#5aa9e6'};
-let DROP=0,DROPS=[],SRC=[];const mx=a=>a.reduce((p,c)=>c>p?c:p,-Infinity);let RAW=[],HEAD=[],MAP={},ROWS=[],F={y:0,m:0,unit:'ALL',zone:'Green Zone',act:'FIELD CI',tm:'avg'},TAB='m',CH={};
+let DROP=0,DROPS=[],SRC=[],SRCINFO=[];const mx=a=>a.reduce((p,c)=>c>p?c:p,-Infinity);let RAW=[],HEAD=[],MAP={},ROWS=[],F={y:0,m:0,unit:'ALL',zone:'Green Zone',act:'FIELD CI',tm:'avg'},TAB='m',CH={};
 Chart.defaults.font.size=15;Chart.defaults.color='#dcebe3';
 const $=s=>document.querySelector(s),uniq=a=>[...new Set(a)];
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -113,8 +126,14 @@ function parseText(t,hi){const r=Papa.parse(t,{skipEmptyLines:true}).data;const 
  return{head,rows:r.slice(hi+1).map(a=>{const o={};head.forEach((k,i)=>o[k]=(a[i]??'').toString().trim());return o})}}
 let DMAP=new Map(),MAPERR='';
 async function loadMap(){DMAP=new Map();MAPERR='';const u=$('#mapurl').value.trim();if(!u)return;try{const p=parseText(await(await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'})).text(),0);const c=re=>p.head.find(h=>re.test(h));const d=c(/dealer/i),r=c(/region/i),n=c(/unit|\bbu\b/i);p.rows.forEach(x=>{if(d&&x[d])DMAP.set(x[d].toUpperCase(),{region:r?x[r]:'',unit:n?x[n]:''})})}catch(e){MAPERR=' Hindi ma-load ang dealer mapping ('+e.message+').'}}
-async function loadAll(){$('#demo').style.display='none';const hi=Math.max(0,(+$('#hdr').value||1)-1),msg=$('#msg');msg.textContent='Loading…';RAW=[];HEAD=[];SRC=[];
- try{for(const u of $('#urls').value.split('\n').map(s=>s.trim()).filter(Boolean)){const p=parseText(await(await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'})).text(),hi);p.rows.forEach(r=>RAW.push(r));SRC.push(p.rows.length);HEAD=uniq(HEAD.concat(p.head))}
+function tagParts(tag){if(!tag)return null;let m=tag.match(/(\d{4})[-\/](\d{1,2})/);if(m)return{y:+m[1],m:+m[2]};const w=(tag.toUpperCase().match(/[A-Z]{3,}/)||[''])[0],i=MN.findIndex(n=>w&&n.startsWith(w.slice(0,3)));if(i<0)return null;const y=tag.match(/\b(20\d\d)\b/);return{y:y?+y[1]:DEFAULT_YEAR,m:i+1}}
+async function loadAll(){$('#demo').style.display='none';const hi=Math.max(0,(+$('#hdr').value||1)-1),msg=$('#msg');msg.textContent='Loading…';RAW=[];HEAD=[];SRC=[];SRCINFO=[];
+ try{for(const line of $('#urls').value.split('\n').map(x=>x.trim()).filter(Boolean)){const mm=line.match(/^(.*?)[\s|:\-]*(https?:\/\/\S+)$/);if(!mm)continue;const tag=mm[1].trim(),t=tagParts(tag),u=mm[2],l=tag||'link';
+   try{const res=await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status+' (hindi ma-open ang link)');
+    const tx=await res.text();if(/^\s*<(!doctype|html)/i.test(tx))throw new Error('HTML ang isinagot, hindi CSV (hindi published ang tab na ito)');
+    const p=parseText(tx,hi);let n=0;p.rows.forEach(r=>{if(Object.values(r).filter(x=>x!=='').length<3)return;if(t){r.__mo=t.m;r.__yr=t.y}RAW.push(r);n++});
+    if(!n)throw new Error('0 rows ang nabasa (blangko ang tab, o iba ang pwesto ng header row)');SRC.push(n);SRCINFO.push({l,n});HEAD=uniq(HEAD.concat(p.head))}
+   catch(e){SRCINFO.push({l,err:e.message})}}
   for(const f of $('#files').files){const p=parseText(await f.text(),hi);p.rows.forEach(r=>RAW.push(r));SRC.push(p.rows.length);HEAD=uniq(HEAD.concat(p.head))}
  }catch(e){msg.textContent='Hindi ma-load ang link ('+e.message+'). I-check kung published as CSV, o gamitin ang file upload.';return}
  if(!RAW.length){msg.textContent='Walang nabasang rows. I-check ang link o ang Header row #.';return}
@@ -125,7 +144,7 @@ function buildMap(){const w=$('#map');w.innerHTML='';FIELDS.forEach(([k,l,re])=>
  $('#mapwrap').style.display='block';apply()}
 function apply(){document.querySelectorAll('#map select').forEach(s=>MAP[s.dataset.k]=s.value);
  ROWS=RAW.map(r=>{const v=k=>MAP[k]?r[MAP[k]]??'':'';const dm=DMAP.get(v('dealer').toUpperCase())||{};const a=parseFloat(v('amt').replace(/[,₱]/g,''))||0;
-  return{rawd:v('month'),yr:ynum(v('month')),mo:mnum(v('month')),unit:v('unit')||dm.unit||'(blank)',region:(v('region')||dm.region||'(blank)').toUpperCase().replace(/\s+/g,' ').trim().replace(/^(REGION 2)\s*-\s*/,'$1- '),dealer:v('dealer')||'(blank)',dkas:v('dkas')||'(blank)',zone:zoneOf(v('dual')),st:statOf(v('status')),act:actOf(v('act')),
+  return{rawd:v('month'),yr:r.__yr||ynum(v('month')),mo:r.__mo||mnum(v('month')),unit:v('unit')||dm.unit||'(blank)',region:(v('region')||dm.region||'(blank)').toUpperCase().replace(/\s+/g,' ').trim().replace(/^(REGION 2)\s*-\s*/,'$1- '),dealer:v('dealer')||'(blank)',dkas:v('dkas')||'(blank)',zone:zoneOf(v('dual')),st:statOf(v('status')),act:actOf(v('act')),
    reason:v('reason').toUpperCase(),tat:tatH(v('tat')),tvs:v('tvs').toUpperCase(),rm:(()=>{const q=v('relm'),i=MN.findIndex(x=>q.toUpperCase().startsWith(x.slice(0,3)));return i>=0?i+1:mnum(q)})(),amt:a,rel:MAP.rel?/^(yes|y|true|1)$/i.test(v('rel').trim()):a>0,far:MAP.far?yes(v('far')):false}});
  const allR=ROWS;ROWS=allR.filter(r=>r.mo>0);DROP=allR.length-ROWS.length;DROPS=uniq(allR.filter(r=>r.mo<=0).map(r=>r.rawd)).slice(0,3);const ky=ROWS.map(r=>r.yr).filter(Boolean);ROWS.forEach(r=>{if(!r.yr)r.yr=ky.length?mx(ky):new Date().getFullYear();if(!r.rm)r.rm=r.mo;r.ry=r.yr+(r.rm<r.mo?1:0)});
  if(!ROWS.length){$('#msg').textContent='Walang mabasang month. Piliin ang tamang Endorsement date column.';return}
@@ -143,13 +162,13 @@ function keys(rs,kf,order){const g=grp(rs,kf);return{g,ks:order?order.concat([..
 function dist(rs,kf,order,label,id,colors){if(!rs.length)return'<div class="empty" style="padding:30px">Walang data sa filter na ito.</div>';const{g,ks}=keys(rs,kf,order),t=rs.length;
  queue.push(()=>ch(id,'doughnut',ks,[{d:ks.map(k=>(g.get(k)||[]).length),c:ks.map((k,i)=>colors?colors[k]:PAL[i%PAL.length])}]));
  return cv(id)+sc(tbl([label,'NUMBER','%'],ks.map(k=>[esc(k),fn((g.get(k)||[]).length),pct((g.get(k)||[]).length,t)]),['TOTAL',fn(t),'100%']))}
-function bk(rs,label,kf,order){const{g,ks}=keys(rs,kf,order);
+function bk(rs,label,kf,order,noTot){const{g,ks}=keys(rs,kf,order);
  const line=(n,x)=>[esc(n)].concat(ST.flatMap(s=>{const c=x.filter(r=>r.st===s).length;return[fn(c),pct(c,x.length)]}),[fn(x.length)]);
  const head=[label].concat(ST.flatMap(s=>[s,'%']),['TOTAL']);
- return sc(tbl(head,ks.map(k=>line(k,g.get(k)||[])),line('TOTAL',rs)))}
-function tt(rs,label,kf,order,T){const{g,ks}=keys(rs,kf,order);
+ return sc(tbl(head,ks.map(k=>line(k,g.get(k)||[])),noTot?null:line('TOTAL',rs)))}
+function tt(rs,label,kf,order,T,noTot){const{g,ks}=keys(rs,kf,order);
  const line=(n,x)=>{const s=stat(x,T);return[esc(n),fn(s.tot),fn(s.wi),pct(s.wi,s.n),fn(s.be),pct(s.be,s.n),h2(s.avg),h2(s.med)]};
- return sc(tbl([label,'TOTAL','WITHIN '+T+' HRS','% WITHIN','BEYOND '+T+' HRS','% BEYOND','AVE TAT (HRS)','MEDIAN TAT (HRS)'],ks.map(k=>line(k,g.get(k)||[])),line('TOTAL',rs)))}
+ return sc(tbl([label,'TOTAL','WITHIN '+T+' HRS','% WITHIN','BEYOND '+T+' HRS','% BEYOND','AVE TAT (HRS)','MEDIAN TAT (HRS)'],ks.map(k=>line(k,g.get(k)||[])),noTot?null:line('TOTAL',rs)))}
 function tchart(rs,kf,order,id,T,horiz){if(!rs.length)return'<div class="empty" style="padding:30px">Walang data sa filter na ito.</div>';const{g,ks}=keys(rs,kf,order),pc=F.tm==='pct';
  queue.push(()=>ch(id,'bar',ks,[{l:pc?'% within '+T+' hrs':'Ave TAT (hrs)',d:ks.map(k=>{const x=stat(g.get(k)||[],T);if(pc)return x.n?+(x.wi/x.n*100).toFixed(1):null;return x.avg==null?null:+x.avg.toFixed(2)}),c:'#52d890'}],horiz));return cv(id)}
 let queue=[];
@@ -159,7 +178,7 @@ function ch(id,type,labels,sets,horiz){const el=document.getElementById(id);if(!
 const SEL={dl:new Set(),dk:new Set()};let MS={};
 function mselBox(key,sn,rows,kf,label,draw){const g=grp(rows,kf),list=[...g.keys()].sort((a,b)=>g.get(b).length-g.get(a).length||nat(a,b));MS[key]={sn,rows,kf,list,draw};
  return`<div class="ddw"><button class="ddb" id="b_${key}">${label}: <span id="n_${key}"></span> ▾</button><div class="dd" id="d_${key}" hidden><input type="text" id="s_${key}" placeholder="Search…"><div class="row"><button id="a_${key}">Select all</button><button id="c_${key}">Clear</button></div>
- <div id="l_${key}" class="ddl">${list.map((d,i)=>`<label data-n="${esc(d.toLowerCase())}"><input type="checkbox" data-i="${i}" ${SEL[sn].has(d)?'checked':''}><span>${esc(d)} (${g.get(d).length})</span></label>`).join('')}</div></div></div><div id="t_${key}"></div>`}
+ <div id="l_${key}" class="ddl">${list.map((d,i)=>`<label data-n="${esc(d.toLowerCase())}"><input type="checkbox" data-i="${i}" ${SEL[sn].has(d)?'checked':''}><span>${esc(d)}</span></label>`).join('')}</div></div></div><div id="t_${key}"></div>`}
 function drawMS(key){const m=MS[key],S=SEL[m.sn],sel=m.list.filter(d=>S.has(d));$('#n_'+key).textContent=sel.length?sel.length+' selected':'All';
  $('#t_'+key).innerHTML=m.draw(sel.length?m.rows.filter(r=>S.has(m.kf(r))):m.rows,sel.length?sel:null)}
 function wireMS(){Object.keys(MS).forEach(key=>{const b=$('#b_'+key);if(!b)return;const m=MS[key],S=SEL[m.sn],dd=$('#d_'+key);
@@ -176,12 +195,12 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
  const U=ROWS.filter(uf),A=U.filter(r=>!F.m||r.mo===F.m),Z=A.filter(zf),zl=F.zone==='ALL'?'All zones':F.zone;
  const months=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo).concat(ROWS.filter(r=>r.rel&&r.ry===F.y).map(r=>r.rm))).sort((a,b)=>a-b),years=uniq(ROWS.map(r=>r.yr)).sort((a,b)=>b-a);
  const opt=(vals,cur,lab)=>vals.map(v=>`<option value="${esc(v)}" ${String(v)===String(cur)?'selected':''}>${esc(lab?lab(v):v)}</option>`).join('');
- const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
+ const lst=SRCINFO.length?`<div class="sub" style="margin:-8px 0 14px;line-height:1.8">${SRCINFO.map(x=>x.err?`<span style="color:#f27d7a">✗ ${esc(x.l)}: ${esc(x.err)}</span>`:`<span>✓ ${esc(x.l)}: ${x.n.toLocaleString()}</span>`).join(' · ')}</div>`:'';const emo=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo)).sort((a,b)=>a-b),found=emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')||'wala';const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link. Ang nabasa lang para sa ${F.y}: ${found}.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
  const noGeo=ROWS.every(r=>r.region==='(BLANK)');
- let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(months.includes(m)?'':' (walang data)'))}</select></label>
+ let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(emo.includes(m)?'':' (walang data)'))}</select></label>
  <label>UNIT<select data-f="unit">${opt(['ALL'].concat(uniq(ROWS.map(r=>r.unit)).sort(nat)),F.unit,v=>v==='ALL'?'ALL UNITS':v)}</select></label>
  <label>ZONE (details)<select data-f="zone">${opt(['ALL'].concat(ZN),F.zone,v=>v==='ALL'?'ALL ZONES':v)}</select></label></div>
- <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${months.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${SRC.length>1?` · ${SRC.length} links (${SRC.map(n=>n.toLocaleString()).join(' + ')} rows)`:''}${DROP?` · ${DROP} rows walang nabasang date (halimbawa: ${DROPS.map(x=>'"'+esc(x)+'"').join(', ')})`:''}</div>${note}
+ <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${SRC.length>1?` · ${SRC.length} links (${SRC.map(n=>n.toLocaleString()).join(' + ')} rows)`:''}${DROP?` · ${DROP} rows walang nabasang date (halimbawa: ${DROPS.map(x=>'"'+esc(x)+'"').join(', ')})`:''}</div>${lst}${note}
  <div class="tabs">${[['m',(F.m?MN[F.m-1]:'ALL MONTHS')+' PERFORMANCE'],['t','TAT DASHBOARD'],['d','DUAL PERFORMANCE SUMMARY']].map(t=>`<div class="tab ${TAB===t[0]?'on':''}" data-t="${t[0]}">${t[1]}</div>`).join('')}</div>`;
  if(TAB==='m'){
   const zc=ZN.map(z=>{const n=A.filter(r=>r.zone===z).length;return`<div class="card"><div class="t">${z.toUpperCase()}</div><b>${pct(n,A.length)}</b><div class="s">${fn(n)} accts</div></div>`}).join('');
@@ -228,6 +247,6 @@ function sampleData(){let x=7;const R=()=>(x=(x*16807)%2147483647)/2147483647;co
  const rows=[];for(let m=1;m<=9;m++){const n=Math.round(150+R()*120);for(let i=0;i<n;i++){const z=pick(ZN,ZW),s=pick(stt,SW),a=pick(ACTS,AW),rel=s==='NOLA'&&R()<.85;
   rows.push([`2026-${String(m).padStart(2,'0')}-${String(1+Math.floor(R()*27)).padStart(2,'0')}`,pick(U,UW),pick(REG,[9,7,8,4,3,6,5,9,5,7,6]),dl[Math.floor(R()*R()*dl.length)],dk[Math.floor(R()*dk.length)],z,s,a,a==='NO ACTIVITY'?'NO ACTIVITY':REAS[Math.floor(R()*R()*REAS.length)],(R()<.65?R()*2:2+R()*10).toFixed(2),pick(TVS,[5,3,2]),rel?'1':'',rel?String(Math.round(35000+R()*45000)):'0',rel&&R()<.08?'1':'0'])}}
  RAW=rows.map(r=>{const o={};hd.forEach((k,i)=>o[k]=r[i]);return o});HEAD=hd;$('#demo').style.display='block';buildMap()}
-$('#urls').value=[DEFAULT_URL].concat(EXTRA_URLS).join('\n');$('#mapurl').value=MAP_URL;
+$('#urls').value=SHEETS.map(x=>x[0]+' | '+x[1]).join('\n');$('#mapurl').value=MAP_URL;
 (async()=>{await loadAll();if(!RAW.length)sampleData()})();
 </script></body></html>
