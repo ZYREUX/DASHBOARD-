@@ -51,7 +51,7 @@ tr.tot td:first-child{background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v15 · Oct 9</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v17 · Oct 9</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
@@ -90,7 +90,7 @@ const SHEETS=[
 const MAP_URL='';/* optional: published CSV link ng Dealer mapping (DEALER, REGION, UNIT) */
 const FIELDS=[['month','DATE ENDORSED (backup lang)',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['tvsw','TVS WORK',/tvs\s*work/i],['tvsh','TVS HOUSE',/tvs\s*house/i],['tvsb','TVS BARANGAY',/tvs\s*(barangay|brgy)/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
 const MN=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
-const ST=['NOLA','DECLINE','PASSED FOR COMPLETION','TSAO','ENCODED','SENT FOR VERIFICATION','OTHERS'];
+const ST=['NOLA','DECLINE','CDS','TSAO','ENCODED','PENDING','OTHERS'];
 const ZN=['Green Zone','Orange Zone','Pink Zone','Red Zone','Not Applicable','No Score'];
 const ACTS=['DKAS REVIEW','TELE CI','FIELD CI','NO ACTIVITY'];
 const REG=['NCR NORTH','NCR SOUTH','REGION 1','REGION 2- CAGAYAN','REGION 2- ISABELA','REGION 3A','REGION 3B','REGION 4','REGION 5','VISAYAS','MINDANAO'];
@@ -122,7 +122,7 @@ function mnum(v){if(!v)return 0;const dp=dparts(v);if(dp)return dp[1];let m=v.ma
 function ynum(v){const dp=dparts(v);if(dp)return dp[0];let m=v.match(/^(\d{4})[-\/]/)||v.match(/[-\/](\d{4})\b/);if(m)return+m[1];if(/\d/.test(v)){const d=new Date(v);if(!isNaN(d))return d.getFullYear()}return 0}
 function tatH(v){if(v==='')return null;let h;const hm=v.match(/(\d+(?:\.\d+)?)\s*h/i),mm=v.match(/(\d+(?:\.\d+)?)\s*m/i);if(hm||mm)return(hm?+hm[1]:0)+(mm?+mm[1]/60:0);if(v.includes(':')){const p=v.split(':').map(Number);h=(p[0]||0)+(p[1]||0)/60+(p[2]||0)/3600}else{h=parseFloat(v.replace(/,/g,''));if(isNaN(h))return null;if($('#tu').value==='m')h/=60}return h}
 const zoneOf=v=>{const u=v.toLowerCase();return u.includes('green')?ZN[0]:u.includes('orange')?ZN[1]:u.includes('pink')?ZN[2]:u.includes('red')?ZN[3]:/not app|n\/a/.test(u)?ZN[4]:ZN[5]};
-const statOf=v=>{const u=v.toUpperCase();return/NOLA/.test(u)?ST[0]:/DECLIN|DELINE/.test(u)?ST[1]:/PASSED/.test(u)?ST[2]:/TSAO/.test(u)?ST[3]:/ENCOD/.test(u)?ST[4]:/SENT.*VERIF/.test(u)?ST[5]:ST[6]};
+const statOf=v=>{const u=v.toUpperCase();return/NOLA/.test(u)?ST[0]:/DECLIN|DELINE/.test(u)?ST[1]:/PASSED|^CDS$/.test(u)?ST[2]:/TSAO/.test(u)?ST[3]:/ENCOD/.test(u)?ST[4]:/SENT.*VERIF|PENDING/.test(u)?ST[5]:ST[6]};
 const actOf=v=>{const u=v.toUpperCase();return/DKAS/.test(u)?ACTS[0]:/TELE/.test(u)?ACTS[1]:/FIELD/.test(u)?ACTS[2]:ACTS[3]};
 function parseText(t,hi){const r=Papa.parse(t,{skipEmptyLines:true}).data;const h=r[hi]||[];const seen={};
  const head=h.map((x,i)=>{x=(x||'').trim()||'col'+(i+1);seen[x]=(seen[x]||0)+1;return seen[x]>1?x+'_'+seen[x]:x});
