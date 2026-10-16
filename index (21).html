@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pending Tracker</title>
+<style>
+:root{--bg:#f4f6f8;--cd:#fff;--tx:#18222f;--mu:#64748b;--bd:#dde3ea;--ac:#0b6b8a;--hd:#e9eef3;--ft:#eaf4f8;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151c;--cd:#18212b;--tx:#e5ebf2;--mu:#94a3b8;--bd:#2a3644;--ac:#5cc0e0;--hd:#202b37;--ft:#1d2a36}}
+:root[data-theme="dark"]{--bg:#0f151c;--cd:#18212b;--tx:#e5ebf2;--mu:#94a3b8;--bd:#2a3644;--ac:#5cc0e0;--hd:#202b37;--ft:#1d2a36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 "Segoe UI",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--cd);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;background:var(--cd);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+h1{font-size:17px;margin:0 8px 0 0;font-weight:650}
+.sp{flex:1}.mu{color:var(--mu);font-size:12.5px}
+select,button,.btn{font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;cursor:pointer}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+nav{display:flex;gap:6px;padding:12px 16px 0;flex-wrap:wrap}
+main{padding:12px 16px 40px;display:grid;gap:14px}
+section{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:12px;min-width:0}
+h2{font-size:15px;margin:0 0 8px}
+.bn{background:var(--ft);border:1px solid var(--bd);border-radius:6px;padding:8px 12px}
+.fb{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.dd{position:relative}
+.dd summary{list-style:none;border:1px solid var(--bd);border-radius:6px;padding:4px 10px;cursor:pointer}
+.pop{position:absolute;z-index:6;top:100%;left:0;margin-top:4px;background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:8px;max-height:260px;overflow:auto;min-width:220px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.pop label{display:flex;gap:6px;padding:2px 0;white-space:nowrap}
+.ac{display:flex;gap:14px;margin-bottom:6px}.ac a{color:var(--ac);cursor:pointer}
+.sc{overflow:auto;max-height:440px;border:1px solid var(--bd);border-radius:6px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+th,td{padding:5px 10px;border-bottom:1px solid var(--bd);white-space:nowrap;text-align:center}
+th{position:sticky;top:0;background:var(--hd);z-index:2;font-weight:600}
+th:first-child,td:first-child{position:sticky;left:0;text-align:left;border-right:1px solid var(--bd)}
+td:first-child{background:var(--cd);z-index:1}th:first-child{z-index:3}
+tr.ft td{font-weight:600;background:var(--ft)}tr.ft td:first-child{background:var(--ft)}
+</style></head><body><div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],SFV='SENT FOR VERIFICATION';
+const p2=n=>String(n).padStart(2,'0'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dk=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),dl2=k=>MN[+k.slice(5,7)-1]+' '+(+k.slice(8));
+const ft=d=>MN[d.getMonth()]+' '+d.getDate()+' '+((d.getHours()+11)%12+1)+':'+p2(d.getMinutes())+' '+(d.getHours()<12?'AM':'PM');
+const hm=h=>{const m=Math.round(h*60);return Math.floor(m/60)+'h '+p2(m%60)+'m'};
+const BK=['Before 6 AM','6-8 AM','8-10 AM','10 AM-12 PM','12-2 PM','2-4 PM','4-6 PM','6-8 PM','After 8 PM'];
+const bi=d=>{const m=d.getHours()*60+d.getMinutes();if(m<360)return 0;const E=[480,600,720,840,960,1080,1200];for(let i=0;i<7;i++)if(m<=E[i])return i+1;return 8};
+let ROWS=[],DEMO=false,ERR='Loading data...',REF=new Date(),TAB=0,MO=new Date().getMonth(),YR=new Date().getFullYear(),OPEN='',M=[],P=[],D=[];const F={};
+const isDone=r=>{const a=r.a.filter(x=>x.n);return a.length>0&&a.every(x=>x.st=='DONE')};
+const uq=(rs,k)=>[...new Set(rs.map(r=>r[k]||'(blank)'))].sort();
+const ap=(id,rs)=>{const f=F[id]||{};return rs.filter(r=>(!f.rg||f.rg.has(r.rg||'(blank)'))&&(!f.dl||f.dl.has(r.dl||'(blank)'))&&(!f.v||f.v.has(r.v||'(blank)'))&&(!f.n||r.a.some(x=>f.n.has(x.n))))};
+function parseCSV(t){const out=[];let r=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+ if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+ else if(c=='"')q=true;else if(c==','){r.push(f);f=''}
+ else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);f='';out.push(r);r=[]}else f+=c}
+ if(f||r.length){r.push(f);out.push(r)}return out}
+function pd(s){const n=/(\d+)\/(\d+)\/(\d{4})\s+(\d+):(\d+)(?::\d+)?\s*(AM|PM)?/i.exec(s||'');if(n){let h=+n[4];const p=(n[6]||'').toUpperCase();if(p=='PM'&&h<12)h+=12;if(p=='AM'&&h==12)h=0;return new Date(+n[3],+n[1]-1,+n[2],h,+n[5])}const m=/([A-Za-z]{3})\w*\s+(\d+)\s+(\d{4})\s+(\d+):(\d+)\s*(AM|PM)/i.exec(s||'');if(!m)return null;let h=+m[4]%12;if(m[6].toUpperCase()=='PM')h+=12;
+ const mi=MN.indexOf(m[1][0].toUpperCase()+m[1].slice(1,3).toLowerCase());return mi<0?null:new Date(+m[3],mi,+m[2],h,+m[5])}
+function build(t){const a=parseCSV(t).filter(r=>r.length>8);if(!a.length)return[];const h=a[0].map(x=>x.trim().toUpperCase()),g=n=>h.indexOf(n),rg=h.findIndex(x=>x.includes('REGION'));
+ const c={d:g('DATE ENDORSED'),o:g('OAS NUMBER'),s:g('STATUS'),v:g('VERIFIED BY'),dl:g('DEALER'),ds:g('DUAL SCORE GRADE'),as:h.findIndex(x=>x.includes('ASSIGNMENT DATE')||x.includes('DATE ASSIGNED')),t:g('TAT WORKING HOURS'),w:[g('WORK ASSIGNED TO'),g('WORK STATUS')],r:[g('RESIDENCE ASSIGNED TO'),g('RESIDENCE STATUS')],b:[g('BARANGAY ASSIGNED TO'),g('BARANGAY STATUS')]};
+ const x=(r,i)=>i<0?'':(r[i]||'').trim();
+ return a.slice(1).map(r=>{const d=pd(r[c.d]);if(!d)return null;
+  return{o:x(r,c.o),s:x(r,c.s).toUpperCase(),v:x(r,c.v),dl:x(r,c.dl),ds:x(r,c.ds),rg:x(r,rg),d,dk:dk(d),as:x(r,c.as),ad:pd(x(r,c.as)),a:[c.w,c.r,c.b].map(p=>({n:x(r,p[0]).toUpperCase(),st:x(r,p[1]).toUpperCase()})),t:parseFloat(x(r,c.t))}}).filter(Boolean)}
+function demo(){let s=11;const R=()=>(s=s*16807%2147483647)/2147483647,pk=a=>a[Math.floor(R()*a.length)];
+ const DL=['RC ABRA','GM CYCLE ALCALA','MBC TAGAYTAY','KEYMOTORS ANGONO','MOTOXPRESS MX ANONAS','DCZI ANGELES'],DK=['DKAS ONE','DKAS TWO','DKAS THREE','DKAS FOUR'],
+ CI=['CI JUAN REYES','CI MARIA SANTOS','CI PEDRO CRUZ','CI ANA LOPEZ','CI LUIS GARCIA','CI ROSA DIAZ','TELE ELENA MORA','TELE JOSE RAMOS'],DS=['Green Zone','Orange Zone','Pink Zone','Red Zone'],
+ ST=[SFV,SFV,SFV,'NOLA','NOLA','DECLINED APPLICATION','PASSED - FOR COMPLETION OF DOCUMENTS','CLIENT RETRACTED'],o=[],n=new Date();
+ for(let i=0;i<300;i++){let d=new Date(n);d.setDate(n.getDate()-Math.floor(R()*14));d.setHours(6+Math.floor(R()*13),Math.floor(R()*60),0,0);if(d>n)d=new Date(n-R()*5*36e5);
+  const x=Math.floor(R()*DL.length),st=pk(ST),w=pk(CI);
+  o.push({o:'8000'+(6410000+i),s:st,v:pk(DK),dl:DL[x],ds:pk(DS),rg:'Region '+(x%3+1),d,dk:dk(d),ad:new Date(d.getTime()+6e5),as:'',a:[w,R()<.8?w:pk(CI),R()<.8?w:pk(CI)].map(nm=>({n:nm,st:R()<(st==SFV?.35:.8)?'DONE':''})),t:+(R()*30).toFixed(2),i})}
+ return o}
+function setMY(){const m=ROWS.reduce((a,r)=>r.d>a?r.d:a,new Date(0));MO=m.getMonth();YR=m.getFullYear()}
+function tb(h,b,tot){if(!b.length)return'<p class=mu>No data for this month and filter.</p>';
+ return'<div class=sc><table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+b.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+(tot?'<tr class=ft>'+tot.map(c=>'<td>'+c+'</td>').join('')+'</tr>':'')+'</tbody></table></div>'}
+function dd(id,k,l,o,s){return`<details class=dd data-k="${id+k}" ${OPEN==id+k?'open':''}><summary>${l}: ${s?s.size+' of '+o.length:'All'}</summary><div class=pop><div class=ac><a data-all="${id}|${k}">Select all</a><a data-none="${id}|${k}">Clear</a></div>${o.map(v=>`<label><input type=checkbox data-f="${id}|${k}" value="${esc(v)}" ${!s||s.has(v)?'checked':''}>${esc(v)}</label>`).join('')}</div></details>`}
+function fb(id){const f=F[id]=F[id]||{rg:null,dl:null,v:null,n:null};const x=id=='a5'?dd(id,'v','DKAS',uq(M,'v'),f.v):id=='t2'?dd(id,'n','FTV / Tele CI',[...new Set(M.flatMap(r=>r.a.map(a=>a.n).filter(Boolean)))].sort(),f.n):'';return'<div class=fb>'+x+dd(id,'rg','Region',uq(M,'rg'),f.rg)+dd(id,'dl','Dealer',uq(M,'dl'),f.dl)+'</div>'}
+const sec=(id,t,h)=>`<section><h2>${t}</h2>${fb(id)}${h}</section>`;
+function pivot(id,title,kf,kl){const rs=ap(id,P),m={};rs.forEach(r=>{const k=kf(r)||'(blank)';m[k]=m[k]||{};m[k][r.dk]=(m[k][r.dk]||0)+1});
+ const ks=Object.keys(m).sort(),sm=o=>Object.values(o).reduce((a,b)=>a+b,0);
+ return sec(id,title,tb([kl,...D.map(dl2),'Total'],ks.map(k=>[esc(k),...D.map(d=>m[k][d]||'–'),sm(m[k])]),['Total',...D.map(d=>rs.filter(r=>r.dk==d).length),rs.length]))}
+const t1=()=>pivot('a1','Pending per region',r=>r.rg,'Region')+pivot('a2','Pending per dual score',r=>r.ds,'Dual score')+pivot('a4','Pending per dealer',r=>r.dl,'Dealer')+pivot('a5','Pending per DKAS (verified by)',r=>r.v,'DKAS');
+function ciMap(rs){const m={};rs.forEach(r=>r.a.forEach((x,i)=>{if(!x.n)return;const c=m[x.n]=m[x.n]||{s:new Set,da:new Set,dy:[new Set,new Set,new Set],n:[0,0,0],dn:[0,0,0]};c.s.add(r.o||r.i);c.da.add(r.dk);c.n[i]++;c.dy[i].add(r.dk);if(x.st=='DONE')c.dn[i]++}));return m}
+const av=(c,i)=>c.dy[i].size?(c.n[i]/c.dy[i].size).toFixed(1):'–',dn=c=>[0,1,2].flatMap(i=>[c.dn[i],c.n[i]-c.dn[i]]);
+const H6=['Work Done','Work Not Yet Done','Residence Done','Residence Not Yet Done','Barangay Done','Barangay Not Yet Done'],AV=['Avg work/day','Avg residence/day','Avg barangay/day'];
+function t2(){let id='c1',m=ciMap(ap(id,P)),ks=Object.keys(m).sort();
+ const s1=sec(id,'Sent for Verification per FTV/Tele',tb(['FTV / Tele CI','Pending',...H6],ks.map(n=>[esc(n),m[n].s.size,...dn(m[n])])));
+ id='c2';m=ciMap(ap(id,M));ks=Object.keys(m).sort();
+ const s2=sec(id,'All statuses per FTV / Tele CI',tb(['FTV / Tele CI','Total accounts','Avg assigned accts/day',...AV,...H6],ks.map(n=>[esc(n),m[n].s.size,(m[n].s.size/m[n].da.size).toFixed(1),...[0,1,2].map(i=>av(m[n],i)),...dn(m[n])])));
+ id='c3';m=ciMap(ap(id,M));const td=dk(REF),pm={};
+ ap(id,P).forEach(r=>{if(r.dk>td)return;[...new Set(r.a.filter(x=>x.n).map(x=>x.n))].forEach(n=>{const q=pm[n]=pm[n]||{b:new Set,k:BK.map(()=>new Set)},y=r.o||r.i;r.dk<td?q.b.add(y):q.k[bi(r.d)].add(y)})});
+ ks=[...new Set([...Object.keys(m),...Object.keys(pm)])].sort();
+ const s3=sec(id,'Beginning pending and today by time window',tb(['FTV / Tele CI','Total accounts',...AV,'Beginning pending',...BK],ks.map(n=>{const q=pm[n]||{b:new Set,k:BK.map(()=>new Set)},c=m[n];return[esc(n),q.b.size+q.k.reduce((a,s)=>a+s.size,0),...[0,1,2].map(i=>c?av(c,i):'–'),q.b.size,...q.k.map(s=>s.size||'–')]})));
+ return s1+s2+s3}
+const sa=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'–',mx=a=>a.length?Math.max(...a).toFixed(1):'–',
+ md=a=>{if(!a.length)return'–';const s=[...a].sort((x,y)=>x-y),h=s.length>>1;return(s.length%2?s[h]:(s[h-1]+s[h])/2).toFixed(1)};
+function t3(){const nm=r=>[...new Set(r.a.filter(x=>x.n).map(x=>x.n))],q={},g=n=>q[n]=q[n]||{p:[],d:[],c:0};
+ ap('t1',P).filter(r=>!isDone(r)).forEach(r=>nm(r).forEach(n=>g(n).p.push((REF-r.d)/36e5)));
+ ap('t1',M).filter(isDone).forEach(r=>nm(r).forEach(n=>{const o=g(n);o.c++;if(isFinite(r.t))o.d.push(r.t)}));
+ const ks=Object.keys(q).sort(),
+ s1=sec('t1','Running TAT per FTV / Tele CI (hours)',tb(['FTV / Tele CI','Pending','Avg running TAT','Median running TAT','Oldest pending','Done','Avg TAT','Median TAT'],ks.map(n=>[esc(n),q[n].p.length,sa(q[n].p),md(q[n].p),mx(q[n].p),q[n].c,sa(q[n].d),md(q[n].d)])));
+ const L=[];ap('t2',P).filter(r=>!isDone(r)).forEach(r=>nm(r).forEach(n=>L.push([n,r.o||'–',r.dl||'(blank)',r.rg||'(blank)',ft(r.d),r.ad?ft(r.ad):(r.as||'–'),ft(REF),(REF-r.d)/36e5])));L.sort((a,b)=>b[7]-a[7]);
+ return s1+sec('t2','Running TAT per pending account (longest first)',tb(['FTV / Tele CI','OAS Number','Dealer','Region','Date endorsed','Date assigned','Refreshed at','Running TAT'],L.filter(x=>!(F.t2||{}).n||F.t2.n.has(x[0])).map(x=>[esc(x[0]),esc(x[1]),esc(x[2]),esc(x[3]),x[4],x[5],x[6],hm(x[7])])))}
+function render(){M=ROWS.filter(r=>r.d.getMonth()==MO&&r.d.getFullYear()==YR);P=M.filter(r=>r.s==SFV);D=[...new Set(M.map(r=>r.dk))].sort();
+ const ys=[...new Set([...ROWS.map(r=>r.d.getFullYear()),YR])].sort();
+ $('#app').innerHTML=`<header><h1>Pending Tracker</h1><select id=mo>${MN.map((m,i)=>`<option value=${i} ${i==MO?'selected':''}>${m}</option>`).join('')}</select><select id=yr>${ys.map(y=>`<option ${y==YR?'selected':''}>${y}</option>`).join('')}</select><span class=sp></span><span class=mu>Last refreshed ${ft(REF)}</span><button id=rf>Refresh</button><label class=btn>Load CSV<input id=csv type=file accept=.csv hidden></label></header>
+ <nav>${['Pending','CI pending','TAT'].map((t,i)=>`<button data-tab=${i} class="${i==TAB?'on':''}">${t}</button>`).join('')}</nav>
+ <main>${DEMO?'<div class=bn>This is demo data to show the layout. Click Load CSV and pick your DKAS Onboarding export to see real numbers.</div>':''}${ERR?'<div class=bn>'+ERR+'</div>':''}${[t1,t2,t3][TAB]()}</main>`}
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id=='mo')MO=+t.value;else if(t.id=='yr')YR=+t.value;
+ else if(t.id=='csv'){const f=t.files[0];if(f)f.text().then(x=>{const r=build(x);if(!r.length){ERR='No rows could be read. Check that this is the DKAS Onboarding CSV.';render();return}ERR='';ROWS=r;ROWS.forEach((v,i)=>v.i=i);DEMO=false;REF=new Date();setMY();render()});return}
+ else if(t.dataset.f){const[id,k]=t.dataset.f.split('|'),bx=[...t.closest('.pop').querySelectorAll('input')],s=new Set(bx.filter(b=>b.checked).map(b=>b.value));F[id][k]=s.size==bx.length?null:s;OPEN=id+k}
+ else return;render()});
+document.addEventListener('click',e=>{const t=e.target;
+ if(t.dataset.tab!=null)TAB=+t.dataset.tab;else if(t.id=='rf'){loadData();return}
+ else if(t.dataset.all||t.dataset.none){const[id,k]=(t.dataset.all||t.dataset.none).split('|');F[id][k]=t.dataset.all?null:new Set();OPEN=id+k}
+ else return;render()});
+document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('dd')){if(d.open)OPEN=d.dataset.k;else if(OPEN==d.dataset.k)OPEN=''}},true);
+const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7pINkfnBlnWKMO2bFVWiIUygmvzQEobvC_tkl99MXwh5wlCvRYFderjeI47sUV3Q0OJ4D7kyYYU2K/pub?output=csv';
+async function loadData(){ERR='Loading data...';render();try{const r=await fetch(CSV_URL+'&_='+Date.now());if(!r.ok)throw 0;const rows=build(await r.text());if(!rows.length)throw 0;ROWS=rows;ROWS.forEach((v,i)=>v.i=i);DEMO=false;ERR='';setMY()}catch(e){ERR='Could not load the Google Sheet. Check the published link, or use Load CSV.'}REF=new Date();render()}
+if(location.search.includes('demo')){DEMO=true;ERR='';ROWS=demo();setMY();render()}else loadData();
+</script></body></html>
