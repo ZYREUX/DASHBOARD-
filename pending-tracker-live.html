@@ -112,7 +112,7 @@ document.addEventListener('click',e=>{const t=e.target;
  else if(t.dataset.all||t.dataset.none){const[id,k]=(t.dataset.all||t.dataset.none).split('|');F[id][k]=t.dataset.all?null:new Set();OPEN=id+k}
  else return;render()});
 document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('dd')){if(d.open)OPEN=d.dataset.k;else if(OPEN==d.dataset.k)OPEN=''}},true);
-const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7pINkfnBlnWKMO2bFVWiIUygmvzQEobvC_tkl99MXwh5wlCvRYFderjeI47sUV3Q0OJ4D7kyYYU2K/pub?output=csv';
-async function loadData(){ERR='Loading data...';render();try{const r=await fetch(CSV_URL+'&_='+Date.now());if(!r.ok)throw 0;const rows=build(await r.text());if(!rows.length)throw 0;ROWS=rows;ROWS.forEach((v,i)=>v.i=i);DEMO=false;ERR='';setMY()}catch(e){ERR='Could not load the Google Sheet. Check the published link, or use Load CSV.'}REF=new Date();render()}
+const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7pINkfnBlnWKMO2bFVWiIUygmvzQEobvC_tkl99MXwh5wlCvRYFderjeI47sUV3Q0OJ4D7kyYYU2K/pub?gid=1324055444&single=true&output=csv';
+async function loadData(){ERR='Loading data...';render();try{const r=await fetch(CSV_URL,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const rows=build(await r.text());if(!rows.length)throw new Error('the published tab has no DATE ENDORSED column; publish the DKAS ONBOARDING tab');ROWS=rows;ROWS.forEach((v,i)=>v.i=i);DEMO=false;ERR='';setMY()}catch(e){ERR='Could not load the Google Sheet ('+(e&&e.message||e)+'). Check the published link, or use Load CSV.'}REF=new Date();render()}
 if(location.search.includes('demo')){DEMO=true;ERR='';ROWS=demo();setMY();render()}else loadData();
 </script></body></html>
