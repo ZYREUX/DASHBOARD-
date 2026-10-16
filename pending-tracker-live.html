@@ -33,6 +33,7 @@ th{position:sticky;top:0;background:var(--hd);z-index:2;font-weight:600}
 th:first-child,td:first-child{position:sticky;left:0;text-align:left;border-right:1px solid var(--bd)}
 td:first-child{background:var(--cd);z-index:1}th:first-child{z-index:3}
 tr.ft td{font-weight:600;background:var(--ft)}tr.ft td:first-child{background:var(--ft)}
+.sr{width:100%;margin-bottom:6px;padding:4px 8px;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px}
 </style></head><body><div id="app"></div>
 <script>
 const $=s=>document.querySelector(s),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],SFV='SENT FOR VERIFICATION';
@@ -69,34 +70,40 @@ function demo(){let s=11;const R=()=>(s=s*16807%2147483647)/2147483647,pk=a=>a[M
 function setMY(){const m=ROWS.reduce((a,r)=>r.d>a?r.d:a,new Date(0));MO=m.getMonth();YR=m.getFullYear()}
 function tb(h,b,tot){if(!b.length)return'<p class=mu>No data for this month and filter.</p>';
  return'<div class=sc><table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+b.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+(tot?'<tr class=ft>'+tot.map(c=>'<td>'+c+'</td>').join('')+'</tr>':'')+'</tbody></table></div>'}
-function dd(id,k,l,o,s){return`<details class=dd data-k="${id+k}" ${OPEN==id+k?'open':''}><summary>${l}: ${s?s.size+' of '+o.length:'All'}</summary><div class=pop><div class=ac><a data-all="${id}|${k}">Select all</a><a data-none="${id}|${k}">Clear</a></div>${o.map(v=>`<label><input type=checkbox data-f="${id}|${k}" value="${esc(v)}" ${!s||s.has(v)?'checked':''}>${esc(v)}</label>`).join('')}</div></details>`}
-function fb(id){const f=F[id]=F[id]||{rg:null,dl:null,v:null,n:null};const x=id=='a5'?dd(id,'v','DKAS',uq(M,'v'),f.v):id=='t2'?dd(id,'n','FTV / Tele CI',[...new Set(M.flatMap(r=>r.a.map(a=>a.n).filter(Boolean)))].sort(),f.n):'';return'<div class=fb>'+x+dd(id,'rg','Region',uq(M,'rg'),f.rg)+dd(id,'dl','Dealer',uq(M,'dl'),f.dl)+'</div>'}
+function dd(id,k,l,o,s){return`<details class=dd data-k="${id+k}" ${OPEN==id+k?'open':''}><summary>${l}: ${s?s.size+' of '+o.length:'All'}</summary><div class=pop><input class=sr data-s=1 placeholder="Search..."><div class=ac><a data-all="${id}|${k}">Select all</a><a data-none="${id}|${k}">Clear</a></div>${o.map(v=>`<label><input type=checkbox data-f="${id}|${k}" value="${esc(v)}" ${!s||s.has(v)?'checked':''}>${esc(v)}</label>`).join('')}</div></details>`}
+function fb(id){const f=F[id]=F[id]||{rg:null,dl:null,v:null,n:null};const nms=()=>[...new Set(M.flatMap(r=>r.a.map(a=>a.n).filter(Boolean)))].sort();
+ const x=id=='a5'?dd(id,'v','DKAS',uq(M,'v'),f.v):['c1','c2','c3','t1','t2'].includes(id)?dd(id,'n','FTV / Tele CI',nms(),f.n):'';
+ return'<div class=fb>'+x+dd(id,'rg','Region',uq(M,'rg'),f.rg)+dd(id,'dl','Dealer',uq(M,'dl'),f.dl)+'</div>'}
+const fn=(id,ks)=>{const f=(F[id]||{}).n;return f?ks.filter(k=>f.has(k)):ks};
 const sec=(id,t,h)=>`<section><h2>${t}</h2>${fb(id)}${h}</section>`;
-function pivot(id,title,kf,kl){const rs=ap(id,P),m={};rs.forEach(r=>{const k=kf(r)||'(blank)';m[k]=m[k]||{};m[k][r.dk]=(m[k][r.dk]||0)+1});
+function pivot(id,title,kf,kl){const rs=ap(id,P),m={},ds=[...new Set(rs.map(r=>r.dk))].sort();rs.forEach(r=>{const k=kf(r)||'(blank)';m[k]=m[k]||{};m[k][r.dk]=(m[k][r.dk]||0)+1});
  const ks=Object.keys(m).sort(),sm=o=>Object.values(o).reduce((a,b)=>a+b,0);
- return sec(id,title,tb([kl,...D.map(dl2),'Total'],ks.map(k=>[esc(k),...D.map(d=>m[k][d]||'–'),sm(m[k])]),['Total',...D.map(d=>rs.filter(r=>r.dk==d).length),rs.length]))}
-const t1=()=>pivot('a1','Pending per region',r=>r.rg,'Region')+pivot('a2','Pending per dual score',r=>r.ds,'Dual score')+pivot('a4','Pending per dealer',r=>r.dl,'Dealer')+pivot('a5','Pending per DKAS (verified by)',r=>r.v,'DKAS');
+ return sec(id,title,tb([kl,...ds.map(dl2),'Total'],ks.map(k=>[esc(k),...ds.map(d=>m[k][d]||'–'),sm(m[k])]),['Total',...ds.map(d=>rs.filter(r=>r.dk==d).length),rs.length]))}
+const t1=()=>pivot('a1','Sent for Verification per Region',r=>r.rg,'Region')+pivot('a2','Sent for Verification per Dual Score',r=>r.ds,'Dual score')+pivot('a4','Sent for Verification per Dealer',r=>r.dl,'Dealer')+pivot('a5','Sent for Verification per DKAS (Verified By)',r=>r.v,'DKAS');
 function ciMap(rs){const m={};rs.forEach(r=>r.a.forEach((x,i)=>{if(!x.n)return;const c=m[x.n]=m[x.n]||{s:new Set,da:new Set,dy:[new Set,new Set,new Set],n:[0,0,0],dn:[0,0,0]};c.s.add(r.o||r.i);c.da.add(r.dk);c.n[i]++;c.dy[i].add(r.dk);if(x.st=='DONE')c.dn[i]++}));return m}
 const av=(c,i)=>c.dy[i].size?(c.n[i]/c.dy[i].size).toFixed(1):'–',dn=c=>[0,1,2].flatMap(i=>[c.dn[i],c.n[i]-c.dn[i]]);
 const H6=['Work Done','Work Not Yet Done','Residence Done','Residence Not Yet Done','Barangay Done','Barangay Not Yet Done'],AV=['Avg work/day','Avg residence/day','Avg barangay/day'];
-function t2(){let id='c1',m=ciMap(ap(id,P)),ks=Object.keys(m).sort();
+const A3=['Average Work Per Day','Average Residence Per Day','Average Barangay Per Day'];
+const dnA=c=>[0,1,2].flatMap(i=>[c.dn[i],c.n[i]-c.dn[i],c.n[i],c.n[i]?(c.dn[i]/c.n[i]*100).toFixed(1)+'%':'\u2013']);
+const H12=[];['Work','Residence','Barangay'].forEach(t=>H12.push(t+' Done',t+' Not Yet Done',t+' Assigned',t+' Verified Attainment %'));
+function t2(){let id='c1',m=ciMap(ap(id,P)),ks=fn(id,Object.keys(m).sort());
  const s1=sec(id,'Sent for Verification per FTV/Tele',tb(['FTV / Tele CI','Pending',...H6],ks.map(n=>[esc(n),m[n].s.size,...dn(m[n])])));
- id='c2';m=ciMap(ap(id,M));ks=Object.keys(m).sort();
- const s2=sec(id,'All statuses per FTV / Tele CI',tb(['FTV / Tele CI','Total accounts','Avg assigned accts/day',...AV,...H6],ks.map(n=>[esc(n),m[n].s.size,(m[n].s.size/m[n].da.size).toFixed(1),...[0,1,2].map(i=>av(m[n],i)),...dn(m[n])])));
- id='c3';m=ciMap(ap(id,M));const td=dk(REF),pm={};
+ id='c2';m=ciMap(ap(id,M));ks=fn(id,Object.keys(m).sort());
+ const s2=sec(id,'All statuses per FTV / Tele CI',tb(['FTV / Tele CI','Total accounts','Avg assigned accts/day',...A3,...H12],ks.map(n=>[esc(n),m[n].s.size,(m[n].s.size/m[n].da.size).toFixed(1),...[0,1,2].map(i=>av(m[n],i)),...dnA(m[n])])));
+ return s1+s2}
+function ciWin(){const id='c3',td=dk(REF),pm={};
  ap(id,P).forEach(r=>{if(r.dk>td)return;[...new Set(r.a.filter(x=>x.n).map(x=>x.n))].forEach(n=>{const q=pm[n]=pm[n]||{b:new Set,k:BK.map(()=>new Set)},y=r.o||r.i;r.dk<td?q.b.add(y):q.k[bi(r.d)].add(y)})});
- ks=[...new Set([...Object.keys(m),...Object.keys(pm)])].sort();
- const s3=sec(id,'Beginning pending and today by time window',tb(['FTV / Tele CI','Total accounts',...AV,'Beginning pending',...BK],ks.map(n=>{const q=pm[n]||{b:new Set,k:BK.map(()=>new Set)},c=m[n];return[esc(n),q.b.size+q.k.reduce((a,s)=>a+s.size,0),...[0,1,2].map(i=>c?av(c,i):'–'),q.b.size,...q.k.map(s=>s.size||'–')]})));
- return s1+s2+s3}
+ const ks=fn(id,Object.keys(pm).sort());
+ return sec(id,'Beginning pending and today by time window',tb(['FTV / Tele CI','Total accounts','Beginning pending',...BK],ks.map(n=>{const q=pm[n];return[esc(n),q.b.size+q.k.reduce((a,s)=>a+s.size,0),q.b.size,...q.k.map(s=>s.size||'\u2013')]})))}
 const sa=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'–',mx=a=>a.length?Math.max(...a).toFixed(1):'–',
  md=a=>{if(!a.length)return'–';const s=[...a].sort((x,y)=>x-y),h=s.length>>1;return(s.length%2?s[h]:(s[h-1]+s[h])/2).toFixed(1)};
 function t3(){const nm=r=>[...new Set(r.a.filter(x=>x.n).map(x=>x.n))],q={},g=n=>q[n]=q[n]||{p:[],d:[],c:0};
  ap('t1',P).filter(r=>!isDone(r)).forEach(r=>nm(r).forEach(n=>g(n).p.push((REF-r.d)/36e5)));
  ap('t1',M).filter(isDone).forEach(r=>nm(r).forEach(n=>{const o=g(n);o.c++;if(isFinite(r.t))o.d.push(r.t)}));
- const ks=Object.keys(q).sort(),
+ const ks=fn('t1',Object.keys(q).sort()),
  s1=sec('t1','Running TAT per FTV / Tele CI (hours)',tb(['FTV / Tele CI','Pending','Avg running TAT','Median running TAT','Oldest pending','Done','Avg TAT','Median TAT'],ks.map(n=>[esc(n),q[n].p.length,sa(q[n].p),md(q[n].p),mx(q[n].p),q[n].c,sa(q[n].d),md(q[n].d)])));
  const L=[];ap('t2',P).filter(r=>!isDone(r)).forEach(r=>nm(r).forEach(n=>L.push([n,r.o||'–',r.dl||'(blank)',r.rg||'(blank)',ft(r.d),r.ad?ft(r.ad):(r.as||'–'),ft(REF),(REF-r.d)/36e5])));L.sort((a,b)=>b[7]-a[7]);
- return s1+sec('t2','Running TAT per pending account (longest first)',tb(['FTV / Tele CI','OAS Number','Dealer','Region','Date endorsed','Date assigned','Refreshed at','Running TAT'],L.filter(x=>!(F.t2||{}).n||F.t2.n.has(x[0])).map(x=>[esc(x[0]),esc(x[1]),esc(x[2]),esc(x[3]),x[4],x[5],x[6],hm(x[7])])))}
+ return s1+ciWin()+sec('t2','Running TAT per pending account (longest first)',tb(['FTV / Tele CI','OAS Number','Dealer','Region','Date endorsed','Date assigned','Refreshed at','Running TAT'],L.filter(x=>!(F.t2||{}).n||F.t2.n.has(x[0])).map(x=>[esc(x[0]),esc(x[1]),esc(x[2]),esc(x[3]),x[4],x[5],x[6],hm(x[7])])))}
 function render(){M=ROWS.filter(r=>r.d.getMonth()==MO&&r.d.getFullYear()==YR);P=M.filter(r=>r.s==SFV);D=[...new Set(M.map(r=>r.dk))].sort();
  const ys=[...new Set([...ROWS.map(r=>r.d.getFullYear()),YR])].sort();
  $('#app').innerHTML=`<header><h1>Pending Tracker</h1><select id=mo>${MN.map((m,i)=>`<option value=${i} ${i==MO?'selected':''}>${m}</option>`).join('')}</select><select id=yr>${ys.map(y=>`<option ${y==YR?'selected':''}>${y}</option>`).join('')}</select><span class=sp></span><span class=mu>Last refreshed ${ft(REF)}</span><button id=rf>Refresh</button><label class=btn>Load CSV<input id=csv type=file accept=.csv hidden></label></header>
@@ -112,6 +119,7 @@ document.addEventListener('click',e=>{const t=e.target;
  else if(t.dataset.all||t.dataset.none){const[id,k]=(t.dataset.all||t.dataset.none).split('|');F[id][k]=t.dataset.all?null:new Set();OPEN=id+k}
  else return;render()});
 document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('dd')){if(d.open)OPEN=d.dataset.k;else if(OPEN==d.dataset.k)OPEN=''}},true);
+document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||!t.dataset.s)return;const q=t.value.toLowerCase();t.closest('.pop').querySelectorAll('label').forEach(l=>{l.style.display=l.textContent.toLowerCase().includes(q)?'':'none'})});
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7pINkfnBlnWKMO2bFVWiIUygmvzQEobvC_tkl99MXwh5wlCvRYFderjeI47sUV3Q0OJ4D7kyYYU2K/pub?gid=1324055444&single=true&output=csv';
 async function loadData(){ERR='Loading data...';render();try{const r=await fetch(CSV_URL,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const rows=build(await r.text());if(!rows.length)throw new Error('the published tab has no DATE ENDORSED column; publish the DKAS ONBOARDING tab');ROWS=rows;ROWS.forEach((v,i)=>v.i=i);DEMO=false;ERR='';setMY()}catch(e){ERR='Could not load the Google Sheet ('+(e&&e.message||e)+'). Check the published link, or use Load CSV.'}REF=new Date();render()}
 if(location.search.includes('demo')){DEMO=true;ERR='';ROWS=demo();setMY();render()}else loadData();
