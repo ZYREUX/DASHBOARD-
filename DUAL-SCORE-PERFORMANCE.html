@@ -51,7 +51,7 @@ tr.tot td:first-child{background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v21 · Oct 21</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v23 · Nov</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
@@ -85,7 +85,8 @@ const SHEETS=[
  ['JULY 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1585232219&single=true&output=csv'],
  ['AUGUST 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1596944592&single=true&output=csv'],
  ['SEPTEMBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1059978116&single=true&output=csv'],
- ['OCTOBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=444592159&single=true&output=csv']
+ ['OCTOBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=444592159&single=true&output=csv'],
+ ['NOVEMBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1726913462&single=true&output=csv']
 ];
 const MAP_URL='';/* optional: published CSV link ng Dealer mapping (DEALER, REGION, UNIT) */
 const FIELDS=[['month','DATE ENDORSED (backup lang)',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['scheme','Product scheme',/product scheme|scheme/i],['tvsw','TVS WORK',/tvs\s*work/i],['tvsh','TVS HOUSE',/tvs\s*house/i],['tvsb','TVS BARANGAY',/tvs\s*(barangay|brgy)/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
@@ -124,19 +125,21 @@ function tatH(v){if(v==='')return null;let h;const hm=v.match(/(\d+(?:\.\d+)?)\s
 const zoneOf=v=>{const u=v.toLowerCase();return u.includes('green')?ZN[0]:u.includes('orange')?ZN[1]:u.includes('pink')?ZN[2]:u.includes('red')?ZN[3]:/not app|n\/a/.test(u)?ZN[4]:ZN[5]};
 const statOf=v=>{const u=v.toUpperCase();return/NOLA/.test(u)?ST[0]:/DECLIN|DELINE/.test(u)?ST[1]:/PASSED|^CDS$/.test(u)?ST[2]:/TSAO/.test(u)?ST[3]:/ENCOD/.test(u)?ST[4]:/SENT.*VERIF|PENDING/.test(u)?ST[5]:ST[6]};
 const actOf=v=>{const u=v.toUpperCase();return/DKAS/.test(u)?ACTS[0]:/TELE/.test(u)?ACTS[1]:/FIELD/.test(u)?ACTS[2]:ACTS[3]};
-function parseText(t,hi){const r=Papa.parse(t,{skipEmptyLines:true}).data;const h=r[hi]||[];const seen={};
+function parseText(t,hi){const r=Papa.parse(t,{skipEmptyLines:true,delimiter:','}).data;const h=r[hi]||[];const seen={};
  const head=h.map((x,i)=>{x=(x||'').trim()||'col'+(i+1);seen[x]=(seen[x]||0)+1;return seen[x]>1?x+'_'+seen[x]:x});
  return{head,rows:r.slice(hi+1).map(a=>{const o={};head.forEach((k,i)=>o[k]=(a[i]??'').toString().trim());return o})}}
 let DMAP=new Map(),MAPERR='';
 async function loadMap(){DMAP=new Map();MAPERR='';const u=$('#mapurl').value.trim();if(!u)return;try{const p=parseText(await(await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'})).text(),0);const c=re=>p.head.find(h=>re.test(h));const d=c(/dealer/i),r=c(/region/i),n=c(/unit|\bbu\b/i);p.rows.forEach(x=>{if(d&&x[d])DMAP.set(x[d].toUpperCase(),{region:r?x[r]:'',unit:n?x[n]:''})})}catch(e){MAPERR=' Hindi ma-load ang dealer mapping ('+e.message+').'}}
 function tagParts(tag){if(!tag)return null;let m=tag.match(/(\d{4})[-\/](\d{1,2})/);if(m)return{y:+m[1],m:+m[2]};const w=(tag.toUpperCase().match(/[A-Z]{3,}/)||[''])[0],i=MN.findIndex(n=>w&&n.startsWith(w.slice(0,3)));if(i<0)return null;const y=tag.match(/\b(20\d\d)\b/);return{y:y?+y[1]:DEFAULT_YEAR,m:i+1}}
 async function loadAll(){$('#demo').style.display='none';const hi=Math.max(0,(+$('#hdr').value||1)-1),msg=$('#msg');msg.textContent='Loading…';RAW=[];HEAD=[];SRC=[];SRCINFO=[];
- try{for(const line of $('#urls').value.split('\n').map(x=>x.trim()).filter(Boolean)){const mm=line.match(/^(.*?)[\s|:\-]*(https?:\/\/\S+)$/);if(!mm)continue;const tag=mm[1].trim(),t=tagParts(tag),u=mm[2],l=tag||'link';
-   try{const res=await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status+' (hindi ma-open ang link)');
-    const tx=await res.text();if(/^\s*<(!doctype|html)/i.test(tx))throw new Error('HTML ang isinagot, hindi CSV (hindi published ang tab na ito)');
-    const p=parseText(tx,hi);let n=0;p.rows.forEach(r=>{if(Object.values(r).filter(x=>x!=='').length<3)return;if(t){r.__mo=t.m;r.__yr=t.y}RAW.push(r);n++});
-    if(!n)throw new Error('0 rows ang nabasa (blangko ang tab, o iba ang pwesto ng header row)');SRC.push(n);SRCINFO.push({l,n});HEAD=uniq(HEAD.concat(p.head))}
-   catch(e){SRCINFO.push({l,err:e.message})}}
+ try{const lines=$('#urls').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{const mm=line.match(/^(.*?)[\s|:\-]*(https?:\/\/\S+)$/);if(!mm)return null;const tag=mm[1].trim();return{t:tagParts(tag),u:mm[2],l:tag||'link'}}).filter(Boolean);
+  const results=new Array(lines.length);
+  const one=async it=>{let last;for(let k=0;k<3;k++){try{const res=await fetch(it.u+(it.u.includes('?')?'&':'?')+'_='+Date.now()+k,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status+' (hindi ma-open ang link)');
+     const tx=await res.text();if(/^\s*<(!doctype|html)/i.test(tx))throw new Error('HTML ang isinagot, hindi CSV (hindi published ang tab na ito)');
+     const p=parseText(tx,hi),rows=[];p.rows.forEach(r=>{if(Object.values(r).filter(x=>x!=='').length<3)return;if(it.t){r.__mo=it.t.m;r.__yr=it.t.y}rows.push(r)});
+     if(!rows.length)throw new Error('0 rows ang nabasa (blangko ang tab, o iba ang pwesto ng header row)');return{rows,head:p.head}}catch(e){last=e;if(k<2)await new Promise(r=>setTimeout(r,1200*(k+1)))}}throw last};
+  let ix=0;await Promise.all([0,1,2].map(async()=>{while(ix<lines.length){const i=ix++;try{results[i]=await one(lines[i])}catch(e){results[i]={err:e.message}}}}));
+  lines.forEach((it,i)=>{const r=results[i];if(r.err){SRCINFO.push({l:it.l,err:r.err});return}r.rows.forEach(x=>RAW.push(x));SRC.push(r.rows.length);SRCINFO.push({l:it.l,n:r.rows.length});HEAD=uniq(HEAD.concat(r.head))});
   for(const f of $('#files').files){const p=parseText(await f.text(),hi);p.rows.forEach(r=>RAW.push(r));SRC.push(p.rows.length);HEAD=uniq(HEAD.concat(p.head))}
  }catch(e){msg.textContent='Hindi ma-load ang link ('+e.message+'). I-check kung published as CSV, o gamitin ang file upload.';return}
  if(!RAW.length){msg.textContent='Walang nabasang rows. I-check ang link o ang Header row #.';return}
@@ -205,7 +208,7 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
  const U=ROWS.filter(uf),A=U.filter(r=>!F.m||r.mo===F.m),Z=A.filter(zf),zl=F.zone==='ALL'?'All zones':F.zone;
  const months=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo).concat(ROWS.filter(r=>r.rel&&r.ry===F.y).map(r=>r.rm))).sort((a,b)=>a-b),years=uniq(ROWS.map(r=>r.yr)).sort((a,b)=>b-a);
  const opt=(vals,cur,lab)=>vals.map(v=>`<option value="${esc(v)}" ${String(v)===String(cur)?'selected':''}>${esc(lab?lab(v):v)}</option>`).join('');
- const lst=SRCINFO.length?`<div class="sub" style="margin:-8px 0 14px;line-height:1.8">${SRCINFO.map(x=>x.err?`<span style="color:#f27d7a">✗ ${esc(x.l)}: ${esc(x.err)}</span>`:`<span>✓ ${esc(x.l)}: ${x.n.toLocaleString()}</span>`).join(' · ')}</div>`:'';const emo=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo)).sort((a,b)=>a-b),found=emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')||'wala';const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link. Ang nabasa lang para sa ${F.y}: ${found}.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
+ const lst=SRCINFO.length?`<div class="sub" style="margin:-8px 0 14px;line-height:1.8">${SRCINFO.map(x=>x.err?`<span style="color:#f27d7a">✗ ${esc(x.l)}: ${esc(x.err)}</span>`:`<span>✓ ${esc(x.l)}: ${x.n.toLocaleString()}</span>`).join(' · ')}${SRCINFO.some(x=>x.err)?' <button onclick="loadAll()" style="margin-left:10px;padding:4px 12px;font-size:.9rem">I-load ulit</button>':''}</div>`:'';const emo=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo)).sort((a,b)=>a-b),found=emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')||'wala';const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link. Ang nabasa lang para sa ${F.y}: ${found}.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
  const noGeo=ROWS.every(r=>r.region==='(BLANK)');
  let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(emo.includes(m)?'':' (walang data)'))}</select></label>
  <label>UNIT<select data-f="unit">${opt(['ALL'].concat(uniq(ROWS.map(r=>r.unit)).filter(x=>x!=='(blank)').sort(nat)),F.unit,v=>v==='ALL'?'ALL UNITS':v)}</select></label>
