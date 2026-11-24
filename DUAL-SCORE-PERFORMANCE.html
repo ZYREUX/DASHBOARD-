@@ -51,7 +51,7 @@ tr.tot td:first-child{background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v23 · Nov</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v24 · Nov</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
@@ -89,7 +89,7 @@ const SHEETS=[
  ['NOVEMBER 2026','https://docs.google.com/spreadsheets/d/e/2PACX-1vTQ9Gwa7Ypls9iDoqY3yfB6alf2UtwlUkjepoS7oEoKkUnNSY3xzfsiR1HLz6QD72iz67u-KKutjBzy/pub?gid=1726913462&single=true&output=csv']
 ];
 const MAP_URL='';/* optional: published CSV link ng Dealer mapping (DEALER, REGION, UNIT) */
-const FIELDS=[['month','DATE ENDORSED (backup lang)',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['scheme','Product scheme',/product scheme|scheme/i],['tvsw','TVS WORK',/tvs\s*work/i],['tvsh','TVS HOUSE',/tvs\s*house/i],['tvsb','TVS BARANGAY',/tvs\s*(barangay|brgy)/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
+const FIELDS=[['month','DATE ENDORSED (backup lang)',/date endorsed|endorsed date|date of endorsement/i],['unit','Unit (BU)',/unit|\bbu\b|business/i],['region','Region',/region/i],['dealer','Dealer',/dealer/i],['dkas','DKAS name (Verified by)',/dkas|verified by/i],['dual','DUAL zone',/dual|zone/i],['status','Status',/status/i],['act','Activity',/activity/i],['reason','Reason for activity',/reason/i],['tat','TAT (working hrs)',/tat working/i],['scheme','Product scheme',/product scheme|scheme/i],['sub','SUB CLASSIFICATION (disapproval)',/sub classification|disapproval/i],['tvsw','TVS WORK',/tvs\s*work/i],['tvsh','TVS HOUSE',/tvs\s*house/i],['tvsb','TVS BARANGAY',/tvs\s*(barangay|brgy)/i],['rel','Release (YES/NO)',/^released?\?$|^release(d)?$|release.*\?/i],['relm','Released month',/released? month/i],['amt','Release amount',/amount|amt/i],['far','FAR1 flag',/far/i]];
 const MN=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 const ST=['NOLA','DECLINE','CDS','TSAO','ENCODED','PENDING','OTHERS'];
 const ZN=['Green Zone','Orange Zone','Pink Zone','Red Zone','Not Applicable','No Score'];
@@ -151,7 +151,7 @@ function buildMap(){const w=$('#map');w.innerHTML='';FIELDS.forEach(([k,l,re])=>
 function apply(){document.querySelectorAll('#map select').forEach(s=>MAP[s.dataset.k]=s.value);
  ROWS=RAW.map(r=>{const v=k=>{const x=MAP[k]?r[MAP[k]]??'':'';return /^#/.test(String(x).trim())?'':x};const dm=DMAP.get(v('dealer').toUpperCase())||{};const a=parseFloat(v('amt').replace(/[,₱]/g,''))||0;
   return{rawd:v('month'),yr:r.__yr||ynum(v('month')),mo:r.__mo||mnum(v('month')),unit:v('unit')||dm.unit||'(blank)',region:(v('region')||dm.region||'(blank)').toUpperCase().replace(/\s+/g,' ').trim().replace(/^(REGION 2)\s*-\s*/,'$1- '),dealer:v('dealer')||'(blank)',dkas:v('dkas')||'(blank)',zone:zoneOf(v('dual')),st:statOf(v('status')),act:actOf(v('act')),
-   reason:v('reason').toUpperCase(),tat:tatH(v('tat')),sch:v('scheme')||'(blank)',tw:/^done$/i.test(v('tvsw').trim()),th:/^done$/i.test(v('tvsh').trim()),tb:/^done$/i.test(v('tvsb').trim()),rm:(()=>{const q=v('relm'),i=MN.findIndex(x=>q.toUpperCase().startsWith(x.slice(0,3)));return i>=0?i+1:mnum(q)})(),amt:a,rel:MAP.rel?/^(yes|y|true|1)$/i.test(v('rel').trim()):a>0,far:MAP.far?/^(yes|y|true|1)$/i.test(v('far').trim()):false}});
+   reason:v('reason').toUpperCase(),tat:tatH(v('tat')),sch:v('scheme')||'(blank)',sub:String(v('sub')).trim()||'(blank)',tw:/^done$/i.test(v('tvsw').trim()),th:/^done$/i.test(v('tvsh').trim()),tb:/^done$/i.test(v('tvsb').trim()),rm:(()=>{const q=v('relm'),i=MN.findIndex(x=>q.toUpperCase().startsWith(x.slice(0,3)));return i>=0?i+1:mnum(q)})(),amt:a,rel:MAP.rel?/^(yes|y|true|1)$/i.test(v('rel').trim()):a>0,far:MAP.far?/^(yes|y|true|1)$/i.test(v('far').trim()):false}});
  const allR=ROWS;ROWS=allR.filter(r=>r.mo>0);DROP=allR.length-ROWS.length;DROPS=uniq(allR.filter(r=>r.mo<=0).map(r=>r.rawd)).slice(0,3);const ky=ROWS.map(r=>r.yr).filter(Boolean);ROWS.forEach(r=>{if(!r.yr)r.yr=ky.length?mx(ky):new Date().getFullYear();if(!r.rm)r.rm=r.mo;r.ry=r.yr+(r.rm<r.mo?1:0)});
  if(!ROWS.length){$('#msg').textContent='Walang mabasang month. Piliin ang tamang Endorsement date column.';return}
  if(!ROWS.some(r=>r.yr===F.y))F.y=mx(ROWS.map(r=>r.yr));
@@ -184,7 +184,7 @@ function ch(id,type,labels,sets,horiz,x){const el=document.getElementById(id);if
  options:{indexAxis:horiz?'y':'x',responsive:true,maintainAspectRatio:false,interaction:{mode:dn?'nearest':'index',intersect:dn},scales:dn?{}:{x:{ticks:{color:'#dcebe3'},grid:{color:'#243b31'}},y:{beginAtZero:true,ticks:{color:'#dcebe3'},grid:{color:'#243b31'}}},
  plugins:{legend:{display:dn||sets.length>1,position:dn?'right':'top',labels:{color:'#dcebe3',font:{size:15}}},
  tooltip:{padding:12,titleFont:{size:16},bodyFont:{size:15},callbacks:{label:c=>dn?`${c.label}: ${fn(c.parsed)} (${pct(c.parsed,tot)})`:(x.tip?x.tip(c):`${c.dataset.label}: ${c.parsed[ax]==null?'–':c.parsed[ax].toLocaleString()}`)}}}}})}catch(e){el.parentNode.innerHTML='<div class="msg">Hindi ma-draw ang graph: '+esc(e.message)+'</div>'}}
-const SEL={dl:new Set(),dk:new Set(),rg:new Set(),rr:new Set(),nr:new Set(),fr:new Set(),fd:new Set(),fs:new Set(),ar:new Set(),ac:new Set(),ad:new Set()};let MS={};
+const SEL={dl:new Set(),dk:new Set(),rg:new Set(),rr:new Set(),nr:new Set(),fr:new Set(),fd:new Set(),fs:new Set(),ar:new Set(),ac:new Set(),ad:new Set(),dr:new Set(),dc:new Set(),dd:new Set()};let MS={};
 function msList(m){const base=m.pre?m.pre(m.rows):m.rows,g=grp(base,m.kf);let ks=[...g.keys()];
  ks=m.order?m.order.filter(k=>g.has(k)).concat(ks.filter(k=>!m.order.includes(k)).sort(blankLast)):ks.sort((a,b)=>isB(a)-isB(b)||g.get(b).length-g.get(a).length||nat(a,b));return{base,ks}}
 function mselBox(key,sn,rows,kf,label,draw,o){o=o||{};MS[key]={sn,rows,kf,draw,pre:o.pre,order:o.order,dep:o.dep,list:[]};
@@ -268,6 +268,12 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
    return sc(tbl(['DEALER'].concat(WIN.flatMap(w=>['AVE '+w.N+' MOS RELEASES','AVE '+w.N+' MOS FAR 1',w.N+' MOS FAR 1 %'])),ks.map(k=>line(k,g.get(k)||[])),line('TOTAL',rs)))};
   const winNote=`<div class="sub" style="margin-top:8px">${WIN.map(w=>w.N+' MOS = '+(w.ms.length?MN[w.ms[0]-1].slice(0,3)+'–'+MN[w.ms[w.ms.length-1]-1].slice(0,3)+' ('+w.ms.length+' buwan)':'wala pang data')).join(' · ')}. Average kada buwan = total na releases (o FAR 1) ÷ bilang ng buwan. Hindi kasama ang on-going na buwan. FAR 1 % = FAR 1 ÷ releases sa buong window.</div>`;
   h+=pn('AVERAGE FAR 1 PER DEALER (3 / 6 / 9 / 12 MONTHS)',mselBox('ar','ar',GR,r=>r.region,'Select Region',null,{order:REG})+mselBox('ac','ac',GR,r=>r.sch,'Select Product Scheme',null)+mselBox('ad','ad',GR,r=>r.dealer,'Select dealers',avgTbl,{dep:['ar','ac'],order:dnames,pre:pre2('ar','ac')})+winNote,zl+' · average per buwan, base sa released month · sumusunod sa Unit at Zone filter');
+  const DR=U.filter(zf),dnamesD=uniq(DR.map(r=>r.dealer)).sort(blankLast);
+  const declTbl=(rs,o)=>{const dec=rs.filter(r=>r.st==='DECLINE'),g=grp(dec,r=>r.sub),ks=[...g.keys()].sort((a,b)=>isB(a)-isB(b)||g.get(b).length-g.get(a).length||nat(a,b)),mT=MN.map((_,i)=>rs.filter(r=>r.mo===i+1).length);
+   const line=(nm,x)=>[esc(nm),fn(x.length),pct(x.length,rs.length)].concat(MN.flatMap((_,i)=>{const c=x.filter(r=>r.mo===i+1).length;return c&&mT[i]?[fn(c),pct(c,mT[i])]:['','']}));
+   const tr=['TOTAL DECLINE',fn(dec.length),pct(dec.length,rs.length)].concat(MN.flatMap((_,i)=>{const c=dec.filter(r=>r.mo===i+1).length;return mT[i]?[fn(c),pct(c,mT[i])]:['','']}));
+   return sc(tbl(['SUB CLASSIFICATION','TOTAL','%'].concat(MN.flatMap(m=>[m.slice(0,3),'%'])),ks.map(k=>line(k,g.get(k))),tr))};
+  h+=pn('DECLINE REASONS PER MONTH',mselBox('dr','dr',DR,r=>r.region,'Select Region',null,{order:REG})+mselBox('dc','dc',DR,r=>r.sch,'Select Product Scheme',null)+mselBox('dd','dd',DR,r=>r.dealer,'Select dealers',declTbl,{dep:['dr','dc'],order:dnamesD,pre:pre2('dr','dc')}),zl+' · DECLINED APPLICATION lang · % over overall endorsement ng lahat ng status · sumusunod sa Unit at Zone filter');
   const nolaReg=(rs,o)=>{const{g,ks}=keys(rs,r=>r.region,o||REG);const line=(nm,x)=>[esc(nm),fn(n(x))].concat(MN.flatMap((_,i)=>{const mm=x.filter(r=>r.mo===i+1),c=n(mm);return[c?fn(c):'',mm.length?pct(c,mm.length):'']}));
    return sc(tbl(['REGION','TOTAL NOLA'].concat(MN.flatMap(m=>[m.slice(0,3)+' NOLA','%'])),ks.map(k=>line(k,g.get(k)||[])),line('TOTAL',rs)))};
   h+=pn('NOLA PER REGION PER MONTH',mselBox('nr','nr',G,r=>r.region,'Select Region',nolaReg,{order:REG}),'Green Zone · no. of NOLA at % over endorsement ng Region sa buwan');
