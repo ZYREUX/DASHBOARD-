@@ -23,6 +23,8 @@ button{background:var(--ac);color:#05170e;border:0;border-radius:6px;padding:9px
 .map label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mu);gap:3px}
 .filters{display:flex;flex-wrap:wrap;gap:22px;align-items:center;background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:12px 18px;margin-bottom:16px}
 .filters label{font-weight:600;color:var(--mu)}.filters select{font-size:1.1rem;font-weight:600;color:var(--ac);margin-left:8px;min-width:150px}
+.fbar{position:sticky;top:0;z-index:30;box-shadow:0 6px 14px rgba(0,0,0,.55)}
+@media(max-width:700px){.fbar{gap:8px 12px;padding:8px 10px}.fbar select{min-width:110px;font-size:1rem}}
 .tabs{display:flex;gap:4px;border-bottom:2px solid var(--ln);margin-bottom:18px;flex-wrap:wrap}
 .tab{padding:12px 22px;cursor:pointer;color:var(--mu);font-size:1.1rem;font-weight:600;border-bottom:4px solid transparent}
 .tab.on{color:var(--ac);border-color:var(--ac)}
@@ -51,7 +53,7 @@ tr.tot td:first-child{background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v24 · Nov</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v25 · Nov</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
@@ -210,7 +212,7 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
  const opt=(vals,cur,lab)=>vals.map(v=>`<option value="${esc(v)}" ${String(v)===String(cur)?'selected':''}>${esc(lab?lab(v):v)}</option>`).join('');
  const lst=SRCINFO.length?`<div class="sub" style="margin:-8px 0 14px;line-height:1.8">${SRCINFO.map(x=>x.err?`<span style="color:#f27d7a">✗ ${esc(x.l)}: ${esc(x.err)}</span>`:`<span>✓ ${esc(x.l)}: ${x.n.toLocaleString()}</span>`).join(' · ')}${SRCINFO.some(x=>x.err)?' <button onclick="loadAll()" style="margin-left:10px;padding:4px 12px;font-size:.9rem">I-load ulit</button>':''}</div>`:'';const emo=uniq(ROWS.filter(r=>r.yr===F.y).map(r=>r.mo)).sort((a,b)=>a-b),found=emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')||'wala';const mn=F.m?MN[F.m-1]+' '+F.y:'buong '+F.y;const note=!A.length?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang rows para sa ${mn} sa nabasang data (Unit: ${F.unit}). Kung may data ka na niyan sa sheet, wala ito sa mga link na naka-load. I-check kung published ang tab nito at nasa Load data panel ang link. Ang nabasa lang para sa ${F.y}: ${found}.</div>`:(!Z.length&&F.zone!=='ALL'?`<div class="msg" style="font-size:1.05rem;margin-bottom:12px">May ${fn(A.length)} accounts sa ${mn}, pero walang ${F.zone} sa kanila (baka blangko pa ang DUAL). Palitan ang ZONE (details) sa taas ng ALL ZONES para makita ang lahat.</div>`:'');
  const noGeo=ROWS.every(r=>r.region==='(BLANK)');
- let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(emo.includes(m)?'':' (walang data)'))}</select></label>
+ let h=(noGeo?'<div class="msg" style="font-size:1.05rem;margin-bottom:12px">Walang Region at Unit sa CSV. Mag-add ng Dealer mapping (DEALER, REGION, UNIT) sa Load data panel para lumabas ang per-region at per-unit breakdown.</div>':'')+`<div class="filters fbar"><label>YEAR<select data-f="y">${opt(years,F.y)}</select></label><label>MONTH<select data-f="m"><option value="0" ${F.m?'':'selected'}>ALL MONTHS</option>${opt([1,2,3,4,5,6,7,8,9,10,11,12],F.m,m=>MN[m-1]+(emo.includes(m)?'':' (walang data)'))}</select></label>
  <label>UNIT<select data-f="unit">${opt(['ALL'].concat(uniq(ROWS.map(r=>r.unit)).filter(x=>x!=='(blank)').sort(nat)),F.unit,v=>v==='ALL'?'ALL UNITS':v)}</select></label>
  <label>ZONE (details)<select data-f="zone">${opt(['ALL'].concat(ZN),F.zone,v=>v==='ALL'?'ALL ZONES':v)}</select></label></div>
  <div class="sub" style="margin:-6px 0 14px">Data: ${RAW.length.toLocaleString()} rows · ${F.y}: ${emo.map(m=>MN[m-1].slice(0,3)+' '+ROWS.filter(r=>r.yr===F.y&&r.mo===m).length).join(' · ')}${SRC.length>1?` · ${SRC.length} links (${SRC.map(n=>n.toLocaleString()).join(' + ')} rows)`:''}${(()=>{const n=ROWS.filter(r=>r.yr===F.y&&r.unit==='(blank)').length;return n?` · ${n.toLocaleString()} rows walang Unit`:''})()}${DROP?` · ${DROP} rows walang nabasang date (halimbawa: ${DROPS.map(x=>'"'+esc(x)+'"').join(', ')})`:''}</div>${lst}${note}
