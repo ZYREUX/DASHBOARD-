@@ -53,7 +53,7 @@ tr.tot td:first-child{background:var(--pn2)}
 .msg{color:var(--wn);margin-top:10px}
 .empty{padding:60px;text-align:center;color:var(--mu);font-size:1.2rem}
 </style></head><body>
-<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v25 · Nov</div></header>
+<header><h1>DUAL SCORE <span>PERFORMANCE</span></h1><div class="sub">v26 · Nov</div></header>
 <main>
 <details id="src" open><summary>Load data</summary><div class="box">
 <div class="sub">Isang link kada linya, may buwan sa unahan: <b>JANUARY 2026 | link</b>. Ang buong laman ng tab ang binibilang sa buwan na iyon. Pwede ring mag-upload ng CSV file (DATE ENDORSED ang gagamitin).</div>
@@ -186,7 +186,7 @@ function ch(id,type,labels,sets,horiz,x){const el=document.getElementById(id);if
  options:{indexAxis:horiz?'y':'x',responsive:true,maintainAspectRatio:false,interaction:{mode:dn?'nearest':'index',intersect:dn},scales:dn?{}:{x:{ticks:{color:'#dcebe3'},grid:{color:'#243b31'}},y:{beginAtZero:true,ticks:{color:'#dcebe3'},grid:{color:'#243b31'}}},
  plugins:{legend:{display:dn||sets.length>1,position:dn?'right':'top',labels:{color:'#dcebe3',font:{size:15}}},
  tooltip:{padding:12,titleFont:{size:16},bodyFont:{size:15},callbacks:{label:c=>dn?`${c.label}: ${fn(c.parsed)} (${pct(c.parsed,tot)})`:(x.tip?x.tip(c):`${c.dataset.label}: ${c.parsed[ax]==null?'–':c.parsed[ax].toLocaleString()}`)}}}}})}catch(e){el.parentNode.innerHTML='<div class="msg">Hindi ma-draw ang graph: '+esc(e.message)+'</div>'}}
-const SEL={dl:new Set(),dk:new Set(),rg:new Set(),rr:new Set(),nr:new Set(),fr:new Set(),fd:new Set(),fs:new Set(),ar:new Set(),ac:new Set(),ad:new Set(),dr:new Set(),dc:new Set(),dd:new Set()};let MS={};
+const SEL={dl:new Set(),dk:new Set(),rg:new Set(),rr:new Set(),nr:new Set(),fr:new Set(),fd:new Set(),fs:new Set(),ar:new Set(),ac:new Set(),ad:new Set(),dr:new Set(),dc:new Set(),dd:new Set(),sr:new Set(['NOLA'])};let MS={};
 function msList(m){const base=m.pre?m.pre(m.rows):m.rows,g=grp(base,m.kf);let ks=[...g.keys()];
  ks=m.order?m.order.filter(k=>g.has(k)).concat(ks.filter(k=>!m.order.includes(k)).sort(blankLast)):ks.sort((a,b)=>isB(a)-isB(b)||g.get(b).length-g.get(a).length||nat(a,b));return{base,ks}}
 function mselBox(key,sn,rows,kf,label,draw,o){o=o||{};MS[key]={sn,rows,kf,draw,pre:o.pre,order:o.order,dep:o.dep,list:[]};
@@ -252,7 +252,12 @@ function renderInner(){if(!ROWS.length)return;MS={};Object.values(CH).forEach(c=
   if(Q.length){queue.push(()=>ch('c2','bar',Q.map(x=>'Q'+x.q),[{l:'Avg endorsement / month',d:Q.map(x=>+x.e.toFixed(1)),c:'#5aa9e6'},{l:'Avg NOLA / month',d:Q.map(x=>+x.nn.toFixed(1)),c:'#52d890'},{l:'Avg releases / month',d:Q.map(x=>+x.r.toFixed(1)),c:'#f4bf63'}],false,{tip:c=>{const x=Q[c.dataIndex];return`${c.dataset.label}: ${fn(c.parsed.y)} (${x.k} buwan sa Q${x.q})`}}));
    h+=pn('AVERAGE PER QUARTER',cv('c2')+sc(tbl(['QUARTER','MONTHS COUNTED','AVE ENDORSEMENT / MONTH','AVE NOLA / MONTH','NOLA % (OVER ENDO)','AVE RELEASES / MONTH','RELEASES % (OVER NOLA)'],Q.map(x=>['Q'+x.q,x.k,fn(x.e),fn(x.nn),pct(x.nn,x.e),fn(x.r),pct(x.r,x.nn)])))+(pm&&months.includes(pm)?`<div class="sub" style="margin-top:8px">${MN[pm-1]} ay on-going pa, kaya hindi kasama sa average.</div>`:''),zl+' · average ng buong buwan')}
   const gm=m=>G.filter(r=>r.mo===m);
+  const ALLS=U.filter(zf);
+  const stReg=(rs,all)=>{const gN=grp(rs,r=>r.region),gD=grp(all,r=>r.region),ks=REG.concat([...gD.keys()].filter(k=>!REG.includes(k)).sort(blankLast)),cnt=(x,m)=>x.filter(r=>r.mo===m).length;
+   const line=(nm,N,D)=>[esc(nm),fn(N.length),pct(N.length,D.length)].concat(MN.flatMap((_,i)=>{const d=cnt(D,i+1);return d?[fn(cnt(N,i+1)),pct(cnt(N,i+1),d)]:['','']}));
+   return sc(tbl(['REGION','TOTAL','%'].concat(MN.flatMap(m=>[m.slice(0,3),'%'])),ks.map(k=>line(k,gN.get(k)||[],gD.get(k)||[])),line('TOTAL',rs,all)))};
   h+=pn('GREEN ZONE PERFORMANCE',sc(tbl(['MONTH'].concat(ST.flatMap(s=>[s,'%']),['TOTAL']),MN.map((nm,i)=>{const x=gm(i+1);return[nm].concat(ST.flatMap(s=>{const c=x.filter(r=>r.st===s).length;return[fn(c),pct(c,x.length)]}),[fn(x.length)])}))),'no. of accts and % by month')
+  +pn('STATUS PER REGION PER MONTH',mselBox('sr','sr',ALLS,r=>r.st,'Select Status',rs=>stReg(rs,ALLS),{order:ST}),zl+' · napiling status ÷ kabuuang endorsement ng Region sa buwan · sumusunod sa Unit at Zone filter')
   +pn('GREEN ZONE TAT PERFORMANCE',sc(tbl(['MONTH','WITHIN '+T+' HOURS','%','BEYOND '+T+' HOURS','%'],MN.map((nm,i)=>{const s=stat(gm(i+1),T);return[nm,fn(s.wi),pct(s.wi,s.n),fn(s.be),pct(s.be,s.n)]}))),'by month')
   +pn('GREEN ZONE RELEASES',sc(tbl(['MONTH','TOTAL GREEN ZONE ENDORSEMENT','TOTAL NOLA','NOLA % (OVER ENDO)','RELEASES (YES)','RELEASES % (OVER NOLA)','AMOUNT','FAR 1','FAR 1 %'],MN.map((nm,i)=>{const x=gm(i+1),R=RR.filter(r=>r.zone==='Green Zone'&&r.rm===i+1),f=R.filter(r=>r.far).length,N=n(x),hf=ROWS.some(r=>r.far);return[nm,fn(x.length),fn(N),pct(N,x.length),fn(R.length),pct(R.length,N),money(R.reduce((p,r)=>p+r.amt,0)),hf?fn(f):'–',hf?pct(f,R.length):'–']}))),'releases counted by RELEASED MONTH');
   const GR=RR.filter(zf),dnames=uniq(GR.map(r=>r.dealer)).sort(blankLast),hasFar=ROWS.some(r=>r.far);
